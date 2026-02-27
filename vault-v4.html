@@ -1,0 +1,2228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VAULT</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VAULT">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#03060f">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;800&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#2563eb; --red:#dc2626; --green:#16a34a; --yellow:#ca8a04;
+  --bg:#03060f; --panel:#0d1526; --border:#1a2d4a;
+  --cyan:#00d4ff; --gold:#ffd700; --purple:#a855f7;
+  --neon-green:#39ff14; --hot-pink:#ff006e;
+}
+*{box-sizing:border-box;touch-action:none;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+button,a{touch-action:auto;cursor:pointer}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:'Exo 2',sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* ── CANVAS BG ── */
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* ── SCREENS ── */
+.screen{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;transition:opacity .4s, transform .4s}
+.screen.hidden{opacity:0;pointer-events:none;transform:scale(0.96)}
+
+/* ══ HOME SCREEN ══ */
+#home-screen{gap:0;z-index:15}
+.home-logo-wrap{position:relative;margin-bottom:10px}
+.home-logo{font-family:'Orbitron',monospace;font-size:clamp(3.5rem,18vw,6rem);font-weight:900;letter-spacing:0.15em;line-height:1;
+  background:linear-gradient(135deg,#00d4ff 0%,#fff 40%,#ffd700 70%,#ff006e 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 30px rgba(0,212,255,0.6));
+  animation:logoFloat 3s ease-in-out infinite}
+@keyframes logoFloat{0%,100%{transform:translateY(0) rotate(-0.5deg)}50%{transform:translateY(-8px) rotate(0.5deg)}}
+.logo-sub{font-family:'Orbitron',monospace;font-size:0.65rem;letter-spacing:0.5em;color:var(--cyan);text-align:center;opacity:0.8;margin-top:-8px;margin-bottom:30px}
+.home-orb-preview{display:flex;gap:12px;justify-content:center;margin-bottom:40px}
+.preview-orb{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;border:3px solid rgba(255,255,255,0.2);animation:orbPulse 2s ease-in-out infinite}
+.preview-orb:nth-child(1){background:#2563eb;animation-delay:0s}
+.preview-orb:nth-child(2){background:#dc2626;animation-delay:.3s}
+.preview-orb:nth-child(3){background:#16a34a;animation-delay:.6s}
+.preview-orb:nth-child(4){background:#ca8a04;animation-delay:.9s}
+.preview-orb:nth-child(5){background:#a855f7;animation-delay:1.2s}
+@keyframes orbPulse{0%,100%{transform:scale(1) translateY(0);box-shadow:0 0 15px rgba(255,255,255,0.15)}50%{transform:scale(1.12) translateY(-4px);box-shadow:0 0 25px rgba(255,255,255,0.35)}}
+.home-stats{display:flex;gap:20px;margin-bottom:35px}
+.stat-chip{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:8px 18px;text-align:center}
+.stat-chip .num{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;color:var(--gold)}
+.stat-chip .lbl{font-size:0.6rem;letter-spacing:0.1em;color:rgba(255,255,255,0.5);text-transform:uppercase}
+.play-btn{position:relative;overflow:hidden;background:linear-gradient(135deg,#00d4ff,#0080ff);border:none;color:#000;font-family:'Orbitron',monospace;font-weight:900;font-size:1.2rem;letter-spacing:0.15em;padding:18px 60px;border-radius:50px;cursor:pointer;box-shadow:0 0 40px rgba(0,212,255,0.5);transition:transform .2s,box-shadow .2s;margin-bottom:15px;touch-action:auto;min-height:56px}
+.play-btn:hover{transform:scale(1.05);box-shadow:0 0 60px rgba(0,212,255,0.8)}
+.play-btn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(transparent,rgba(255,255,255,0.3),transparent 30%);animation:spinShine 3s linear infinite}
+@keyframes spinShine{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.play-btn span{position:relative;z-index:1}
+.secondary-btns{display:flex;gap:12px}
+.sec-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#fff;font-family:'Exo 2',sans-serif;font-weight:600;font-size:0.85rem;padding:14px 26px;border-radius:25px;cursor:pointer;transition:.2s;touch-action:auto;-webkit-tap-highlight-color:rgba(255,255,255,0.1);min-height:48px}
+.sec-btn:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.3)}
+.version-tag{position:absolute;bottom:20px;font-size:0.6rem;letter-spacing:0.2em;opacity:0.3;color:#fff}
+
+/* ══ MAP SCREEN ══ */
+#map-screen{justify-content:flex-start;padding:0;overflow:hidden}
+.map-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:20px 20px 10px;background:linear-gradient(to bottom,rgba(3,6,15,0.95),transparent);position:relative;z-index:2}
+.map-title{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;letter-spacing:0.2em;color:var(--cyan)}
+.map-back{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:1rem;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.map-back:hover{background:rgba(255,255,255,0.15)}
+.map-scroll{width:100%;flex:1;overflow-y:auto;padding:10px 20px 100px;scrollbar-width:none}
+.map-scroll::-webkit-scrollbar{display:none}
+.world-label{font-family:'Orbitron',monospace;font-size:0.7rem;letter-spacing:0.3em;color:var(--gold);opacity:0.8;text-align:center;margin:20px 0 15px;position:relative}
+.world-label::before,.world-label::after{content:'';position:absolute;top:50%;width:25%;height:1px;background:linear-gradient(to right,transparent,var(--gold))}
+.world-label::before{left:0}.world-label::after{right:0;background:linear-gradient(to left,transparent,var(--gold))}
+.level-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;max-width:400px;margin:0 auto}
+.level-node{position:relative;aspect-ratio:1;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform .2s,box-shadow .2s;overflow:hidden}
+.level-node.locked{background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.08);cursor:not-allowed}
+.level-node.completed{background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(16,163,74,0.3));border:2px solid rgba(34,197,94,0.5)}
+.level-node.current{background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,128,255,0.3));border:2px solid var(--cyan);box-shadow:0 0 25px rgba(0,212,255,0.4);animation:nodePulse 2s infinite}
+.level-node.available{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:2px solid rgba(255,255,255,0.2)}
+@keyframes nodePulse{0%,100%{box-shadow:0 0 20px rgba(0,212,255,0.3)}50%{box-shadow:0 0 40px rgba(0,212,255,0.7)}}
+.level-node:not(.locked):hover{transform:scale(1.06);z-index:5}
+.level-num{font-family:'Orbitron',monospace;font-weight:900;font-size:1.3rem;line-height:1}
+.level-stars{display:flex;gap:2px;margin-top:4px}
+.level-stars .s{font-size:0.7rem;filter:grayscale(1);opacity:0.3}
+.level-stars .s.earned{filter:none;opacity:1;animation:starPop .4s ease-out}
+@keyframes starPop{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+.lock-icon{font-size:1.3rem;opacity:0.3}
+.node-badge{position:absolute;top:-4px;right:-4px;background:var(--hot-pink);border-radius:50%;width:18px;height:18px;font-size:0.55rem;display:flex;align-items:center;justify-content:center;font-weight:900;border:2px solid var(--bg)}
+
+/* ══ GAME SCREEN ══ */
+#game-screen{justify-content:flex-start;padding:0;gap:0}
+.game-topbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 16px 8px;background:linear-gradient(to bottom,rgba(3,6,15,1),rgba(3,6,15,0));position:relative;z-index:5}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.back-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:.2s}
+.back-btn:hover{background:rgba(255,255,255,0.15)}
+.lvl-badge{background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);border-radius:20px;padding:5px 14px;font-family:'Orbitron',monospace;font-size:0.75rem;color:var(--cyan);font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.moves-badge{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:20px;padding:5px 14px;font-family:'Orbitron',monospace;font-size:0.75rem;color:#f87171;font-weight:700;transition:all .3s}
+.moves-badge.low{background:rgba(239,68,68,0.3);border-color:#ef4444;box-shadow:0 0 15px rgba(239,68,68,0.5);animation:movesWarning .5s infinite}
+@keyframes movesWarning{0%,100%{opacity:1}50%{opacity:0.6}}
+.settings-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:.2s}
+.settings-btn:hover{background:rgba(255,255,255,0.12)}
+/* ── VAULT DIAL ── */
+.vault-wrap{
+  width:100%;padding:8px 16px 4px;position:relative;z-index:5;
+  display:flex;align-items:center;justify-content:center;gap:16px;
+}
+.vault-dial-outer{
+  position:relative;width:106px;height:106px;flex-shrink:0;
+}
+/* SVG ring */
+#vault-ring-svg{position:absolute;top:0;left:0;width:100%;height:100%;transform:rotate(-90deg)}
+.vault-ring-track{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:6}
+.vault-ring-fill{
+  fill:none;stroke:url(#vaultGrad);stroke-width:6;
+  stroke-linecap:round;
+  transition:stroke-dashoffset .6s cubic-bezier(.34,1.56,.64,1);
+}
+/* Vault body */
+.vault-body{
+  position:absolute;inset:12px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,#1e3a5a 0%,#0a1528 55%,#050c18 100%);
+  border:2.5px solid rgba(0,212,255,0.35);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  box-shadow:inset 0 3px 12px rgba(0,0,0,0.7),0 0 28px rgba(0,212,255,0.2),inset 0 1px 0 rgba(100,200,255,0.12);
+}
+/* Outer ring decorative notches */
+.vault-body::before{
+  content:'';position:absolute;inset:-1px;border-radius:50%;
+  background:repeating-conic-gradient(rgba(0,212,255,0.08) 0deg 6deg, transparent 6deg 12deg);
+  pointer-events:none;
+}
+/* Dial spokes - 6 spokes for more detail */
+.vault-dial{
+  position:absolute;inset:0;border-radius:50%;
+  background:
+    linear-gradient(0deg,  transparent 47%,rgba(0,212,255,0.4) 47%,rgba(0,212,255,0.4) 53%,transparent 53%),
+    linear-gradient(30deg, transparent 47%,rgba(0,212,255,0.2) 47%,rgba(0,212,255,0.2) 53%,transparent 53%),
+    linear-gradient(60deg, transparent 47%,rgba(0,212,255,0.3) 47%,rgba(0,212,255,0.3) 53%,transparent 53%),
+    linear-gradient(90deg, transparent 47%,rgba(0,212,255,0.4) 47%,rgba(0,212,255,0.4) 53%,transparent 53%),
+    linear-gradient(120deg,transparent 47%,rgba(0,212,255,0.2) 47%,rgba(0,212,255,0.2) 53%,transparent 53%),
+    linear-gradient(150deg,transparent 47%,rgba(0,212,255,0.3) 47%,rgba(0,212,255,0.3) 53%,transparent 53%);
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+}
+/* Inner dial ring */
+.vault-dial::after{
+  content:'';position:absolute;inset:25%;border-radius:50%;
+  border:1.5px solid rgba(0,212,255,0.2);
+  box-shadow:0 0 8px rgba(0,212,255,0.15);
+}
+/* Center knob */
+.vault-knob{
+  width:26px;height:26px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#6ad4ff,#0077cc 55%,#003a6e 100%);
+  border:2px solid rgba(100,200,255,0.7);
+  box-shadow:0 0 16px rgba(0,212,255,0.7),inset 0 1px 0 rgba(255,255,255,0.3);
+  position:relative;z-index:2;
+}
+.vault-knob::after{
+  content:'';position:absolute;top:50%;left:50%;
+  width:7px;height:7px;border-radius:50%;
+  background:radial-gradient(circle,#fff,#aef);
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 8px rgba(255,255,255,0.9);
+}
+/* Lock bolt */
+.vault-bolt{
+  position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  width:8px;height:18px;border-radius:4px;
+  background:linear-gradient(180deg,#00d4ff 0%,#0055aa 100%);
+  border:1px solid rgba(0,212,255,0.6);
+  box-shadow:0 0 8px rgba(0,212,255,0.5);
+  transition:all .4s cubic-bezier(.34,1.56,.64,1);
+}
+.vault-bolt.open{
+  transform:translateY(-50%) translateX(6px);
+  opacity:0;box-shadow:none;
+}
+/* Score info */
+.vault-info{flex:1;display:flex;flex-direction:column;gap:5px}
+.vault-score-row{display:flex;align-items:baseline;gap:6px}
+.vault-score-val{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;color:#fff;line-height:1;transition:color .3s}
+.vault-score-label{font-size:0.55rem;letter-spacing:0.15em;color:rgba(255,255,255,0.3);text-transform:uppercase}
+.vault-target-row{font-size:0.65rem;color:rgba(255,255,255,0.4);font-family:'Orbitron',monospace}
+.vault-target-row span{color:var(--cyan)}
+.vault-pct-row{font-size:0.65rem;font-family:'Orbitron',monospace;color:var(--gold);margin-top:1px;text-shadow:0 0 8px rgba(255,215,0,0.4)}
+/* Crack animation */
+@keyframes vaultCrack{
+  0%{transform:scale(1)}
+  20%{transform:scale(1.18);filter:brightness(2.5) saturate(1.5)}
+  50%{transform:scale(0.93) rotate(6deg)}
+  75%{transform:scale(1.05) rotate(-2deg)}
+  100%{transform:scale(1) rotate(0deg)}
+}
+.vault-body.cracking{animation:vaultCrack .6s ease-out}
+.display-panel{width:calc(100% - 32px);max-width:380px;margin:6px 16px;background:linear-gradient(135deg,rgba(13,21,38,0.95),rgba(5,10,20,0.9));border:1px solid rgba(0,212,255,0.2);border-radius:20px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;z-index:5}
+.display-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,212,255,0.08),transparent 60%)}
+.dp-left{text-align:left}
+.dp-rule{font-size:0.6rem;letter-spacing:0.15em;color:var(--cyan);text-transform:uppercase;opacity:0.8}
+.dp-target{font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:1px}
+.dp-sum{font-family:'Nunito',sans-serif;font-size:3rem;font-weight:900;line-height:1;transition:color .3s,transform .2s;text-align:right;min-width:120px}
+.ball-num{font-family:'Nunito',sans-serif;font-weight:900;line-height:1;letter-spacing:-0.02em;text-shadow:0 2px 6px rgba(0,0,0,0.5);position:relative;z-index:3;font-size:inherit}
+.dp-sum.valid{color:var(--neon-green);text-shadow:0 0 20px var(--neon-green);transform:scale(1.05)}
+.dp-sum.invalid{color:#fff}
+#grid-wrap{flex:1;width:100%;padding:8px 12px;display:flex;align-items:center;justify-content:center;position:relative;z-index:5}
+#grid{display:grid;gap:14px;width:100%;max-width:320px}
+/* SVG chain line */
+#chain-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:6}
+.chain-line{stroke:#00d4ff;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px rgba(0,212,255,1)) drop-shadow(0 0 16px rgba(0,212,255,0.5));stroke-dasharray:10 4;animation:chainFlow 0.6s linear infinite}
+@keyframes chainFlow{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-28}}
+
+/* ══ PREMIUM BALLS ══ */
+.ball{position:relative;aspect-ratio:1;border-radius:50%;display:flex;justify-content:center;align-items:center;font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;cursor:pointer;transition:transform .12s,box-shadow .12s;pointer-events:auto;overflow:hidden;-webkit-user-select:none;user-select:none;isolation:isolate}
+/* Specular highlight top-left */
+.ball::before{content:'';position:absolute;top:7%;left:17%;width:36%;height:26%;background:radial-gradient(ellipse,rgba(255,255,255,0.68) 0%,rgba(255,255,255,0) 100%);border-radius:50%;pointer-events:none;z-index:2;transform:rotate(-25deg)}
+/* Bottom shadow rim */
+.ball::after{content:'';position:absolute;bottom:7%;left:18%;width:64%;height:18%;background:radial-gradient(ellipse,rgba(0,0,0,0.38) 0%,transparent 100%);border-radius:50%;pointer-events:none;z-index:2}
+/* ─ BLUE ─ */
+.ball.blue{background:radial-gradient(circle at 38% 32%,#72c1ff 0%,#2d7ae8 45%,#0c3aaa 100%);border:2.5px solid rgba(110,185,255,0.65);box-shadow:0 6px 22px rgba(37,99,235,0.55),inset 0 1px 0 rgba(255,255,255,0.22),inset 0 -3px 8px rgba(0,0,50,0.35)}
+/* ─ RED ─ */
+.ball.red{background:radial-gradient(circle at 38% 32%,#ff8a8a 0%,#e03232 45%,#7f0808 100%);border:2.5px solid rgba(255,140,140,0.65);box-shadow:0 6px 22px rgba(220,38,38,0.55),inset 0 1px 0 rgba(255,255,255,0.22),inset 0 -3px 8px rgba(50,0,0,0.35)}
+/* ─ GREEN ─ */
+.ball.green{background:radial-gradient(circle at 38% 32%,#6eea9c 0%,#18bb5c 45%,#085c28 100%);border:2.5px solid rgba(80,230,120,0.65);box-shadow:0 6px 22px rgba(22,163,74,0.55),inset 0 1px 0 rgba(255,255,255,0.22),inset 0 -3px 8px rgba(0,30,10,0.35)}
+/* ─ YELLOW ─ */
+.ball.yellow{background:radial-gradient(circle at 38% 32%,#ffe57a 0%,#e2a510 45%,#6e4400 100%);border:2.5px solid rgba(255,215,70,0.65);box-shadow:0 6px 22px rgba(202,138,4,0.55),inset 0 1px 0 rgba(255,255,255,0.28),inset 0 -3px 8px rgba(40,20,0,0.35)}
+/* ─ OBSIDIAN ─ */
+.ball.obsidian{background:radial-gradient(circle at 38% 32%,#52627a 0%,#1e293b 50%,#040810 100%);border:2.5px solid #3d4f66;border-radius:16px;cursor:not-allowed;box-shadow:0 4px 16px rgba(0,0,0,0.75),inset 0 1px 0 rgba(255,255,255,0.07)}
+.ball.obsidian::before{opacity:0.15}
+/* ─ ICE ─ */
+.ball.ice{background:radial-gradient(circle at 38% 32%,#eaf9ff 0%,#7cddf8 40%,#0a88cc 100%);border:3px solid rgba(190,235,255,0.92);cursor:not-allowed;box-shadow:0 0 28px rgba(186,230,253,0.6),inset 0 2px 0 rgba(255,255,255,0.55),inset 0 0 20px rgba(0,150,220,0.25);animation:iceShimmer 2s ease-in-out infinite}
+@keyframes iceShimmer{0%,100%{box-shadow:0 0 18px rgba(186,230,253,0.4),inset 0 2px 0 rgba(255,255,255,0.5)}50%{box-shadow:0 0 40px rgba(186,230,253,0.9),inset 0 2px 0 rgba(255,255,255,0.5)}}
+/* ─ GHOST ─ */
+.ball.ghost{border:2.5px dashed rgba(255,255,255,0.75)!important;box-shadow:0 0 22px rgba(200,200,255,0.4),inset 0 0 20px rgba(255,255,255,0.12)!important;animation:ghostDrift 3s ease-in-out infinite;filter:brightness(0.85) saturate(0.75)}
+@keyframes ghostDrift{0%,100%{opacity:0.82;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+/* ─ VOLT ─ */
+.ball.volt{background:radial-gradient(circle at 38% 32%,#eabfff 0%,#9b3de8 45%,#3e0878 100%);border:2.5px solid rgba(205,135,255,0.82);box-shadow:0 0 28px rgba(168,85,247,0.72),inset 0 1px 0 rgba(255,255,255,0.22);animation:voltFlicker 1.5s ease-in-out infinite}
+@keyframes voltFlicker{0%,100%{box-shadow:0 0 18px rgba(168,85,247,0.5)}50%{box-shadow:0 0 45px rgba(168,85,247,1),0 0 75px rgba(168,85,247,0.35)}}
+/* ─ WILD ─ */
+.ball.wild{background:conic-gradient(from 0deg,#ff006e,#ff7700,#ffd700,#39ff14,#00d4ff,#7c3aed,#ff006e);border:3px solid rgba(255,255,255,0.88);box-shadow:0 0 32px rgba(255,255,255,0.5);animation:wildSpin 3s linear infinite}
+@keyframes wildSpin{to{filter:hue-rotate(360deg)}}
+/* ─ BOMB ─ */
+.ball.bomb{background:radial-gradient(circle at 38% 32%,#9ca3af 0%,#374151 45%,#080f18 100%);border:2.5px solid #f59e0b;box-shadow:0 0 20px rgba(245,158,11,0.5),inset 0 1px 0 rgba(255,255,255,0.12);animation:bombTick 1s ease-in-out infinite}
+@keyframes bombTick{0%,100%{box-shadow:0 0 12px rgba(245,158,11,0.4)}50%{box-shadow:0 0 30px rgba(245,158,11,0.95)}}
+/* ACTIVE */
+.ball.active{transform:scale(1.2)!important;z-index:10}
+.ball.active.blue{box-shadow:0 0 30px rgba(37,99,235,1),0 0 58px rgba(37,99,235,0.5),inset 0 1px 0 rgba(255,255,255,0.25)!important}
+.ball.active.red{box-shadow:0 0 30px rgba(220,38,38,1),0 0 58px rgba(220,38,38,0.5),inset 0 1px 0 rgba(255,255,255,0.25)!important}
+.ball.active.green{box-shadow:0 0 30px rgba(22,163,74,1),0 0 58px rgba(22,163,74,0.5),inset 0 1px 0 rgba(255,255,255,0.25)!important}
+.ball.active.yellow{box-shadow:0 0 30px rgba(202,138,4,1),0 0 58px rgba(202,138,4,0.5),inset 0 1px 0 rgba(255,255,255,0.25)!important}
+.ball.active.volt{box-shadow:0 0 30px rgba(168,85,247,1),0 0 58px rgba(168,85,247,0.5),inset 0 1px 0 rgba(255,255,255,0.25)!important}
+.ball.hint-pulse{animation:hintGlow .7s infinite alternate!important;z-index:8}
+@keyframes hintGlow{from{box-shadow:0 0 10px #ffd700}to{box-shadow:0 0 36px #ffd700,0 0 72px rgba(255,215,0,0.4);transform:scale(1.12)}}
+.ball.adj-hint{animation:adjGlow .8s infinite alternate;z-index:7}
+@keyframes adjGlow{0%{filter:brightness(1)}100%{filter:brightness(1.35);transform:scale(1.07)}}
+.ball.dropping{animation:ballDrop .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes ballDrop{0%{transform:scale(0.2) translateY(-40px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+.ball.clearing{animation:ballClear .28s ease-in forwards}
+@keyframes ballClear{0%{transform:scale(1)}40%{transform:scale(1.38)}100%{transform:scale(0);opacity:0}}
+/* SUBMIT BTN */
+#submit-btn{width:calc(100% - 32px);max-width:380px;padding:15px;border-radius:50px;border:none;font-family:'Orbitron',monospace;font-weight:900;font-size:1rem;letter-spacing:0.1em;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;display:none;cursor:pointer;position:relative;z-index:5;margin:6px 0;box-shadow:0 0 30px rgba(34,197,94,0.5);animation:submitPulse 1.5s infinite;overflow:hidden}
+#submit-btn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(transparent,rgba(255,255,255,0.2),transparent 30%);animation:spinShine 2s linear infinite}
+#submit-btn span{position:relative;z-index:1}
+@keyframes submitPulse{0%,100%{box-shadow:0 0 20px rgba(34,197,94,0.4)}50%{box-shadow:0 0 40px rgba(34,197,94,0.8)}}
+/* BOOSTERS */
+.boosters-wrap{width:calc(100% - 32px);max-width:380px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0;position:relative;z-index:5}
+.b-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:15px;font-size:1.3rem;cursor:pointer;aspect-ratio:1.1;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s;position:relative;gap:3px}
+.b-btn .b-count{font-size:0.55rem;font-family:'Orbitron',monospace;color:var(--gold);font-weight:700}
+.b-btn.locked{opacity:0.15;cursor:not-allowed}
+.b-btn:not(.locked):hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.4)}
+.b-btn.active-mode{background:rgba(0,212,255,0.15);border-color:var(--cyan);box-shadow:0 0 20px rgba(0,212,255,0.4);transform:translateY(-3px)}
+.b-btn .b-unlock{position:absolute;bottom:4px;font-size:0.5rem;color:rgba(255,255,255,0.4);font-family:'Orbitron',monospace}
+/* STREAK */
+
+
+/* ══ OVERLAYS ══ */
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+.overlay.hidden{display:none}
+.modal-card{background:linear-gradient(135deg,#0d1526,#080f1f);border:1px solid rgba(0,212,255,0.25);border-radius:28px;padding:32px 28px;text-align:center;max-width:340px;width:100%;position:relative;overflow:hidden}
+.modal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),var(--gold),var(--cyan),transparent)}
+.modal-title{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;margin-bottom:8px}
+.modal-sub{color:rgba(255,255,255,0.5);font-size:0.85rem;margin-bottom:20px}
+.stars-display{display:flex;justify-content:center;gap:10px;margin:15px 0;font-size:2.5rem}
+.star-item{opacity:0.2;transition:opacity .4s,transform .4s;transform:scale(0.5)}
+.star-item.earned{opacity:1;transform:scale(1);filter:drop-shadow(0 0 10px gold)}
+.modal-score{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;color:var(--gold);margin:10px 0}
+.modal-btns{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.modal-btn{border:none;font-family:'Exo 2',sans-serif;font-weight:800;font-size:1rem;padding:14px;border-radius:50px;cursor:pointer;touch-action:auto;transition:transform .15s,box-shadow .15s}
+.modal-btn:hover{transform:scale(1.03)}
+.modal-btn.primary{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 0 25px rgba(34,197,94,0.4)}
+.modal-btn.secondary{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#fff}
+.modal-btn.cyan{background:linear-gradient(135deg,#00d4ff,#0080ff);color:#000;box-shadow:0 0 25px rgba(0,212,255,0.4)}
+/* SETTINGS */
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:rgba(255,255,255,0.04);border-radius:15px;margin:6px 0;border:1px solid rgba(255,255,255,0.07)}
+.toggle{position:relative;display:inline-block;width:48px;height:26px}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#334155;transition:.3s;border-radius:34px}
+.slider::before{position:absolute;content:'';height:20px;width:20px;left:3px;bottom:3px;background:#fff;transition:.3s;border-radius:50%}
+input:checked + .slider{background:var(--cyan)}
+input:checked + .slider::before{transform:translateX(22px)}
+
+/* PARTICLES */
+.particle{position:fixed;pointer-events:none;border-radius:50%;z-index:9999;animation:particleFly var(--dur) ease-out forwards}
+@keyframes particleFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
+.score-pop{position:fixed;pointer-events:none;z-index:9998;animation:scorePop 1.3s ease-out forwards;transform-origin:center}
+@keyframes scorePop{0%{transform:translate(-50%,-50%) scale(0.4);opacity:0}15%{transform:translate(-50%,-70%) scale(1.2);opacity:1}80%{transform:translate(-50%,-130%) scale(1);opacity:1}100%{transform:translate(-50%,-160%) scale(0.8);opacity:0}}
+.pop-inner{display:flex;flex-direction:column;align-items:center;gap:2px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.8))}
+.pop-flavor{font-family:'Orbitron',monospace;font-size:0.7rem;font-weight:900;color:var(--gold);letter-spacing:0.15em}
+.pop-val{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:var(--neon-green);text-shadow:0 0 20px var(--neon-green)}
+/* TOAST */
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(239,68,68,0.9);color:#fff;padding:10px 22px;border-radius:25px;font-weight:700;font-size:0.9rem;display:none;z-index:9999;backdrop-filter:blur(8px);border:1px solid rgba(239,68,68,0.5);box-shadow:0 0 20px rgba(239,68,68,0.4)}
+/* NEAR MISS HINT */
+#near-miss{position:fixed;bottom:160px;left:50%;transform:translateX(-50%);background:rgba(255,165,0,0.92);color:#000;padding:8px 20px;border-radius:20px;font-family:'Orbitron',monospace;font-weight:900;font-size:0.7rem;letter-spacing:0.1em;display:none;z-index:9997;backdrop-filter:blur(8px);border:1px solid rgba(255,165,0,0.4);box-shadow:0 0 20px rgba(255,165,0,0.5);animation:nearMissIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes nearMissIn{0%{transform:translateX(-50%) scale(0.7);opacity:0}100%{transform:translateX(-50%) scale(1);opacity:1}}
+/* UNDO BUTTON */
+.undo-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:.2s;touch-action:auto}
+.undo-btn:hover{background:rgba(255,255,255,0.14);color:#fff}
+.undo-btn:active{transform:scale(0.9)}
+.undo-btn.disabled{opacity:0.2;cursor:not-allowed}
+/* COMBO STREAK */
+#combo-wrap{position:fixed;top:80px;right:14px;z-index:200;display:none;flex-direction:column;align-items:center;gap:2px}
+.combo-fire{font-size:1.1rem;animation:fireDance 0.4s ease-in-out infinite alternate}
+@keyframes fireDance{0%{transform:scale(1) rotate(-5deg)}100%{transform:scale(1.15) rotate(5deg)}}
+.combo-num{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:#ff6b00;text-shadow:0 0 20px rgba(255,107,0,0.8);line-height:1}
+.combo-label{font-family:'Orbitron',monospace;font-size:0.45rem;letter-spacing:0.2em;color:rgba(255,107,0,0.7)}
+/* DIFFICULTY RING on level nodes */
+.level-node.diff-easy .diff-ring{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.4)}
+.level-node.diff-medium .diff-ring{background:rgba(234,179,8,0.12);border-color:rgba(234,179,8,0.4)}
+.level-node.diff-hard .diff-ring{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.4)}
+.diff-dot{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%}
+.level-node.diff-easy .diff-dot{background:#22c55e;box-shadow:0 0 8px #22c55e}
+.level-node.diff-medium .diff-dot{background:#eab308;box-shadow:0 0 8px #eab308}
+.level-node.diff-hard .diff-dot{background:#ef4444;box-shadow:0 0 8px #ef4444}
+/* LEVEL TRANSITION */
+@keyframes levelIn{0%{opacity:0;transform:scale(0.85)}100%{opacity:1;transform:scale(1)}}
+.level-entering{animation:levelIn 0.4s cubic-bezier(.34,1.2,.64,1) forwards}
+/* BOOSTER COUNT BADGE */
+.b-count{font-size:0.55rem;font-family:'Orbitron',monospace;color:var(--gold);font-weight:700;line-height:1}
+.b-btn:not(.locked) .b-count{display:block}
+/* GOLD COIN SVG COMPONENT */
+.gc{display:inline-block;width:1.1em;height:1.1em;vertical-align:middle;position:relative;flex-shrink:0}
+.gc svg{width:100%;height:100%}
+.coin-badge{background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.08));border:1px solid rgba(255,215,0,0.4);border-radius:20px;padding:5px 12px;display:flex;align-items:center;gap:5px;font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:900;color:var(--gold);cursor:pointer;transition:.2s;touch-action:auto}
+.coin-badge:hover{background:rgba(255,215,0,0.2);border-color:rgba(255,215,0,0.7)}
+.coin-badge .coin-icon{font-size:0.9rem}
+@keyframes coinPop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+.coin-badge.popping .coin-icon{animation:coinPop 0.4s ease-out}
+/* COIN EARN FLOAT */
+.coin-float{position:fixed;pointer-events:none;z-index:9997;font-family:'Orbitron',monospace;font-weight:900;font-size:0.9rem;color:var(--gold);text-shadow:0 0 12px rgba(255,215,0,0.8);animation:coinFloat 1.4s ease-out forwards}
+@keyframes coinFloat{0%{opacity:0;transform:translate(-50%,-50%) scale(0.6)}15%{opacity:1;transform:translate(-50%,-70%) scale(1.1)}80%{opacity:1;transform:translate(-50%,-150%) scale(1)}100%{opacity:0;transform:translate(-50%,-180%) scale(0.8)}}
+/* SHOP MODAL extras */
+.shop-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:.2s;cursor:pointer;touch-action:auto}
+.shop-item:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.18)}
+.shop-item.cant-afford{opacity:0.45;cursor:not-allowed}
+.shop-item.cant-afford:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.09)}
+.shop-icon{font-size:1.8rem;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(255,255,255,0.2))}
+.shop-info{flex:1}
+.shop-name{font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:900;color:#fff;letter-spacing:0.05em}
+.shop-desc{font-size:0.65rem;color:rgba(255,255,255,0.45);margin-top:2px}
+.shop-stock{font-size:0.6rem;font-family:'Orbitron',monospace;color:var(--gold);margin-top:3px}
+.shop-price{display:flex;align-items:center;gap:4px;font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:900;color:var(--gold);flex-shrink:0}
+/* COMBO ANNOUNCER */
+#announcer{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9998;font-family:'Orbitron',monospace;font-weight:900;font-size:2rem;letter-spacing:0.2em;text-align:center;display:none;text-shadow:0 0 30px currentColor;animation:announceIn .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes announceIn{0%{transform:translate(-50%,-50%) scale(0.3);opacity:0}60%{transform:translate(-50%,-50%) scale(1.15)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+/* VOLT STRIKE EFFECT */
+.volt-strike{animation:voltStrike .4s ease-out}
+@keyframes voltStrike{0%{transform:scale(1)}25%{transform:scale(1.4);filter:brightness(3)}50%{transform:scale(0.8)}100%{transform:scale(1)}}
+/* LOADING */
+#loading-screen{background:var(--bg);z-index:9999}
+.load-logo{font-family:'Orbitron',monospace;font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.load-bar-wrap{width:200px;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;margin-top:20px;overflow:hidden}
+.load-bar{height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));width:0%;border-radius:4px;animation:loading 1.5s ease forwards}
+@keyframes loading{0%{width:0%}60%{width:80%}100%{width:100%}}
+
+/* ══ INTERACTIVE FTUE WALKTHROUGH ══ */
+#ftue-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:5000;pointer-events:none;
+  transition:opacity .4s;
+}
+#ftue-overlay.active{pointer-events:auto}
+#ftue-overlay.hidden{opacity:0;pointer-events:none}
+
+/* Spotlight cutout */
+#ftue-spotlight{
+  position:absolute;
+  border-radius:16px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,0.80);
+  transition:all .55s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  z-index:1;
+  border:2.5px solid rgba(0,212,255,0.7);
+  animation:spotPulse 2s ease-in-out infinite;
+}
+@keyframes spotPulse{
+  0%,100%{box-shadow:0 0 0 9999px rgba(0,0,0,0.80),0 0 0 0 rgba(0,212,255,0)}
+  50%{box-shadow:0 0 0 9999px rgba(0,0,0,0.80),0 0 0 8px rgba(0,212,255,0.3)}
+}
+
+/* ── MASCOT + BUBBLE CARD ── */
+#ftue-card{
+  position:absolute;
+  display:flex;
+  align-items:flex-end;
+  gap:0;
+  z-index:4;
+  transition:left .45s cubic-bezier(.4,0,.2,1), top .45s cubic-bezier(.4,0,.2,1);
+  pointer-events:auto;
+}
+#ftue-mascot{
+  width:72px;height:72px;flex-shrink:0;
+  filter:drop-shadow(0 0 12px rgba(0,212,255,0.5));
+  animation:mascotBob 2.5s ease-in-out infinite;
+  position:relative;z-index:2;margin-bottom:-4px;margin-right:-6px;
+}
+@keyframes mascotBob{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-6px) rotate(2deg)}
+}
+#mascot-svg{width:100%;height:100%}
+
+/* Eye blink animation */
+@keyframes eyeBlink{
+  0%,92%,100%{transform:scaleY(1)}
+  95%{transform:scaleY(0.08)}
+}
+#mascot-eyes{animation:eyeBlink 3.5s ease-in-out infinite;transform-origin:40px 40px}
+
+/* Speech bubble */
+#ftue-bubble{
+  background:linear-gradient(145deg,#0f1e35,#060e1c);
+  border:1.5px solid rgba(0,212,255,0.5);
+  border-radius:20px 20px 20px 4px;
+  padding:16px 18px 14px;
+  max-width:250px;
+  min-width:200px;
+  position:relative;
+  box-shadow:0 12px 40px rgba(0,0,0,0.8),0 0 20px rgba(0,212,255,0.1);
+}
+#ftue-bubble::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  border-radius:20px 20px 0 0;
+}
+
+/* Tip content */
+.ftue-tip-title{font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:900;color:var(--cyan);letter-spacing:0.1em;margin-bottom:7px}
+.ftue-tip-body{font-size:0.8rem;color:rgba(255,255,255,0.75);line-height:1.5}
+.ftue-tip-step{font-size:0.58rem;color:rgba(255,255,255,0.28);margin-top:9px;font-family:'Orbitron',monospace;letter-spacing:0.1em}
+#ftue-next-btn{
+  display:block;width:100%;margin-top:10px;padding:9px;
+  background:linear-gradient(135deg,#00d4ff,#0080ff);
+  border:none;border-radius:50px;color:#000;font-family:'Orbitron',monospace;
+  font-weight:900;font-size:0.72rem;letter-spacing:0.1em;cursor:pointer;
+  touch-action:auto;transition:transform .15s,box-shadow .2s;
+  box-shadow:0 0 15px rgba(0,212,255,0.4);
+}
+#ftue-next-btn:active{transform:scale(0.97)}
+#ftue-next-btn:hover{box-shadow:0 0 25px rgba(0,212,255,0.7)}
+
+/* Animated chain demo */
+.ftue-chain-line{
+  position:absolute;pointer-events:none;z-index:3;
+  stroke:rgba(0,212,255,0.6);stroke-width:3;fill:none;
+  stroke-dasharray:6,4;stroke-linecap:round;
+}
+
+/* Skip button */
+#ftue-skip{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.35);font-size:0.68rem;padding:7px 18px;
+  border-radius:20px;cursor:pointer;touch-action:auto;z-index:10;
+  font-family:'Exo 2',sans-serif;transition:.2s;white-space:nowrap;
+}
+#ftue-skip:hover{color:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.22)}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div id="toast"></div>
+<div id="announcer"></div>
+<div id="near-miss"></div>
+<div id="combo-wrap">
+  <div class="combo-fire">🔥</div>
+  <div class="combo-num" id="combo-num">2</div>
+  <div class="combo-label">COMBO</div>
+</div>
+
+<!-- LOADING -->
+<div class="screen" id="loading-screen">
+  <div class="load-logo">VAULT</div>
+  <div style="font-size:0.6rem;letter-spacing:0.4em;color:rgba(255,255,255,0.4);margin-top:4px">LOADING</div>
+  <div class="load-bar-wrap"><div class="load-bar"></div></div>
+</div>
+
+<!-- HOME -->
+<div class="screen hidden" id="home-screen">
+  <div class="home-logo-wrap">
+    <div class="home-logo">VAULT</div>
+  </div>
+  <div class="logo-sub">CHAIN · SUM · CONQUER</div>
+  <div class="home-orb-preview">
+    <div class="preview-orb blue">7</div>
+    <div class="preview-orb red">4</div>
+    <div class="preview-orb green">3</div>
+    <div class="preview-orb yellow">6</div>
+    <div class="preview-orb" style="background:#a855f7">⚡</div>
+  </div>
+  <div class="home-stats">
+    <div class="stat-chip"><div class="num" id="home-levels">0</div><div class="lbl">Cleared</div></div>
+    <div class="stat-chip"><div class="num" id="home-stars">0</div><div class="lbl">Stars</div></div>
+    <div class="stat-chip" style="cursor:pointer" onclick="openShopModal()"><div class="num" id="home-coins" style="color:var(--gold)">0</div><div class="lbl" style="display:flex;align-items:center;gap:3px;justify-content:center"><svg viewBox="0 0 32 32" width="12" height="12" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cgh" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#fff9a0"/><stop offset="30%" stop-color="#ffd700"/><stop offset="70%" stop-color="#d4920a"/><stop offset="100%" stop-color="#7a4e00"/></radialGradient></defs><circle cx="16" cy="15.2" r="14" fill="url(#cgh)"/><circle cx="16" cy="15.2" r="14" fill="none" stroke="rgba(255,230,80,0.6)" stroke-width="1"/></svg> Coins</div></div>
+  </div>
+  <button class="play-btn" onclick="showMap()"><span>▶ PLAY</span></button>
+  <div class="secondary-btns">
+    <button class="sec-btn" onclick="openShopModal()" style="display:flex;align-items:center;gap:5px;justify-content:center"><svg viewBox="0 0 32 32" width="14" height="14" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cgb1" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#fff9a0"/><stop offset="30%" stop-color="#ffd700"/><stop offset="70%" stop-color="#d4920a"/><stop offset="100%" stop-color="#7a4e00"/></radialGradient></defs><circle cx="16" cy="15.2" r="14" fill="url(#cgb1)"/></svg> Shop</button>
+    <button class="sec-btn" onclick="openSettingsModal()">⚙ Settings</button>
+    <button class="sec-btn" onclick="showHowToPlay()">? Help</button>
+  </div>
+  <div class="version-tag">V 3.0 · VAULT ULTIMATE</div>
+</div>
+
+<!-- MAP -->
+<div class="screen hidden" id="map-screen">
+  <div class="map-header">
+    <button class="map-back" onclick="showHome()">←</button>
+    <div class="map-title">LEVEL SELECT</div>
+    <div style="width:38px"></div>
+  </div>
+  <div class="map-scroll" id="map-scroll">
+    <div class="world-label">◆ WORLD 1 · THE VAULT ◆</div>
+    <div class="level-grid" id="level-grid"></div>
+    <div class="world-label" style="margin-top:30px">◆ WORLD 2 · THE DEPTHS ◆</div>
+    <div class="level-grid" id="level-grid-2"></div>
+    <div style="height:40px"></div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div class="screen hidden" id="game-screen">
+  <div class="game-topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="goToMap()">←</button>
+      <div class="lvl-badge">LVL <span id="g-lvl">1</span></div>
+      <button class="undo-btn disabled" id="undo-btn" onclick="undoLastBall()" title="Undo last ball">↩</button>
+    </div>
+    <div class="topbar-right">
+      <button class="coin-badge" id="game-coin-badge" onclick="openShopModal()"><span class="coin-icon"><svg viewBox="0 0 32 32" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cgtop" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#fff9a0"/><stop offset="30%" stop-color="#ffd700"/><stop offset="70%" stop-color="#d4920a"/><stop offset="100%" stop-color="#7a4e00"/></radialGradient><radialGradient id="cgspec" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,0.5)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><circle cx="16" cy="16.5" r="14.5" fill="#7a4e00" opacity="0.4"/><circle cx="16" cy="15.5" r="14" fill="url(#cgtop)"/><circle cx="16" cy="15.5" r="14" fill="none" stroke="rgba(255,240,100,0.7)" stroke-width="1.2"/><circle cx="16" cy="15.5" r="9.5" fill="none" stroke="rgba(255,240,100,0.3)" stroke-width="1.5"/><text x="16" y="20.5" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="10.5" font-weight="900" fill="rgba(100,50,0,0.75)">$</text><ellipse cx="10.5" cy="9.5" rx="4" ry="2.5" fill="url(#cgspec)" transform="rotate(-30,10.5,9.5)"/></svg></span><span id="game-coins">0</span></button>
+      <div class="moves-badge">MVS <span id="g-moves">0</span></div>
+      <button class="settings-btn" onclick="openSettingsModal()">⚙</button>
+    </div>
+  </div>
+  <div class="vault-wrap" id="progress-wrap">
+    <div class="vault-dial-outer" id="vault-dial-outer">
+      <svg id="vault-ring-svg" viewBox="0 0 106 106">
+        <defs>
+          <linearGradient id="vaultGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00d4ff"/>
+            <stop offset="100%" stop-color="#ffd700"/>
+          </linearGradient>
+        </defs>
+        <circle class="vault-ring-track" cx="53" cy="53" r="47"/>
+        <circle class="vault-ring-fill" id="vault-ring-fill" cx="53" cy="53" r="47"
+          stroke-dasharray="295.3" stroke-dashoffset="295.3"/>
+      </svg>
+      <div class="vault-body" id="vault-body">
+        <div class="vault-dial" id="vault-dial"></div>
+        <div class="vault-knob"></div>
+        <div class="vault-bolt" id="vault-bolt"></div>
+      </div>
+    </div>
+    <div class="vault-info">
+      <div class="vault-score-row">
+        <div class="vault-score-val" id="vault-score">0</div>
+        <div class="vault-score-label">score</div>
+      </div>
+      <div class="vault-target-row">TARGET <span id="vault-target">0</span></div>
+      <div class="vault-pct-row" id="vault-pct">0% cracked</div>
+    </div>
+  </div>
+  <div class="display-panel">
+    <div class="dp-left">
+      <div class="dp-rule" id="dp-rule">Multiple of 2</div>
+      <div class="dp-target" id="dp-target">TARGET: 55</div>
+    </div>
+    <div class="dp-sum invalid" id="dp-sum">0</div>
+  </div>
+
+  <div id="grid-wrap">
+    <div id="grid"></div>
+    <svg id="chain-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:6"></svg>
+  </div>
+  <button id="submit-btn" onclick="executeChain()"><span>⚡ SUBMIT CHAIN</span></button>
+  <div class="boosters-wrap" id="boosters"></div>
+</div>
+
+<!-- OVERLAYS -->
+<div class="overlay hidden" id="modal-overlay">
+  <div class="modal-card" id="modal-card"></div>
+</div>
+
+<!-- INTERACTIVE FTUE WALKTHROUGH -->
+<div id="ftue-overlay" class="hidden">
+  <div id="ftue-spotlight"></div>
+
+  <!-- Mascot + bubble combined card -->
+  <div id="ftue-card">
+    <!-- Mascot SVG -->
+    <div id="ftue-mascot">
+      <svg id="mascot-svg" style="width:100%;height:100%" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" width="200" height="240">
+  <defs>
+    <!-- Body gradient - deep electric blue orb -->
+    <radialGradient id="bodyGrad" cx="38%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#7ae0ff"/>
+      <stop offset="35%" stop-color="#0099ee"/>
+      <stop offset="70%" stop-color="#0055bb"/>
+      <stop offset="100%" stop-color="#001a55"/>
+    </radialGradient>
+    <!-- Specular highlight -->
+    <radialGradient id="specGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.7)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+    <!-- Outer glow -->
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(0,180,255,0.3)"/>
+      <stop offset="100%" stop-color="rgba(0,100,255,0)"/>
+    </radialGradient>
+    <!-- Bolt gradient -->
+    <linearGradient id="boltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff700"/>
+      <stop offset="100%" stop-color="#ff9900"/>
+    </linearGradient>
+    <!-- Chain ring gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="hardGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- ── OUTER ATMOSPHERE GLOW ── -->
+  <ellipse cx="100" cy="115" rx="72" ry="72" fill="url(#glowGrad)" opacity="0.8"/>
+
+  <!-- ── CHAIN RING ORBITING (decorative) ── -->
+  <g opacity="0.6" filter="url(#subtleGlow)">
+    <circle cx="100" cy="115" r="80" fill="none" stroke="url(#ringGrad)" stroke-width="1.5" stroke-dasharray="5,8" opacity="0.5"/>
+    <circle cx="100" cy="115" r="68" fill="none" stroke="rgba(0,212,255,0.3)" stroke-width="1" stroke-dasharray="3,12"/>
+    <!-- Orbiting dots -->
+    <circle cx="180" cy="115" r="5" fill="#00d4ff" filter="url(#subtleGlow)"/>
+    <circle cx="20"  cy="115" r="4" fill="#7c3aed" filter="url(#subtleGlow)"/>
+    <circle cx="100" cy="35"  r="4" fill="#ffd700" filter="url(#subtleGlow)"/>
+    <circle cx="155" cy="60"  r="3" fill="#00d4ff" opacity="0.7"/>
+    <circle cx="45"  cy="60"  r="3" fill="#00d4ff" opacity="0.7"/>
+    <circle cx="155" cy="170" r="3" fill="#7c3aed" opacity="0.7"/>
+    <circle cx="45"  cy="170" r="3" fill="#7c3aed" opacity="0.7"/>
+  </g>
+
+  <!-- ── BODY SHADOW ── -->
+  <ellipse cx="100" cy="180" rx="50" ry="10" fill="rgba(0,0,0,0.35)" filter="url(#softGlow)"/>
+
+  <!-- ── MAIN BODY ── -->
+  <circle cx="100" cy="115" r="62" fill="url(#bodyGrad)" filter="url(#softGlow)"/>
+
+  <!-- Body border ring - metallic -->
+  <circle cx="100" cy="115" r="62" fill="none" stroke="rgba(100,200,255,0.5)" stroke-width="2.5"/>
+  <circle cx="100" cy="115" r="60" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+
+  <!-- ── SPECULAR HIGHLIGHT (top-left) ── -->
+  <ellipse cx="82" cy="90" rx="22" ry="14" fill="url(#specGrad)" transform="rotate(-30,82,90)"/>
+
+  <!-- ── INNER DEPTH RING ── -->
+  <circle cx="100" cy="115" r="48" fill="none" stroke="rgba(0,100,200,0.4)" stroke-width="1"/>
+
+  <!-- ── EYES ── -->
+  <!-- Left eye white -->
+  <ellipse cx="83" cy="108" rx="11" ry="13" fill="white"/>
+  <!-- Left iris -->
+  <ellipse cx="83" cy="110" rx="7" ry="9" fill="#001a40"/>
+  <!-- Left iris highlight color -->
+  <ellipse cx="83" cy="110" rx="5.5" ry="7" fill="#0055cc"/>
+  <!-- Left pupil -->
+  <ellipse cx="83" cy="111" rx="3.5" ry="4.5" fill="#000a20"/>
+  <!-- Left eye shine -->
+  <circle cx="86" cy="107" r="2.5" fill="white"/>
+  <circle cx="80" cy="113" r="1" fill="rgba(255,255,255,0.5)"/>
+
+  <!-- Right eye white -->
+  <ellipse cx="117" cy="108" rx="11" ry="13" fill="white"/>
+  <!-- Right iris -->
+  <ellipse cx="117" cy="110" rx="7" ry="9" fill="#001a40"/>
+  <!-- Right iris highlight color -->
+  <ellipse cx="117" cy="110" rx="5.5" ry="7" fill="#0055cc"/>
+  <!-- Right pupil -->
+  <ellipse cx="117" cy="111" rx="3.5" ry="4.5" fill="#000a20"/>
+  <!-- Right eye shine -->
+  <circle cx="120" cy="107" r="2.5" fill="white"/>
+  <circle cx="114" cy="113" r="1" fill="rgba(255,255,255,0.5)"/>
+
+  <!-- ── SMILE ── -->
+  <path d="M84 132 Q100 144 116 132" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Teeth glimpse -->
+  <path d="M90 133 Q100 140 110 133" fill="rgba(255,255,255,0.3)"/>
+
+  <!-- ── CHEEK BLUSH ── -->
+  <ellipse cx="72" cy="124" rx="10" ry="6" fill="rgba(255,100,100,0.35)" filter="url(#subtleGlow)"/>
+  <ellipse cx="128" cy="124" rx="10" ry="6" fill="rgba(255,100,100,0.35)" filter="url(#subtleGlow)"/>
+
+  <!-- ── TINY SPARKLES ── -->
+  <g fill="#fff" filter="url(#subtleGlow)" opacity="0.8">
+    <circle cx="148" cy="80"  r="1.5"/>
+    <circle cx="58"  cy="95"  r="1"/>
+    <circle cx="155" cy="130" r="2"/>
+    <circle cx="50"  cy="140" r="1.5"/>
+    <circle cx="140" cy="150" r="1"/>
+  </g>
+
+  <!-- ── LIGHTNING BOLT CROWN ── -->
+  <g filter="url(#hardGlow)" transform="translate(100,38)">
+    <!-- Bolt shadow -->
+    <path d="M2 0 L-8 14 L0 14 L-6 28 L10 10 L2 10 Z" fill="rgba(0,0,0,0.4)" transform="translate(2,2)"/>
+    <!-- Main bolt -->
+    <path d="M2 0 L-8 14 L0 14 L-6 28 L10 10 L2 10 Z" fill="url(#boltGrad)" stroke="rgba(255,240,0,0.6)" stroke-width="0.8"/>
+    <!-- Bolt inner highlight -->
+    <path d="M1 3 L-5 13 L1 13 L-3 23 L7 11 L1 11 Z" fill="rgba(255,255,200,0.4)"/>
+  </g>
+
+  <!-- ── ANIMATED ANNOTATIONS (static in SVG, would animate in-game) ── -->
+  <!-- Chain link icon left arm -->
+  <g opacity="0.75" transform="translate(22,100)">
+    <rect x="0" y="6" width="18" height="12" rx="6" fill="none" stroke="#00d4ff" stroke-width="2.5"/>
+    <rect x="6" y="0" width="18" height="12" rx="6" fill="none" stroke="#00d4ff" stroke-width="2.5"/>
+  </g>
+  <!-- Number badge right arm -->
+  <g transform="translate(158,96)">
+    <rect x="0" y="0" width="24" height="20" rx="6" fill="#0a1528" stroke="#ffd700" stroke-width="2"/>
+    <text x="12" y="15" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="12" font-weight="900" fill="#ffd700">7</text>
+  </g>
+
+  <!-- ── NAME BADGE ── -->
+  <rect x="68" y="188" width="64" height="22" rx="11" fill="#0a1a30" stroke="rgba(0,212,255,0.6)" stroke-width="1.5"/>
+  <text x="100" y="203" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="900" letter-spacing="2" fill="#00d4ff">BOLT</text>
+</svg>
+    </div>
+
+    <!-- Speech bubble -->
+    <div id="ftue-bubble">
+      <div id="ftue-bubble-arrow"></div>
+      <div class="ftue-tip-title" id="ftue-title">WELCOME</div>
+      <div class="ftue-tip-body" id="ftue-body">Let's learn how to play!</div>
+      <div class="ftue-tip-step" id="ftue-step">1 / 6</div>
+      <button id="ftue-next-btn" onclick="ftueNext()">GOT IT →</button>
+    </div>
+  </div>
+
+  <svg id="ftue-chain-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3"></svg>
+  <button id="ftue-skip" onclick="ftueEnd()">SKIP TUTORIAL</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  VAULT ULTIMATE — COMPLETE GAME ENGINE
+// ══════════════════════════════════════════
+
+// ── STATE ──
+let level=1,score=0,targetScore=0,movesLeft=0,initialMoves=0;
+let grid=[],chain=[],hintChain=[],adjHighlights=[],gridSize=3,mode=null,swapTarget=null;
+let isLevelClearing=false,isDragging=false,lastEntered=null;
+let ftueShown={};
+let settings={sfx:true,autoHighlight:true,haptic:true};
+let saveData={};
+let comboStreak=0; // consecutive valid chains without emptying
+
+const COLORS=['blue','red','green','yellow'];
+// Extended rule set - varies beyond level 8 for rhythm
+const RULES=[2,3,5,7,10,7,12,5,15,10,20,15,7,20,10,12,5,20,15,20];
+const BOOSTER_UNLOCKS={hint:2,shuffle:3,hammer:4,swap:5};
+const BOOSTER_MAX_USES=3; // uses per level
+const TOTAL_LEVELS=20;
+// Difficulty classification for map display
+const LEVEL_DIFF={1:'easy',2:'easy',3:'easy',4:'medium',5:'medium',6:'medium',7:'hard',8:'hard',9:'hard',10:'hard',11:'medium',12:'hard',13:'hard',14:'hard',15:'hard',16:'hard',17:'hard',18:'hard',19:'hard',20:'hard'};
+
+// ── AUDIO ENGINE ──
+let audioCtx=null;
+function getAudio(){if(!audioCtx&&settings.sfx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx}
+function playTone(freq,type,dur,vol=0.3,delay=0){
+  const ctx=getAudio();if(!ctx)return;
+  const osc=ctx.createOscillator(),gain=ctx.createGain();
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.type=type;osc.frequency.setValueAtTime(freq,ctx.currentTime+delay);
+  gain.gain.setValueAtTime(0,ctx.currentTime+delay);
+  gain.gain.linearRampToValueAtTime(vol,ctx.currentTime+delay+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+dur);
+  osc.start(ctx.currentTime+delay);osc.stop(ctx.currentTime+delay+dur);
+}
+function sfxSelect(n){playTone(300+n*60,'sine',0.08,0.15)}
+function sfxSubmit(){[0,.05,.1].forEach((d,i)=>playTone([440,550,660][i],'triangle',0.15,0.25,d))}
+function sfxVolt(){playTone(880,'sawtooth',0.3,0.4);setTimeout(()=>playTone(1200,'square',0.2,0.3),100)}
+function sfxLevelClear(){[0,.1,.2,.3,.4].forEach((d,i)=>playTone([523,659,784,880,1047][i],'sine',0.3,0.3,d))}
+function sfxLevelFail(){playTone(300,'sawtooth',0.4,0.3);setTimeout(()=>playTone(200,'sawtooth',0.6,0.3),200)}
+function sfxClick(){playTone(600,'sine',0.05,0.1)}
+function haptic(d=10){if(settings.haptic&&navigator.vibrate)navigator.vibrate(d)}
+
+// ── SAVE SYSTEM ──
+function loadSave(){
+  try{saveData=JSON.parse(localStorage.getItem('vault_v3')||'{}')}catch{saveData={}}
+  saveData.levels=saveData.levels||{};
+  saveData.bestScore=saveData.bestScore||0;
+  saveData.totalStars=saveData.totalStars||0;
+  saveData.coins=saveData.coins||0;
+  // boosterStock: persistent purchased uses that carry across levels
+  saveData.boosterStock=saveData.boosterStock||{hint:0,shuffle:0,hammer:0,swap:0};
+  settings=Object.assign(settings,saveData.settings||{});
+}
+function persist(){
+  saveData.settings=settings;
+  let ts=0;Object.values(saveData.levels).forEach(l=>ts+=(l.stars||0));
+  saveData.totalStars=ts;
+  saveData.bestScore=saveData.bestScore||0;
+  localStorage.setItem('vault_v3',JSON.stringify(saveData));
+}
+
+// ── GOLD COIN SVG ──
+function goldCoin(size='1.1em'){
+  return `<span class="gc" style="width:${size};height:${size}"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="cg1" cx="38%" cy="32%" r="65%">
+        <stop offset="0%" stop-color="#fff9a0"/>
+        <stop offset="30%" stop-color="#ffd700"/>
+        <stop offset="70%" stop-color="#d4920a"/>
+        <stop offset="100%" stop-color="#7a4e00"/>
+      </radialGradient>
+      <radialGradient id="cg2" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(255,255,255,0.55)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+      </radialGradient>
+    </defs>
+    <circle cx="16" cy="16" r="15" fill="#a06000" opacity="0.35"/>
+    <circle cx="16" cy="15.2" r="14" fill="url(#cg1)"/>
+    <circle cx="16" cy="15.2" r="14" fill="none" stroke="rgba(255,230,80,0.6)" stroke-width="1"/>
+    <circle cx="16" cy="15.2" r="10" fill="none" stroke="rgba(255,240,100,0.35)" stroke-width="1.5"/>
+    <text x="16" y="20" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="900" fill="rgba(120,60,0,0.7)">$</text>
+    <ellipse cx="11" cy="10" rx="4" ry="2.5" fill="url(#cg2)" transform="rotate(-30,11,10)"/>
+  </svg></span>`;
+}
+
+// ── COIN SYSTEM ──
+// Formula: coins = floor(stars * sqrt(score) / 8)
+// Examples: 1★ score=300 → 2 coins | 2★ score=500 → 6 coins | 3★ score=800 → 11 coins
+function calcCoins(stars, sc){
+  return Math.floor(stars * Math.sqrt(sc) / 8);
+}
+function addCoins(amount){
+  saveData.coins=(saveData.coins||0)+amount;
+  persist();
+  updateCoinDisplay();
+}
+function spendCoins(amount){
+  if((saveData.coins||0)<amount)return false;
+  saveData.coins-=amount;
+  persist();
+  updateCoinDisplay();
+  return true;
+}
+function updateCoinDisplay(){
+  const c=saveData.coins||0;
+  const fmt=c>=1000?Math.floor(c/100)/10+'K':c;
+  const el1=document.getElementById('home-coins');
+  const el2=document.getElementById('game-coins');
+  if(el1)el1.innerText=fmt;
+  if(el2)el2.innerText=fmt;
+}
+function showCoinFloat(amount, x, y){
+  const el=document.createElement('div');
+  el.className='coin-float';
+  el.style.left=x+'px';el.style.top=y+'px';
+  el.innerHTML='+'+amount+goldCoin('1.2em');
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1400);
+  // pulse the badge
+  const badge=document.getElementById('game-coin-badge');
+  if(badge){badge.classList.add('popping');setTimeout(()=>badge.classList.remove('popping'),400);}
+}
+function getLevelData(lvl){return saveData.levels[lvl]||{stars:0,score:0}}
+function setLevelData(lvl,stars,sc){
+  const cur=getLevelData(lvl);
+  if(!saveData.levels[lvl])saveData.levels[lvl]={};
+  saveData.levels[lvl].stars=Math.max(cur.stars,stars);
+  saveData.levels[lvl].score=Math.max(cur.score,sc);
+  persist();
+}
+function maxUnlockedLevel(){let m=1;for(let i=1;i<=TOTAL_LEVELS;i++){if(getLevelData(i).stars>0)m=Math.min(i+1,TOTAL_LEVELS);}return m;}
+
+// ── FTUE SYSTEM ──
+const FTUE_DATA = {
+  obsidian:{id:'obsidian',icon:'🪨',color:'#64748b',name:'OBSIDIAN BLOCK',desc:"This immovable rock can't be chained. Match adjacent balls to slowly crack it, or use the Hammer booster to smash it instantly!"},
+  ice:{id:'ice',icon:'❄️',color:'#38bdf8',name:'ICE GLACIER',desc:"The countdown is ticking! Each move it counts down. When it hits zero it SPREADS to a neighbor. Chain adjacent balls to melt it!"},
+  ghost:{id:'ghost',icon:'👻',color:'#a78bfa',name:'GHOST ORB',desc:"Spooky! This shifter changes color every move, making it tricky to chain. Catch it at the right moment!"},
+  wild:{id:'wild',icon:'★',color:'#ffd700',name:'WILD ORB',desc:"A rainbow wildcard! It connects to ANY color or value — use it as a bridge to build huge chains!"},
+  volt:{id:'volt',icon:'⚡',color:'#a855f7',name:'VOLT ORB',desc:"Chain 5+ balls and a Volt spawns! Tap it to strike every ball of the same color on the board for massive points!"},
+  bomb:{id:'bomb',icon:'💣',color:'#f59e0b',name:'BOMB ORB',desc:"Chain this explosive and it clears a full 3×3 blast zone — a great way to wipe out obstacles!"},
+  hint_booster:{id:'hint_booster',icon:'💡',color:'#00d4ff',name:'HINT UNLOCKED!',desc:"Tap 💡 to reveal a valid chain on the board. Perfect when you're stuck!"},
+  shuffle_booster:{id:'shuffle_booster',icon:'🎲',color:'#22c55e',name:'SHUFFLE UNLOCKED!',desc:"Tap 🎲 to randomize all normal balls. Use it to escape a deadlock or find a better chain!"},
+  hammer_booster:{id:'hammer_booster',icon:'🔨',color:'#f59e0b',name:'HAMMER UNLOCKED!',desc:"Tap 🔨 then tap any ball to destroy it instantly — even Obsidian!"},
+  swap_booster:{id:'swap_booster',icon:'🔄',color:'#ff006e',name:'SWAP UNLOCKED!',desc:"Tap 🔄 then tap two balls to swap their positions. Set up the perfect chain!"},
+};
+
+function checkAndShowFTUE(type){
+  if(!type||ftueShown[type])return false;
+  const data=FTUE_DATA[type];
+  if(!data)return false;
+  ftueShown[type]=true;
+  showFTUEModal(data);
+  return true;
+}
+function showFTUEModal(data){
+  openModal(`
+    <div style="font-size:3rem;margin-bottom:8px;filter:drop-shadow(0 0 16px ${data.color})">${data.icon}</div>
+    <div class="modal-title" style="color:${data.color};font-size:1.2rem">${data.name}</div>
+    <div style="color:rgba(255,255,255,0.65);font-size:0.85rem;line-height:1.5;margin:14px 0;background:rgba(255,255,255,0.04);padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,0.07)">${data.desc}</div>
+    <button class="modal-btn primary" onclick="closeModal()">GOT IT!</button>
+  `);
+}
+function checkBoardForNewFTUE(){
+  if(!document.getElementById('modal-overlay').classList.contains('hidden'))return;
+  for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++){
+    const b=grid[r][c];
+    if(b&&['obsidian','ice','ghost','wild','volt','bomb'].includes(b.type)){
+      if(checkAndShowFTUE(b.type))return;
+    }
+  }
+}
+function checkBoosterFTUE(boosterId){
+  const map={hint:'hint_booster',shuffle:'shuffle_booster',hammer:'hammer_booster',swap:'swap_booster'};
+  if(map[boosterId])checkAndShowFTUE(map[boosterId]);
+}
+
+// ── BG CANVAS ──
+const bgCanvas=document.getElementById('bg-canvas');
+const bgCtx=bgCanvas.getContext('2d');
+let bgParticles=[];
+function initBg(){
+  bgCanvas.width=window.innerWidth;bgCanvas.height=window.innerHeight;
+  bgParticles=[];
+  for(let i=0;i<60;i++){
+    bgParticles.push({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,r:Math.random()*1.5+0.3,vx:(Math.random()-.5)*0.3,vy:(Math.random()-.5)*0.3,alpha:Math.random()*0.4+0.1,c:Math.random()<0.5?'0,212,255':'255,215,0'});
+  }
+}
+function animateBg(){
+  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+  bgParticles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=bgCanvas.width;if(p.x>bgCanvas.width)p.x=0;
+    if(p.y<0)p.y=bgCanvas.height;if(p.y>bgCanvas.height)p.y=0;
+    bgCtx.beginPath();bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    bgCtx.fillStyle=`rgba(${p.c},${p.alpha})`;bgCtx.fill();
+  });
+  requestAnimationFrame(animateBg);
+}
+window.addEventListener('resize',initBg);
+initBg();animateBg();
+
+// ── SCREEN NAV ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+function showHome(){
+  updateHomeStats();showScreen('home-screen');sfxClick();
+}
+function showMap(){
+  sfxClick();renderMap();showScreen('map-screen');
+}
+function goToMap(){
+  closeModal();
+  isLevelClearing=false;
+  sfxClick();
+  renderMap();
+  showScreen('map-screen');
+}
+function updateHomeStats(){
+  const cleared=Object.keys(saveData.levels).filter(k=>saveData.levels[k].stars>0).length;
+  const stars=saveData.totalStars||0;
+  document.getElementById('home-levels').innerText=cleared;
+  document.getElementById('home-stars').innerText=stars;
+  updateCoinDisplay();
+}
+
+// ── LEVEL MAP ──
+function renderMap(){
+  renderGrid('level-grid',1,12);
+  renderGrid('level-grid-2',13,20);
+  const unlocked=maxUnlockedLevel();
+  const el=document.getElementById(`node-${unlocked}`);
+  if(el){setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'center'}),300);}
+}
+function renderGrid(gridId,from,to){
+  const container=document.getElementById(gridId);
+  container.innerHTML='';
+  const unlocked=maxUnlockedLevel();
+  for(let i=from;i<=to;i++){
+    const ld=getLevelData(i);
+    const isUnlocked=i<=unlocked;
+    const isCurrent=i===unlocked&&ld.stars===0;
+    const isCompleted=ld.stars>0;
+    const node=document.createElement('div');
+    node.className=`level-node diff-${LEVEL_DIFF[i]||'medium'} ${isCompleted?'completed':isCurrent?'current':isUnlocked?'available':'locked'}`;
+    node.id=`node-${i}`;
+    if(isUnlocked){node.onclick=()=>startLevel(i);}
+    let starsHtml=`<div class="level-stars">`;
+    for(let s=1;s<=3;s++)starsHtml+=`<span class="s ${s<=ld.stars?'earned':''}">★</span>`;
+    starsHtml+='</div>';
+    node.innerHTML=isUnlocked?`<div class="level-num">${i}</div>${starsHtml}<div class="diff-dot"></div>`:`<div class="lock-icon">🔒</div>`;
+    if(isCurrent)node.innerHTML+=`<div class="node-badge">NEW</div>`;
+    container.appendChild(node);
+  }
+}
+function startLevel(lvl){sfxClick();level=lvl;showScreen('game-screen');setTimeout(initGame,50);}
+
+// ── GAME INIT ──
+let boosterUses={hint:BOOSTER_MAX_USES,shuffle:BOOSTER_MAX_USES,hammer:BOOSTER_MAX_USES,swap:BOOSTER_MAX_USES};
+function initGame(){
+  grid=[];chain=[];hintChain=[];adjHighlights=[];score=0;mode=null;swapTarget=null;
+  isLevelClearing=false;isDragging=false;comboStreak=0;
+  // Each level starts with free 3 uses; any purchased stock adds on top
+  const stock=saveData.boosterStock||{};
+  boosterUses={
+    hint: BOOSTER_MAX_USES + (stock.hint||0),
+    shuffle: BOOSTER_MAX_USES + (stock.shuffle||0),
+    hammer: BOOSTER_MAX_USES + (stock.hammer||0),
+    swap: BOOSTER_MAX_USES + (stock.swap||0)
+  };
+  // Clear persistent stock (it's now loaded into this level's uses)
+  saveData.boosterStock={hint:0,shuffle:0,hammer:0,swap:0};
+  hideCombo();
+  gridSize=level<=2?3:level<=5?4:5;
+  targetScore=200+(level*80);  // tuned for sum×chainLen scoring
+  initialMoves=Math.max(8,18-Math.floor(level/2));
+  movesLeft=initialMoves;
+  const ruleIdx=Math.min(level-1,RULES.length-1);
+  document.getElementById('g-lvl').innerText=level;
+  document.getElementById('g-moves').innerText=movesLeft;
+  document.getElementById('dp-rule').innerText=`Multiple of ${RULES[ruleIdx]}`;
+  document.getElementById('dp-target').innerText=`TARGET: ${targetScore}`;
+  vaultRotation = 0;
+  const _fill = document.getElementById('vault-ring-fill');
+  if(_fill) _fill.style.strokeDashoffset = '295.3';
+  const _vs = document.getElementById('vault-score');
+  if(_vs) _vs.innerText = 0;
+  const _vt = document.getElementById('vault-target');
+  if(_vt) _vt.innerText = targetScore;
+  const _vp = document.getElementById('vault-pct');
+  if(_vp) _vp.innerText = '0% cracked';
+  const _dial = document.getElementById('vault-dial');
+  if(_dial) _dial.style.transform = 'rotate(0deg)';
+  const _bolt = document.getElementById('vault-bolt');
+  if(_bolt) _bolt.classList.remove('open');
+  document.getElementById('submit-btn').style.display='none';
+  for(let r=0;r<gridSize;r++){grid[r]=[];for(let c=0;c<gridSize;c++)grid[r][c]=generateBall(r,c);}
+  injectSpecials();
+  renderBoosterUI();render();
+  // Entry animation
+  const gw=document.getElementById('grid-wrap');
+  if(gw){gw.classList.remove('level-entering');void gw.offsetWidth;gw.classList.add('level-entering');}
+  if(level===1 && !saveData.ftueComplete){
+    setTimeout(ftueStart, 500);
+  } else {
+    setTimeout(checkBoardForNewFTUE,600);
+    setTimeout(checkDeadlock,500);
+  }
+}
+function injectSpecials(){
+  // Only inject if cell is a normal ball (don't double-stack specials)
+  function tryInject(r,c,ball){
+    if(grid[r]&&grid[r][c]&&grid[r][c].type==='normal')grid[r][c]=ball;
+  }
+  if(level>=3)tryInject(1,1,{type:'obsidian',val:0,color:'obsidian',r:1,c:1});
+  if(level>=4){const m=Math.floor(gridSize/2);tryInject(m,m,{type:'ice',val:5,color:'blue',r:m,c:m});}
+  if(level>=5)tryInject(0,gridSize-1,{type:'ghost',val:0,color:COLORS[Math.floor(Math.random()*4)],r:0,c:gridSize-1});
+  if(level>=6)tryInject(gridSize-1,0,{type:'wild',val:0,color:'wild',r:gridSize-1,c:0});
+  if(level>=8)tryInject(0,0,{type:'bomb',val:0,color:'bomb',r:0,c:0});
+  // Cap ice balls to max 2 across board
+  let iceCount=0;
+  for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++){
+    if(grid[r][c]&&grid[r][c].type==='ice'){iceCount++;if(iceCount>2)grid[r][c]=generateBall(r,c);}
+  }
+}
+function generateBall(r,c){
+  const rand=Math.random();
+  if(level>=3&&rand<0.07)return{type:'obsidian',val:0,color:'obsidian',r,c};
+  if(level>=4&&rand<0.06)return{type:'ice',val:Math.floor(Math.random()*4)+3,color:'blue',r,c};
+  if(level>=5&&rand<0.08)return{type:'ghost',val:0,color:COLORS[Math.floor(Math.random()*4)],r,c};
+  if(level>=6&&rand<0.05)return{type:'wild',val:0,color:'wild',r,c};
+  if(level>=5&&rand<0.04)return{type:'volt',val:0,color:COLORS[Math.floor(Math.random()*4)],r,c}; // volt from lvl 5 only
+  return{type:'normal',val:Math.floor(Math.random()*9)+1,color:COLORS[Math.floor(Math.random()*4)],r,c};
+}
+
+// ── RENDER ──
+function render(){
+  const container=document.getElementById('grid');
+  container.style.gridTemplateColumns=`repeat(${gridSize},1fr)`;
+  container.innerHTML='';
+  const cellEls={};
+  grid.forEach((row,r)=>row.forEach((item,c)=>{
+    if(!item){const ph=document.createElement('div');ph.className='ball';ph.style.visibility='hidden';container.appendChild(ph);return;}
+    const div=document.createElement('div');
+    // Ghost gets its current color class so it's visually colorful, plus 'ghost' for the overlay
+    const typeClass = item.type!=='normal' ? item.type : '';
+    const colorClass = (item.type==='ghost') ? item.color : item.color;
+    div.className=`ball ${colorClass} ${typeClass}`.trim();
+    div.dataset.r=r;div.dataset.c=c;
+    const emojiMap={volt:'⚡',obsidian:'🪨',ghost:'👻',wild:'★',bomb:'💣'};
+    const label = item.type in emojiMap ? emojiMap[item.type] : item.val;
+    const span = document.createElement('span');
+    span.className = 'ball-num';
+    span.innerText = (item.type==='ice') ? item.val : label;
+    if(item.type==='obsidian'||item.type==='ghost'||item.type==='wild'||item.type==='volt'||item.type==='bomb'){
+      span.style.fontSize='1.3rem';
+    }
+    div.appendChild(span);
+    if(chain.includes(item))div.classList.add('active');
+    if(hintChain.includes(item))div.classList.add('hint-pulse');
+    if(settings.autoHighlight&&adjHighlights.includes(item)&&!chain.includes(item))div.classList.add('adj-hint');
+    if(swapTarget===item)div.classList.add('active');
+    div.onpointerdown=e=>{e.preventDefault();if(!mode){isDragging=true;lastEntered=item;handleSelect(r,c,true);}else{handleBoosterTap(r,c);}};
+    div.onpointerenter=()=>{if(isDragging&&lastEntered!==item){lastEntered=item;handleSelect(r,c,false);}};
+    div.onpointerup=()=>{isDragging=false;};
+    container.appendChild(div);
+    cellEls[`${r}_${c}`]=div;
+  }));
+  window.onpointerup=()=>{isDragging=false;lastEntered=null;};
+  document.getElementById('grid').onpointerleave=()=>{isDragging=false;};
+  // Sum display
+  let curSum=0;chain.forEach(i=>curSum+=(i.val||0));
+  const sumEl=document.getElementById('dp-sum');
+  sumEl.innerText=curSum;
+  const ruleIdx=Math.min(level-1,RULES.length-1);
+  const valid=chain.length>=2&&curSum%RULES[ruleIdx]===0;
+  sumEl.classList.toggle('valid',valid);
+  sumEl.classList.toggle('invalid',!valid);
+  document.getElementById('submit-btn').style.display=valid?'block':'none';
+  // Update undo button state
+  const undoBtn=document.getElementById('undo-btn');
+  if(undoBtn){undoBtn.classList.toggle('disabled',chain.length===0);}
+  // Near-miss feedback
+  showNearMiss(curSum,chain.length);
+  // Chain SVG line
+  drawChainLine(cellEls);
+}
+function drawChainLine(cellEls){
+  const svg=document.getElementById('chain-svg');
+  svg.innerHTML='';
+  if(chain.length<2)return;
+  const wrap=document.getElementById('grid-wrap');
+  const wRect=wrap.getBoundingClientRect();
+  const pts=chain.map(item=>{
+    const el=cellEls[`${item.r}_${item.c}`];
+    if(!el)return null;
+    const r=el.getBoundingClientRect();
+    return{x:r.left-wRect.left+r.width/2,y:r.top-wRect.top+r.height/2};
+  }).filter(Boolean);
+  if(pts.length<2)return;
+  let d=`M ${pts[0].x} ${pts[0].y}`;
+  for(let i=1;i<pts.length;i++)d+=` L ${pts[i].x} ${pts[i].y}`;
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d',d);path.setAttribute('class','chain-line');
+  svg.appendChild(path);
+  // Dots
+  pts.forEach((p,i)=>{
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p.x);c.setAttribute('cy',p.y);c.setAttribute('r',i===0?6:4);
+    c.setAttribute('fill','rgba(255,255,255,0.9)');c.setAttribute('filter','url(#glow)');
+    svg.appendChild(c);
+  });
+}
+
+// ── UNDO LAST BALL ──
+function undoLastBall(){
+  if(chain.length===0)return;
+  chain.pop();
+  sfxClick();haptic(5);
+  updateAdjHighlights();render();
+}
+
+// ── NEAR-MISS FEEDBACK ──
+let _nearMissTimer=null;
+function showNearMiss(curSum,chainLen){
+  const nm=document.getElementById('near-miss');
+  if(!nm)return;
+  if(chainLen<2){nm.style.display='none';return;}
+  const ruleIdx=Math.min(level-1,RULES.length-1);
+  const rule=RULES[ruleIdx];
+  const mod=curSum%rule;
+  if(mod===0){nm.style.display='none';return;} // valid — no need
+  const shortfall=rule-mod;
+  const threshold=Math.max(2,Math.floor(rule*0.35));
+  if(shortfall<=threshold){
+    nm.innerText=`+${shortfall} more needed!`;
+    nm.style.display='block';
+    clearTimeout(_nearMissTimer);
+    _nearMissTimer=setTimeout(()=>nm.style.display='none',1800);
+  } else {
+    nm.style.display='none';
+  }
+}
+
+// ── COMBO STREAK ──
+function incrementCombo(){
+  comboStreak++;
+  if(comboStreak>=2){
+    const cw=document.getElementById('combo-wrap');
+    const cn=document.getElementById('combo-num');
+    if(cw&&cn){cw.style.display='flex';cn.innerText=comboStreak+'×';}
+  }
+}
+function resetCombo(){comboStreak=0;hideCombo();}
+function hideCombo(){const cw=document.getElementById('combo-wrap');if(cw)cw.style.display='none';}
+
+// ── SELECTION ──
+function handleSelect(r,c,isStart){
+  if(isLevelClearing||ftueActive||!document.getElementById('modal-overlay').classList.contains('hidden'))return;
+  const item=grid[r][c];if(!item)return;
+  if(item.type==='obsidian'||item.type==='ice')return;
+  hintChain=[];
+  const idx=chain.indexOf(item);
+  if(idx!==-1){
+    if(chain.length>1&&idx<chain.length-1){chain=chain.slice(0,idx+1);}
+    else if(isStart&&chain.length===1){chain=[];}
+  }else{
+    const last=chain.length>0?chain[chain.length-1]:null;
+    const isAdj=last?(Math.max(Math.abs(last.r-r),Math.abs(last.c-c))===1):true;
+    const canConnect=last?(last.color===item.color||last.val===item.val||last.type==='volt'||item.type==='volt'||last.type==='wild'||item.type==='wild'):true;
+    if(isAdj&&canConnect){chain.push(item);sfxSelect(chain.length);haptic(8);}
+  }
+  updateAdjHighlights();render();
+}
+function updateAdjHighlights(){
+  adjHighlights=[];
+  if(!settings.autoHighlight||chain.length===0)return;
+  const last=chain[chain.length-1];
+  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+    if(dr===0&&dc===0)continue;
+    const nr=last.r+dr,nc=last.c+dc;
+    if(grid[nr]&&grid[nr][nc]&&!chain.includes(grid[nr][nc])&&grid[nr][nc].type!=='obsidian'&&grid[nr][nc].type!=='ice'){
+      if(grid[nr][nc].color===last.color||grid[nr][nc].val===last.val||grid[nr][nc].type==='volt'||last.type==='volt'||grid[nr][nc].type==='wild'||last.type==='wild')
+        adjHighlights.push(grid[nr][nc]);
+    }
+  }
+}
+
+// ── EXECUTE CHAIN ──
+function executeChain(){
+  if(chain.length<2)return;
+  const ruleIdx=Math.min(level-1,RULES.length-1);
+  let curSum=chain.reduce((a,b)=>a+(b.val||0),0);
+  if(curSum%RULES[ruleIdx]!==0)return;
+  const chainLen=chain.length;
+  const lastPos={r:chain[chainLen-1].r,c:chain[chainLen-1].c,color:chain[chainLen-1].color};
+  sfxSubmit();haptic(20);
+  movesLeft--;
+  document.getElementById('g-moves').innerText=movesLeft;
+  document.getElementById('moves-badge')?.classList.toggle('low',movesLeft<=3);
+  // Score = sum × chain length; combo multiplier for consecutive chains
+  incrementCombo();
+  const comboMult=comboStreak>=4?1.5:comboStreak>=2?1.25:1;
+  let finalVal = Math.round(curSum * chainLen * comboMult);
+  score += finalVal;
+  if(score>=(saveData.bestScore||0)){saveData.bestScore=score;} // persist at level end only
+  const firstPos={...chain[0]};
+  // BOMB special — with visual blast feedback
+  chain.forEach(p=>{
+    if(p.type==='bomb'){
+      for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+        const nr=p.r+dr,nc=p.c+dc;
+        if(grid[nr]&&grid[nr][nc]&&grid[nr][nc].type!=='obsidian'){
+          spawnParticles(3,{r:nr,c:nc}); // visual per-cell blast
+          grid[nr][nc]=null;
+        }
+      }
+    }
+  });
+  // VOLT strike — collect strike color BEFORE clearing chain
+  // Color = the ball in the chain that connected INTO the volt (or the ball before it)
+  let voltStrikeColor = null;
+  chain.forEach((p, idx) => {
+    if(p.type==='volt'){
+      // Use the color of the ball that linked into this volt (previous in chain), or next ball
+      const neighbor = chain[idx-1] || chain[idx+1];
+      voltStrikeColor = neighbor ? neighbor.color : p.color;
+    }
+  });
+
+  // ICE adjacency clear (before chain clear)
+  chain.forEach(p=>{
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+      const nr=p.r+dr,nc=p.c+dc;
+      if(grid[nr]&&grid[nr][nc]&&grid[nr][nc].type==='ice')grid[nr][nc]=null;
+    }
+  });
+
+  // Clear chain cells
+  chain.forEach(i=>{grid[i.r][i.c]=null;});
+
+  // Spawn volt if long chain (place AFTER clearing so no conflict)
+  if(chainLen>=5)grid[lastPos.r][lastPos.c]={type:'volt',val:0,color:lastPos.color,r:lastPos.r,c:lastPos.c};
+
+  // VOLT strike — synchronously clear matching-color balls NOW (no setTimeout)
+  if(voltStrikeColor){
+    sfxVolt();haptic(30);
+    for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++){
+      const b=grid[r][c];
+      if(b && b.color===voltStrikeColor && b.type!=='volt' && b.type!=='obsidian' && b.type!=='ice'){
+        grid[r][c]=null;
+      }
+    }
+    spawnParticles(25,{r:Math.floor(gridSize/2),c:Math.floor(gridSize/2)});
+  }
+  // Ice tick
+  grid.forEach((row,r)=>row.forEach((b,c)=>{
+    if(b&&b.type==='ice'){b.val--;
+      if(b.val<=0){
+        let spread=false;
+        for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+          if(dr===0&&dc===0)continue;
+          const nr=r+dr,nc=c+dc;
+          if(!spread&&grid[nr]&&grid[nr][nc]&&grid[nr][nc].type==='normal'){
+            grid[nr][nc]={type:'ice',val:5,color:'blue',r:nr,c:nc};spread=true;
+          }
+        }
+        b.val=5;
+      }
+    }
+  }));
+  // Ghost shift — copies color of the last ball in the chain (deliberate mechanic)
+  const lastChainColor = chain.length>0 ? chain[chain.length-1].color : null;
+  grid.forEach(row=>row.forEach(b=>{
+    if(b&&b.type==='ghost'){
+      // If a chain was just submitted, copy that chain's color; otherwise random
+      b.color=lastChainColor&&lastChainColor!=='wild'?lastChainColor:COLORS[Math.floor(Math.random()*4)];
+    }
+  }));
+  // Hide near-miss on submit
+  const nm=document.getElementById('near-miss');if(nm)nm.style.display='none';
+  updateProgress();
+  showFeedbackPop(finalVal,chainLen,{x:firstPos.c,y:firstPos.r},comboStreak,comboMult);
+  spawnParticles(finalVal>=80?20:chainLen*3,{r:firstPos.r,c:firstPos.c});
+  chain=[];adjHighlights=[];
+  if(score>=targetScore){persist();setTimeout(showWin,600);}
+  else if(movesLeft<=0){resetCombo();persist();setTimeout(showFail,400);}
+  else{refill();setTimeout(checkDeadlock,300);}
+}
+function showWin(){
+  isLevelClearing=true;sfxLevelClear();haptic(50);
+  // Score-based stars: 3★ = 150%+ of target, 2★ = 110%+, 1★ = met target
+  const pct=score/targetScore;
+  const stars=pct>=1.5?3:pct>=1.1?2:1;
+  setLevelData(level,stars,score);
+  resetCombo();
+  // Award coins — only for new or improved completion
+  const prevData=getLevelData(level);
+  const prevStars=prevData.stars||0;
+  const coinsEarned=calcCoins(stars,score);
+  // Only award full coins on first completion; on replay award difference if improved
+  const prevCoins=prevStars>0?calcCoins(prevStars,prevData.score||0):0;
+  const coinDelta=Math.max(0,coinsEarned-prevCoins);
+  if(coinDelta>0)addCoins(coinDelta);
+  setTimeout(()=>{
+    spawnParticles(40,{r:2,c:2});
+    // Show coin float near top of screen
+    if(coinDelta>0)showCoinFloat(coinDelta, window.innerWidth/2, window.innerHeight*0.3);
+    let starsHtml='';
+    for(let s=1;s<=3;s++)starsHtml+=`<div class="star-item" id="ws${s}">★</div>`;
+    openModal(`
+      <div style="font-size:2.5rem;margin-bottom:10px">🏆</div>
+      <div class="modal-title" style="color:var(--gold)">VAULT CRACKED!</div>
+      <div class="modal-sub">Level ${level} Complete</div>
+      <div class="stars-display">${starsHtml}</div>
+      <div class="modal-score">+${score}</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.35);font-family:'Orbitron',monospace;margin-top:-6px;margin-bottom:8px">${stars===3?'MASTER SCORE (150%+)':stars===2?'GREAT SCORE (110%+)':'TARGET MET — aim for 150% to 3★'}</div>
+      ${coinDelta>0?`<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:20px;padding:6px 16px;font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:900;color:var(--gold);margin-bottom:12px">${goldCoin('1.1em')} +${coinDelta} coins earned</div>`:''}
+      <div class="modal-btns">
+        <button class="modal-btn primary" onclick="nextLevel()">NEXT LEVEL →</button>
+        <button class="modal-btn secondary" onclick="replayLevel()">↺ Replay</button>
+        <button class="modal-btn secondary" onclick="goToMap()">MAP</button>
+      </div>
+    `);
+    for(let s=1;s<=stars;s++)setTimeout(()=>document.getElementById(`ws${s}`)?.classList.add('earned'),s*300);
+  },200);
+}
+function showFail(){
+  sfxLevelFail();haptic([100,30,100]);
+  openModal(`
+    <div style="font-size:2.5rem;margin-bottom:10px">💀</div>
+    <div class="modal-title" style="color:#ef4444">OUT OF MOVES</div>
+    <div class="modal-sub">Score: ${score} / ${targetScore}</div>
+    <div style="margin:15px 0">
+      <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:8px;overflow:hidden">
+        <div style="height:100%;width:${Math.min(100,(score/targetScore)*100)}%;background:linear-gradient(90deg,#ef4444,#f59e0b);border-radius:8px"></div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn cyan" onclick="replayLevel()">↺ TRY AGAIN</button>
+      <button class="modal-btn secondary" onclick="goToMap()">MAP</button>
+    </div>
+  `);
+}
+function nextLevel(){if(level<TOTAL_LEVELS){level++;closeModal();initGame();}else{closeModal();showMap();}}
+function replayLevel(){closeModal();initGame();}
+
+// ── PROGRESS ──
+let vaultRotation = 0;
+function updateProgress(){
+  const pct = Math.min((score/targetScore)*100, 100);
+  const circumference = 295.3; // 2π × r(47)
+
+  // Ring fill
+  const fill = document.getElementById('vault-ring-fill');
+  if(fill) fill.style.strokeDashoffset = circumference - (circumference * pct/100);
+
+  // Score text
+  const vs = document.getElementById('vault-score');
+  if(vs) vs.innerText = score;
+  const vt = document.getElementById('vault-target');
+  if(vt) vt.innerText = targetScore;
+  const vp = document.getElementById('vault-pct');
+  if(vp) vp.innerText = Math.round(pct) + '% cracked';
+
+  // Rotate dial on each chain
+  vaultRotation += 51; // roughly prime angle so it never repeats
+  const dial = document.getElementById('vault-dial');
+  if(dial) dial.style.transform = `rotate(${vaultRotation}deg)`;
+
+  // Open bolt when complete
+  const bolt = document.getElementById('vault-bolt');
+  if(bolt) bolt.classList.toggle('open', pct >= 100);
+
+  // Crack effect on complete
+  if(pct >= 100){
+    const body = document.getElementById('vault-body');
+    if(body){ body.classList.add('cracking'); setTimeout(()=>body.classList.remove('cracking'),600); }
+  }
+}
+
+
+// ── REFILL ──
+function refill(){
+  for(let c=0;c<gridSize;c++){
+    for(let r=gridSize-1;r>=0;r--){
+      if(grid[r][c]===null){
+        for(let k=r-1;k>=0;k--){
+          if(grid[k][c]&&grid[k][c].type!=='obsidian'&&grid[k][c].type!=='ice'){
+            grid[r][c]=grid[k][c];grid[r][c].r=r;grid[k][c]=null;break;
+          }
+        }
+      }
+    }
+    for(let r=0;r<gridSize;r++)if(!grid[r][c]){grid[r][c]=generateBall(r,c);}
+  }
+  render();
+  setTimeout(checkBoardForNewFTUE,400);
+}
+
+// ── DEADLOCK ──
+function checkDeadlock(){
+  const ruleIdx=Math.min(level-1,RULES.length-1);
+  const rule=RULES[ruleIdx];let found=false;
+  const maxDepth=gridSize*2; // Fix: was hardcoded 4, now scales with board
+  function dfs(r,c,path,sum){
+    if(found)return;
+    if(path.length>=2&&sum%rule===0){found=true;return;}
+    if(path.length>=maxDepth)return;
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+      if(!dr&&!dc)continue;
+      const nr=r+dr,nc=c+dc;
+      if(grid[nr]&&grid[nr][nc]&&!path.includes(grid[nr][nc])&&['normal','volt','wild'].includes(grid[nr][nc].type)){
+        const last=path[path.length-1];
+        if(grid[nr][nc].color===last.color||grid[nr][nc].val===last.val||last.type==='volt'||grid[nr][nc].type==='volt'||last.type==='wild'||grid[nr][nc].type==='wild')
+          dfs(nr,nc,[...path,grid[nr][nc]],sum+(grid[nr][nc].val||0));
+      }
+    }
+  }
+  for(let r=0;r<gridSize&&!found;r++)for(let c=0;c<gridSize&&!found;c++)
+    if(grid[r][c]&&['normal','wild'].includes(grid[r][c].type))dfs(r,c,[grid[r][c]],grid[r][c].val||0);
+  if(!found){
+    showToast('RESHUFFLING...');
+    grid.forEach(row=>row.forEach(b=>{if(b&&b.type==='normal'){b.color=COLORS[Math.floor(Math.random()*4)];b.val=Math.floor(Math.random()*9)+1;}}));
+    setTimeout(()=>{render();checkDeadlock();},1200);
+  }
+}
+
+// ── BOOSTERS ──
+const BOOSTERS=[
+  {id:'hint',icon:'💡',label:'Hint',unlock:2},
+  {id:'shuffle',icon:'🎲',label:'Shuffle',unlock:3},
+  {id:'hammer',icon:'🔨',label:'Hammer',unlock:4},
+  {id:'swap',icon:'🔄',label:'Swap',unlock:5},
+];
+function renderBoosterUI(){
+  const wrap=document.getElementById('boosters');wrap.innerHTML='';
+  BOOSTERS.forEach(b=>{
+    const btn=document.createElement('button');
+    const locked=level<b.unlock;
+    const usesLeft=boosterUses[b.id]||0;
+    const exhausted=!locked&&usesLeft<=0;
+    btn.className=`b-btn${(locked||exhausted)?' locked':''}${mode===b.id?' active-mode':''}`;
+    btn.id=b.id+'-btn';
+    const justUnlocked = !locked && !ftueShown[b.id+'_booster'];
+    if(locked){
+      btn.innerHTML=`<span style="font-size:1.1rem">🔒</span><span class="b-unlock">LVL ${b.unlock}</span>`;
+    } else if(exhausted){
+      btn.innerHTML=`<span style="font-size:1.2rem">${b.icon}</span><span class="b-count" style="color:rgba(255,215,0,0.7);font-size:0.5rem">BUY ${goldCoin('0.9em')}</span>`;
+      btn.onclick=()=>openShopModal();
+      btn.className=btn.className.replace(' locked',''); // make it tappable but visually dim
+      btn.style.opacity='0.55';
+    } else {
+      btn.innerHTML=`<span>${b.icon}</span><span class="b-count">×${usesLeft}</span>${justUnlocked?'<span style="position:absolute;top:-4px;right:-4px;background:#ff006e;border-radius:50%;width:12px;height:12px;font-size:8px;display:flex;align-items:center;justify-content:center">!</span>':''}`;
+      btn.onclick=()=>handleBooster(b.id);
+    }
+    wrap.appendChild(btn);
+  });
+}
+function handleBooster(type){
+  if((boosterUses[type]||0)<=0)return;
+  sfxClick();haptic(15);
+  checkBoosterFTUE(type);
+  boosterUses[type]=(boosterUses[type]||0)-1;
+  if(type==='shuffle'){
+    grid.forEach(row=>row.forEach(b=>{if(b&&b.type==='normal'){b.color=COLORS[Math.floor(Math.random()*4)];b.val=Math.floor(Math.random()*9)+1;}}));
+    spawnParticles(15,{r:Math.floor(gridSize/2),c:Math.floor(gridSize/2)});
+    render();setTimeout(checkDeadlock,200);
+  }else if(type==='hint'){findHint();}
+  else{mode=(mode===type)?null:type;}
+  renderBoosterUI();
+}
+function handleBoosterTap(r,c){
+  const item=grid[r][c];if(!item)return;
+  if(mode==='hammer'){
+    sfxVolt();haptic(25);
+    spawnParticles(10,{r,c});
+    grid[r][c]=null;mode=null;renderBoosterUI();refill();
+  }else if(mode==='swap'){
+    if(!swapTarget){swapTarget=item;render();}
+    else{
+      const tc=item.color,tv=item.val,tt=item.type;
+      item.color=swapTarget.color;item.val=swapTarget.val;item.type=swapTarget.type;
+      swapTarget.color=tc;swapTarget.val=tv;swapTarget.type=tt;
+      swapTarget=null;mode=null;renderBoosterUI();render();
+    }
+  }
+}
+function findHint(){
+  const ruleIdx=Math.min(level-1,RULES.length-1);const rule=RULES[ruleIdx];
+  let best=[];
+  function dfs(r,c,path,sum){
+    if(path.length>=2&&sum%rule===0&&path.length>best.length)best=[...path];
+    if(path.length>=4)return;
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+      if(!dr&&!dc)continue;
+      const nr=r+dr,nc=c+dc;
+      if(grid[nr]&&grid[nr][nc]&&!path.includes(grid[nr][nc])&&grid[nr][nc].type==='normal'){
+        const last=path[path.length-1];
+        if(grid[nr][nc].color===last.color||grid[nr][nc].val===last.val)
+          dfs(nr,nc,[...path,grid[nr][nc]],sum+grid[nr][nc].val);
+      }
+    }
+  }
+  for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++)
+    if(grid[r][c]&&grid[r][c].type==='normal')dfs(r,c,[grid[r][c]],grid[r][c].val);
+  hintChain=best;render();
+}
+
+// ── FEEDBACK ──
+function showFeedbackPop(val,len,pos,combo=0,mult=1){
+  const grid_el=document.getElementById('grid');
+  const rect=grid_el.getBoundingClientRect();
+  const cellW=rect.width/gridSize,cellH=rect.height/gridSize;
+  const x=rect.left+pos.x*cellW+cellW/2;
+  const y=rect.top+pos.y*cellH+cellH/2;
+  const pop=document.createElement('div');pop.className='score-pop';
+  pop.style.left=x+'px';pop.style.top=y+'px';
+  let flavor='';
+  if(mult>=1.5&&combo>=4)flavor='🔥 COMBO ×'+combo+'!';
+  else if(val>=200)flavor='VAULT MASTER!!!';
+  else if(val>=120)flavor='INCREDIBLE!!';
+  else if(val>=70)flavor='AMAZING!';
+  else if(len>=7)flavor='MEGA CHAIN! 🔥';
+  else if(len>=5)flavor='VOLT EARNED!';
+  else if(len>=4)flavor='GREAT CHAIN!';
+  else if(combo>=2)flavor='×'+combo+' COMBO!';
+  const multTag=mult>1?`<div style="font-family:'Orbitron',monospace;font-size:0.6rem;color:#ff6b00;font-weight:900;letter-spacing:0.1em">${mult}× COMBO</div>`:'';
+  pop.innerHTML=`<div class="pop-inner">${flavor?`<div class="pop-flavor">${flavor}</div>`:''}<div class="pop-val">+${val}</div>${multTag}</div>`;
+  document.body.appendChild(pop);
+  setTimeout(()=>pop.remove(),1300);
+  if(flavor&&len>=4){showAnnouncer(flavor,len);}
+}
+function showAnnouncer(text,len=0){
+  const el=document.getElementById('announcer');
+  el.innerText=text;
+  el.style.color=len>=7?'#ff006e':'#ffd700';
+  el.style.display='block';
+  el.style.animation='none';void el.offsetHeight;
+  el.style.animation='announceIn .6s cubic-bezier(.34,1.56,.64,1)';
+  clearTimeout(window._announceTimer);
+  window._announceTimer=setTimeout(()=>el.style.display='none',1500);
+}
+function spawnParticles(count,gridPos){
+  const grid_el=document.getElementById('grid');if(!grid_el)return;
+  const rect=grid_el.getBoundingClientRect();
+  const cellW=rect.width/gridSize,cellH=rect.height/gridSize;
+  const ox=rect.left+gridPos.c*cellW+cellW/2;
+  const oy=rect.top+gridPos.r*cellH+cellH/2;
+  const particleColors=['#00d4ff','#ffd700','#39ff14','#ff006e','#a855f7','#fff'];
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const sz=Math.random()*6+3;const dur=Math.random()*0.8+0.4;
+    const angle=Math.random()*Math.PI*2;const dist=Math.random()*120+40;
+    p.style.cssText=`width:${sz}px;height:${sz}px;left:${ox}px;top:${oy}px;background:${particleColors[Math.floor(Math.random()*particleColors.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;--dur:${dur}s;box-shadow:0 0 6px currentColor`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),dur*1000);
+  }
+}
+function showToast(msg,color='rgba(239,68,68,0.9)'){
+  const t=document.getElementById('toast');
+  t.innerText=msg;t.style.background=color;t.style.display='block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.style.display='none',1500);
+}
+
+// ── MODALS ──
+function openModal(html){
+  document.getElementById('modal-card').innerHTML=html;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('modal-overlay').classList.add('hidden');}
+
+// ── SHOP ──
+const SHOP_ITEMS=[
+  {id:'hint',   icon:'💡',name:'HINT',    desc:'Reveals a valid chain',  price:8,  color:'#00d4ff'},
+  {id:'shuffle',icon:'🎲',name:'SHUFFLE', desc:'Randomize all balls',    price:6,  color:'#22c55e'},
+  {id:'hammer', icon:'🔨',name:'HAMMER',  desc:'Destroy any ball',       price:10, color:'#f59e0b'},
+  {id:'swap',   icon:'🔄',name:'SWAP',    desc:'Swap two ball positions', price:12, color:'#ff006e'},
+];
+function openShopModal(){
+  sfxClick();
+  renderShopModal();
+}
+function renderShopModal(){
+  const coins=saveData.coins||0;
+  const inGame=!document.getElementById('game-screen').classList.contains('hidden');
+  const itemsHtml=SHOP_ITEMS.map(item=>{
+    const canAfford=coins>=item.price;
+    const levelLocked=inGame?level<(BOOSTER_UNLOCKS[item.id]||1):false;
+    const disabled=!canAfford||levelLocked;
+    return `
+      <div class="shop-item${disabled?' cant-afford':''}" onclick="${disabled?'':'buyBooster(\''+item.id+'\')'}">
+        <div class="shop-icon" style="filter:drop-shadow(0 0 8px ${item.color})">${item.icon}</div>
+        <div class="shop-info">
+          <div class="shop-name" style="color:${item.color}">${item.name}</div>
+          <div class="shop-desc">${item.desc}${levelLocked?' · Unlocks at Level '+(BOOSTER_UNLOCKS[item.id]||1):''}</div>
+          ${inGame?`<div class="shop-stock">Currently: ×${boosterUses[item.id]||0}</div>`:''}
+        </div>
+        <div class="shop-price">${goldCoin('1.1em')}${item.price}</div>
+      </div>`;
+  }).join('');
+  openModal(`
+    <button onclick="closeModal()" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:auto;z-index:10;transition:.2s">✕</button>
+    <div class="modal-title" style="color:var(--gold)">${goldCoin('1.3em')} BOOSTER SHOP</div>
+    <div style="font-family:'Orbitron',monospace;font-size:0.7rem;color:rgba(255,255,255,0.5);margin-bottom:14px">Balance: <span style="color:var(--gold);font-size:1rem;font-weight:900">${coins}</span> coins</div>
+    <div style="display:flex;flex-direction:column;gap:8px;text-align:left;margin-bottom:14px">${itemsHtml}</div>
+    <div style="font-size:0.58rem;color:rgba(255,255,255,0.25);font-family:'Orbitron',monospace;letter-spacing:0.08em">PURCHASED USES CARRY INTO YOUR NEXT LEVEL</div>
+  `);
+}
+function buyBooster(id){
+  const item=SHOP_ITEMS.find(i=>i.id===id);
+  if(!item)return;
+  if(!spendCoins(item.price)){showToast('Not enough coins!','rgba(239,68,68,0.9)');return;}
+  sfxSubmit();haptic(20);
+  // Add to persistent stock AND current level if in game
+  saveData.boosterStock=saveData.boosterStock||{};
+  saveData.boosterStock[id]=(saveData.boosterStock[id]||0)+1;
+  persist();
+  // If currently in a game, also top up the live boosterUses
+  if(!document.getElementById('game-screen').classList.contains('hidden')){
+    boosterUses[id]=(boosterUses[id]||0)+1;
+    renderBoosterUI();
+  }
+  // Refresh shop to show updated balance
+  renderShopModal();
+  showToast(`${item.icon} +1 ${item.name} added!`,'rgba(34,197,94,0.9)');
+}
+
+function openSettingsModal(){
+  sfxClick();
+  const inGame = !document.getElementById('game-screen').classList.contains('hidden');
+  openModal(`
+    <button onclick="closeModal()" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:auto;z-index:10;transition:.2s" onmouseover="this.style.background='rgba(255,255,255,0.18)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">✕</button>
+    <div class="modal-title" style="color:var(--cyan)">⚙ SETTINGS</div>
+    <div style="margin:16px 0">
+      <div class="settings-row"><span>Sound Effects</span><label class="toggle"><input type="checkbox" ${settings.sfx?'checked':''} onchange="settings.sfx=this.checked;persist()"><span class="slider"></span></label></div>
+      <div class="settings-row"><span>Auto Highlight</span><label class="toggle"><input type="checkbox" ${settings.autoHighlight?'checked':''} onchange="settings.autoHighlight=this.checked;persist()"><span class="slider"></span></label></div>
+      <div class="settings-row"><span>Haptics</span><label class="toggle"><input type="checkbox" ${settings.haptic?'checked':''} onchange="settings.haptic=this.checked;persist()"><span class="slider"></span></label></div>
+    </div>
+    ${inGame ? `
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <button class="modal-btn secondary" style="flex:1;padding:11px;touch-action:auto" onclick="closeModal();goToMap()">🗺 Map</button>
+      <button class="modal-btn secondary" style="flex:1;padding:11px;touch-action:auto" onclick="closeModal();showHome()">🏠 Home</button>
+    </div>
+    <button class="modal-btn cyan" style="width:100%;margin-bottom:8px;touch-action:auto" onclick="closeModal();replayLevel()">↺ Restart Level</button>` : ''}
+    <button class="modal-btn secondary" style="width:100%;font-size:0.8rem;opacity:0.55;touch-action:auto" onclick="showResetConfirm()">⚠ Reset All Progress</button>
+  `);
+}
+const HTP_PAGES = [
+  {
+    title:'HOW TO PLAY',
+    entries:[
+      {icon:'🔗',color:'#00d4ff',head:'DRAG TO CHAIN',body:'Connect adjacent balls that share a color or the same number. Build the longest chain you can!'},
+      {icon:'🎯',color:'#ffd700',head:'SCORING',body:'Score = Chain Sum × Chain Length. Bigger chains multiply your points — always go longer!'},
+      {icon:'⚡',color:'#a855f7',head:'VOLT ORB',body:'Chain 5+ balls and a Volt spawns at the end. Use it next to strike every ball of that color!'},
+    ]
+  },
+  {
+    title:'OBSTACLES',
+    entries:[
+      {icon:'🪨',color:'#64748b',head:'OBSIDIAN',body:'An immovable rock. Chain adjacent balls to weaken it, or smash it with the Hammer booster.'},
+      {icon:'❄️',color:'#38bdf8',head:'ICE GLACIER',body:'Counts down each move. Hit zero and it spreads to a neighbour. Clear it by chaining adjacent balls!'},
+      {icon:'👻',color:'#a78bfa',head:'GHOST ORB',body:'Shifts to a random color every move. Watch carefully and chain it at the right moment!'},
+    ]
+  },
+  {
+    title:'BOOSTERS',
+    entries:[
+      {icon:'💡',color:'#00d4ff',head:'HINT (Lvl 2)',body:'Reveals a valid chain on the board. Tap to highlight it — great when you feel stuck.'},
+      {icon:'🎲',color:'#22c55e',head:'SHUFFLE (Lvl 3)',body:'Randomizes all normal balls instantly. Escape a deadlock or fish for a better setup.'},
+      {icon:'🔨',color:'#f59e0b',head:'HAMMER (Lvl 4)',body:'Tap a ball to destroy it — works on any ball including Obsidian blocks!'},
+      {icon:'🔄',color:'#ff006e',head:'SWAP (Lvl 5)',body:'Tap two balls to swap their positions and set up the perfect chain.'},
+    ]
+  }
+];
+let htpPage=0;
+function showHowToPlay(page=0){
+  sfxClick();
+  htpPage=page;
+  const pg=HTP_PAGES[page];
+  const dots=HTP_PAGES.map((_,i)=>`<div style="width:8px;height:8px;border-radius:50%;background:${i===page?'var(--cyan)':'rgba(255,255,255,0.2)'};transition:.3s"></div>`).join('');
+  const entries=pg.entries.map(e=>`
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:11px 14px;display:flex;gap:12px;align-items:flex-start">
+      <div style="font-size:1.5rem;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 8px ${e.color})">${e.icon}</div>
+      <div>
+        <div style="color:${e.color};font-size:0.72rem;font-weight:800;letter-spacing:0.08em;margin-bottom:3px">${e.head}</div>
+        <div style="color:rgba(255,255,255,0.58);font-size:0.78rem;line-height:1.45">${e.body}</div>
+      </div>
+    </div>`).join('');
+  const prevBtn=page>0?`<button class="modal-btn secondary" style="flex:1;padding:11px" onclick="showHowToPlay(${page-1})">← Back</button>`:'<div style="flex:1"></div>';
+  const nextBtn=page<HTP_PAGES.length-1
+    ?`<button class="modal-btn cyan" style="flex:1;padding:11px" onclick="showHowToPlay(${page+1})">Next →</button>`
+    :`<button class="modal-btn primary" style="flex:1;padding:11px" onclick="closeModal()">Got it!</button>`;
+  openModal(`
+    <div class="modal-title" style="color:var(--cyan);font-size:1.1rem">${pg.title}</div>
+    <div style="display:flex;justify-content:center;gap:6px;margin:8px 0 14px">${dots}</div>
+    <div style="display:flex;flex-direction:column;gap:8px;text-align:left;margin-bottom:16px">${entries}</div>
+    <div style="display:flex;gap:8px">${prevBtn}${nextBtn}</div>
+  `);
+}
+
+// ══════════════════════════════════════
+//  INTERACTIVE FTUE WALKTHROUGH ENGINE
+// ══════════════════════════════════════
+let ftueStep = 0;
+let ftueActive = false;
+let ftueChainAnimTimer = null;
+let ftueChainDots = [];
+
+const FTUE_STEPS = [
+  {
+    id: 'chain_demo',
+    title: 'CHAIN BALLS',
+    body: `Hey! I'm <strong style="color:#00d4ff">BOLT</strong> ⚡ &mdash; your vault guide! Drag across balls that share a <strong style="color:#00d4ff">color</strong> or <strong style="color:#ffd700">number</strong> to build a chain!`,
+    target: 'grid',
+    animate: 'chain',
+    mascot: 'excited',
+    btnText: 'COOL! →'
+  },
+  {
+    id: 'scoring',
+    title: 'SCORE BIG',
+    body: 'Score = <strong style="color:#39ff14">Sum</strong> × <strong style="color:#ffd700">Chain Length</strong>. A 5-ball chain scores <em>5× more</em> than a 1-ball one. Go long!',
+    target: 'grid',
+    animate: 'score',
+    mascot: 'wow',
+    btnText: 'GOT IT →'
+  },
+  {
+    id: 'moves',
+    title: 'MOVES LEFT',
+    body: 'Each chain costs <strong style="color:#f87171">1 move</strong>. When this hits zero, the level ends. Make every chain count!',
+    target: 'moves-badge',
+    animate: null,
+    mascot: 'thinking',
+    btnText: 'OK →'
+  },
+  {
+    id: 'rule',
+    title: 'CHAIN RULE',
+    body: 'The sum must be a <strong style="color:#00d4ff">multiple of this number</strong>. Watch the big digit — it glows <strong style="color:#39ff14">green</strong> when you can submit!',
+    target: 'display-panel',
+    animate: 'sum_flash',
+    mascot: 'pointing',
+    btnText: 'NEXT →'
+  },
+  {
+    id: 'submit',
+    title: 'SUBMIT!',
+    body: `Green? <strong style="color:#39ff14">TAP SUBMIT</strong>! That's how you bank your score. No green = no submit. Keep adding balls!`,
+    target: 'submit-btn',
+    animate: 'btn_pulse',
+    mascot: 'excited',
+    btnText: 'NEXT →'
+  },
+  {
+    id: 'progress',
+    title: 'CRACK THE VAULT',
+    body: 'See that vault dial? <strong style="color:#00d4ff">Fill the ring to 100%</strong> before moves run out. Crack it open and win the level!',
+    target: 'progress-wrap',
+    animate: 'bar_fill',
+    mascot: 'wow',
+    btnText: "LET'S CRACK IT! 🔓"
+  }
+];
+
+function shouldShowFTUE(){
+  return !saveData.ftueComplete && level === 1;
+}
+
+function setMascotExpression(mood){
+  const eyes  = document.getElementById('mascot-eyes');
+  const mouth = document.getElementById('mascot-mouth');
+  if(!eyes||!mouth) return;
+  if(mood === 'excited'){
+    // Wide open eyes, big grin
+    eyes.innerHTML = `
+      <ellipse cx="33" cy="39" rx="4.5" ry="5" fill="#fff"/>
+      <ellipse cx="33" cy="40" rx="3" ry="3.5" fill="#001a33"/>
+      <circle cx="34.5" cy="38" r="1.2" fill="#fff"/>
+      <ellipse cx="47" cy="39" rx="4.5" ry="5" fill="#fff"/>
+      <ellipse cx="47" cy="40" rx="3" ry="3.5" fill="#001a33"/>
+      <circle cx="48.5" cy="38" r="1.2" fill="#fff"/>`;
+    mouth.setAttribute('d','M32 48 Q40 56 48 48');
+  } else if(mood === 'thinking'){
+    // One eye squinting
+    eyes.innerHTML = `
+      <ellipse cx="33" cy="41" rx="4" ry="2.5" fill="#fff"/>
+      <ellipse cx="33" cy="41.5" rx="2.5" ry="2" fill="#001a33"/>
+      <circle cx="34" cy="40.5" r="1" fill="#fff"/>
+      <ellipse cx="47" cy="40" rx="4" ry="4.5" fill="#fff"/>
+      <ellipse cx="47" cy="41" rx="2.5" ry="3" fill="#001a33"/>
+      <circle cx="48" cy="39.5" r="1" fill="#fff"/>`;
+    mouth.setAttribute('d','M34 50 Q40 52 46 50');
+  } else if(mood === 'pointing'){
+    // Looking sideways
+    eyes.innerHTML = `
+      <ellipse cx="33" cy="40" rx="4" ry="4.5" fill="#fff"/>
+      <ellipse cx="34.5" cy="41" rx="2.5" ry="3" fill="#001a33"/>
+      <circle cx="35.5" cy="39.5" r="1" fill="#fff"/>
+      <ellipse cx="47" cy="40" rx="4" ry="4.5" fill="#fff"/>
+      <ellipse cx="48.5" cy="41" rx="2.5" ry="3" fill="#001a33"/>
+      <circle cx="49.5" cy="39.5" r="1" fill="#fff"/>`;
+    mouth.setAttribute('d','M34 49 Q40 54 46 49');
+  } else if(mood === 'wow'){
+    // Big O mouth
+    eyes.innerHTML = `
+      <ellipse cx="33" cy="38" rx="4.5" ry="5.5" fill="#fff"/>
+      <ellipse cx="33" cy="39" rx="3" ry="4" fill="#001a33"/>
+      <circle cx="34.5" cy="37" r="1.2" fill="#fff"/>
+      <ellipse cx="47" cy="38" rx="4.5" ry="5.5" fill="#fff"/>
+      <ellipse cx="47" cy="39" rx="3" ry="4" fill="#001a33"/>
+      <circle cx="48.5" cy="37" r="1.2" fill="#fff"/>`;
+    mouth.setAttribute('d','M36 50 Q40 56 44 50');
+    // Make it a circle mouth
+    mouth.setAttribute('d','M36 49 Q40 56 44 49 Q40 46 36 49');
+  } else {
+    // happy (default)
+    eyes.innerHTML = `
+      <ellipse cx="33" cy="40" rx="4" ry="4.5" fill="#fff"/>
+      <ellipse cx="33" cy="41" rx="2.5" ry="3" fill="#001a33"/>
+      <circle cx="34" cy="39.5" r="1" fill="#fff"/>
+      <ellipse cx="47" cy="40" rx="4" ry="4.5" fill="#fff"/>
+      <ellipse cx="47" cy="41" rx="2.5" ry="3" fill="#001a33"/>
+      <circle cx="48" cy="39.5" r="1" fill="#fff"/>`;
+    mouth.setAttribute('d','M34 49 Q40 54 46 49');
+  }
+}
+
+function ftueStart(){
+  if(!shouldShowFTUE()) return;
+  ftueActive = true;
+  ftueStep = 0;
+  const overlay = document.getElementById('ftue-overlay');
+  overlay.classList.remove('hidden');
+  overlay.classList.add('active');
+  // Force show submit button dimmed for tutorial
+  const sub = document.getElementById('submit-btn');
+  sub.style.display = 'block';
+  sub.style.opacity = '0.35';
+  sub.style.pointerEvents = 'none';
+  setTimeout(() => ftueShowStep(0), 300);
+}
+
+function ftueShowStep(idx){
+  const step = FTUE_STEPS[idx];
+  if(!step){ ftueEnd(); return; }
+
+  // Update tip content
+  document.getElementById('ftue-title').innerText = step.title;
+  document.getElementById('ftue-body').innerHTML = step.body;
+  setMascotExpression(step.mascot || 'happy');
+  document.getElementById('ftue-step').innerText = `${idx+1} / ${FTUE_STEPS.length}`;
+  document.getElementById('ftue-next-btn').innerText = step.btnText;
+
+  // Clear previous animations
+  clearFtueAnimations();
+
+  // Position spotlight on target
+  const targetEl = document.getElementById(step.target) ||
+                   document.querySelector('.'+step.target);
+  if(targetEl){
+    const pad = (step.target === 'grid' || step.target === 'progress-wrap') ? 12 : 8;
+    positionSpotlight(targetEl, pad);
+    positionCard(targetEl);
+  }
+
+  // Run animation for this step
+  setTimeout(() => {
+    if(step.animate === 'chain') animateFtueChain();
+    else if(step.animate === 'score') animateFtueScore();
+    else if(step.animate === 'sum_flash') animateSumFlash();
+    else if(step.animate === 'btn_pulse') animateBtnPulse();
+    else if(step.animate === 'bar_fill') animateBarFill();
+  }, 400);
+}
+
+function positionSpotlight(el, pad){
+  pad = pad || 10;
+  const rect = el.getBoundingClientRect();
+  const sp = document.getElementById('ftue-spotlight');
+  sp.style.left   = (rect.left - pad) + 'px';
+  sp.style.top    = (rect.top  - pad) + 'px';
+  sp.style.width  = (rect.width  + pad*2) + 'px';
+  sp.style.height = (rect.height + pad*2) + 'px';
+  // Round shape for round elements
+  const isRound = el.classList.contains('ball') || el.classList.contains('vault-dial-outer') || el.id === 'vault-dial-outer';
+  sp.style.borderRadius = isRound ? '50%' : '18px';
+}
+
+function positionCard(el){
+  const rect   = el.getBoundingClientRect();
+  const card   = document.getElementById('ftue-card');
+  const vw     = window.innerWidth;
+  const vh     = window.innerHeight;
+  const cardW  = 330;  // mascot(72) + bubble(250) + gap
+  const cardH  = 120;
+  const gap    = 16;
+  const pad    = 10;
+
+  const spTop    = rect.top    - pad;
+  const spBottom = rect.bottom + pad;
+  const spLeft   = rect.left   - pad;
+  const spRight  = rect.right  + pad;
+  const spCenterX = (spLeft + spRight)  / 2;
+
+  // Space available in each zone
+  const spaceBelow = vh - spBottom - gap;
+  const spaceAbove = spTop - gap;
+
+  const margin = 12;
+  let left, top;
+
+  if(spaceBelow >= cardH + 10){
+    // Below spotlight
+    top  = spBottom + gap;
+    left = Math.max(margin, Math.min(spCenterX - cardW/2, vw - cardW - margin));
+  } else if(spaceAbove >= cardH + 10){
+    // Above spotlight
+    top  = spTop - gap - cardH;
+    left = Math.max(margin, Math.min(spCenterX - cardW/2, vw - cardW - margin));
+  } else {
+    // Center of screen away from element
+    left = Math.max(margin, (vw - cardW) / 2);
+    top  = spBottom > vh/2
+      ? Math.max(margin, spTop - gap - cardH)
+      : Math.min(spBottom + gap, vh - cardH - margin);
+  }
+
+  // Clamp
+  top  = Math.max(margin, Math.min(top,  vh - cardH - 40)); // 40 = skip btn space
+  left = Math.max(margin, Math.min(left, vw - cardW - margin));
+
+  card.style.left = left + 'px';
+  card.style.top  = top  + 'px';
+}
+
+function clearFtueAnimations(){
+  clearInterval(ftueChainAnimTimer);
+  ftueChainAnimTimer = null;
+  // Clear chain SVG
+  const svg = document.getElementById('ftue-chain-svg');
+  if(svg) svg.innerHTML = '';
+  // Reset sum display
+  const sumEl = document.getElementById('dp-sum');
+  if(sumEl){ sumEl.classList.remove('valid'); sumEl.classList.add('invalid'); sumEl.innerText='0'; }
+  // Reset bar
+  const _cf = document.getElementById('vault-ring-fill');
+  if(_cf) _cf.style.strokeDashoffset = '295.3';
+  const _cd = document.getElementById('vault-dial');
+  if(_cd) _cd.style.transform = 'rotate(0deg)';
+  const _cp = document.getElementById('vault-pct');
+  if(_cp) _cp.innerText = '0% cracked';
+}
+
+// ── ANIMATION: Chain demo — animate a glowing dot tracing across 3 matching balls ──
+function animateFtueChain(){
+  const gridEl = document.getElementById('grid');
+  if(!gridEl) return;
+  const balls = [...gridEl.querySelectorAll('.ball:not(.obsidian):not(.ice)')];
+  if(balls.length < 3) return;
+
+  // Pick 3 visually adjacent balls for the demo
+  const demo = [balls[0], balls[1], balls[2]];
+
+  const svg = document.getElementById('ftue-chain-svg');
+  let phase = 0; // 0=start, 1=to b1, 2=to b2, 3=pause, 4=reset
+
+  function getCenterOf(el){
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width/2, y: r.top + r.height/2 };
+  }
+
+  function drawLine(from, to){
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+    line.setAttribute('x2', to.x);   line.setAttribute('y2', to.y);
+    line.setAttribute('stroke','rgba(0,212,255,0.7)');
+    line.setAttribute('stroke-width','3');
+    line.setAttribute('stroke-linecap','round');
+    line.setAttribute('stroke-dasharray','6,4');
+    svg.appendChild(line);
+  }
+
+  function drawDot(pos, color='#00d4ff'){
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', pos.x); c.setAttribute('cy', pos.y); c.setAttribute('r', '8');
+    c.setAttribute('fill', color);
+    c.setAttribute('filter', 'url(#ftue-glow)');
+    c.style.filter = `drop-shadow(0 0 8px ${color})`;
+    svg.appendChild(c);
+  }
+
+  // Add glow filter def
+  svg.innerHTML = `<defs><filter id="ftue-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+
+  let step = 0;
+  const sequence = [0, 1, 2, 2, 2, 1, 0, 0]; // trace forward, pause, trace back
+
+  ftueChainAnimTimer = setInterval(() => {
+    svg.innerHTML = `<defs><filter id="ftue-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+
+    const idx = sequence[step % sequence.length];
+    const activeBalls = demo.slice(0, idx+1);
+
+    // Highlight active balls
+    demo.forEach((b,i) => {
+      b.style.outline = i<=idx ? '3px solid rgba(0,212,255,0.9)' : '';
+      b.style.outlineOffset = '3px';
+    });
+
+    // Draw lines between active
+    for(let i=1; i<activeBalls.length; i++){
+      drawLine(getCenterOf(activeBalls[i-1]), getCenterOf(activeBalls[i]));
+    }
+    // Draw dots
+    activeBalls.forEach((b,i) => {
+      drawDot(getCenterOf(b), i===idx ? '#ffd700' : '#00d4ff');
+    });
+
+    step++;
+  }, 400);
+
+  // Cleanup outlines when done
+  setTimeout(()=>{
+    demo.forEach(b => b.style.outline = '');
+  }, 5000);
+}
+
+// ── ANIMATION: Score formula flash ──
+function animateFtueScore(){
+  const sumEl = document.getElementById('dp-sum');
+  if(!sumEl) return;
+  let toggle = false;
+  ftueChainAnimTimer = setInterval(()=>{
+    toggle = !toggle;
+    sumEl.innerText = toggle ? '5+3+4=12' : '×3 = 36';
+    sumEl.style.color = toggle ? '#fff' : '#39ff14';
+    sumEl.style.fontSize = toggle ? '1.8rem' : '2.2rem';
+    sumEl.classList.toggle('valid', !toggle);
+  }, 900);
+}
+
+// ── ANIMATION: Sum flash green/white ──
+function animateSumFlash(){
+  const sumEl = document.getElementById('dp-sum');
+  if(!sumEl) return;
+  const rule = RULES[Math.min(level-1, RULES.length-1)];
+  // Pick a value divisible by rule
+  const validSum = rule * 3;
+  let toggle = false;
+  ftueChainAnimTimer = setInterval(()=>{
+    toggle = !toggle;
+    sumEl.innerText = toggle ? validSum : Math.floor(validSum * 0.7);
+    sumEl.classList.toggle('valid', toggle);
+    sumEl.classList.toggle('invalid', !toggle);
+  }, 700);
+}
+
+// ── ANIMATION: Submit button pulse ──
+function animateBtnPulse(){
+  const btn = document.getElementById('submit-btn');
+  if(!btn) return;
+  btn.style.display = 'block';
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = 'none';
+  // The existing CSS animation handles the pulse
+}
+
+// ── ANIMATION: Progress bar fill ──
+function animateBarFill(){
+  const fill = document.getElementById('vault-ring-fill');
+  const dial = document.getElementById('vault-dial');
+  const vp   = document.getElementById('vault-pct');
+  if(!fill) return;
+  const circ = 295.3;
+  let pct = 0, rot = 0;
+  ftueChainAnimTimer = setInterval(()=>{
+    pct = (pct + 1.2) % 105;
+    rot += 1.5;
+    const p = Math.min(pct, 100);
+    fill.style.strokeDashoffset = circ - (circ * p/100);
+    if(dial) dial.style.transform = `rotate(${rot}deg)`;
+    if(vp)   vp.innerText = Math.round(p) + '% cracked';
+  }, 25);
+}
+
+function ftueNext(){
+  sfxClick();
+  ftueStep++;
+  if(ftueStep >= FTUE_STEPS.length){
+    ftueEnd();
+  } else {
+    ftueShowStep(ftueStep);
+  }
+}
+
+function ftueEnd(){
+  clearFtueAnimations();
+  // Clean up any ball outlines
+  document.querySelectorAll('.ball').forEach(b => b.style.outline = '');
+  // Hide overlay
+  const overlay = document.getElementById('ftue-overlay');
+  overlay.classList.add('hidden');
+  overlay.classList.remove('active');
+  // Restore game state
+  const sumEl = document.getElementById('dp-sum');
+  if(sumEl){ sumEl.innerText='0'; sumEl.className='dp-sum invalid'; }
+  const _ef = document.getElementById('vault-ring-fill');
+  if(_ef) _ef.style.strokeDashoffset = '295.3';
+  const sub = document.getElementById('submit-btn');
+  sub.style.display = 'none';
+  sub.style.opacity = '';
+  sub.style.pointerEvents = '';
+  ftueActive = false;
+  // Mark FTUE as done
+  saveData.ftueComplete = true;
+  persist();
+}
+
+// ── RESET CONFIRM ──
+function showResetConfirm(){
+  sfxClick();
+  openModal(`
+    <div style="font-size:2.5rem;margin-bottom:10px">⚠️</div>
+    <div class="modal-title" style="color:#ef4444">RESET PROGRESS?</div>
+    <div style="color:rgba(255,255,255,0.55);font-size:0.85rem;margin:12px 0;line-height:1.5;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:14px">
+      This will permanently erase all your level progress, stars, and best scores.<br><br>
+      <strong style="color:#f87171">This cannot be undone.</strong>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="modal-btn secondary" style="flex:1;padding:12px" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn" style="flex:1;padding:12px;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;border:none;border-radius:50px;font-weight:800;cursor:pointer;touch-action:auto" onclick="localStorage.removeItem('vault_v3');location.reload()">RESET</button>
+    </div>
+  `);
+}
+
+// ── BOOT ──
+function boot(){
+  loadSave();
+  updateCoinDisplay();
+  setTimeout(()=>{
+    document.getElementById('loading-screen').classList.add('hidden');
+    showHome();
+  },1800);
+}
+boot();
+</script>
+</body>
+</html>
