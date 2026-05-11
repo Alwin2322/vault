@@ -1270,7 +1270,7 @@
             window.closeAllModals(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const targetScreen = document.getElementById(screenId); if(targetScreen) targetScreen.classList.add('active');
             const navBar = document.getElementById('bottom-nav-bar');
-            if(navBar) navBar.style.transform = (screenId === 'game-screen' || screenId === 'leaderboard-screen') ? 'translateY(100%)' : 'translateY(0)';
+            if(navBar) navBar.style.transform = (screenId === 'game-screen') ? 'translateY(100%)' : 'translateY(0)';
             document.querySelectorAll('.nav-item, .nav-home-wrapper').forEach(n => n.classList.remove('active'));
             if(screenId === 'home-screen') { const e = document.getElementById('nav-home'); if(e) e.classList.add('active'); }
             if(screenId === 'store-screen') { const e = document.getElementById('nav-store'); if(e) e.classList.add('active'); }
