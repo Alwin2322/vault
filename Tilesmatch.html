@@ -7,7 +7,29 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
-        body { margin: 0; padding: 0; background-color: #ffffff; font-family: 'Nunito', sans-serif; overflow: hidden; touch-action: manipulation; }
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #ffffff; 
+            font-family: 'Nunito', sans-serif; 
+            overflow: hidden; 
+            touch-action: manipulation; 
+            /* Native App Feel - Disable selection and callouts */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Ensure inputs remain selectable */
+        input {
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
         #app-container { width: 100vw; height: 100vh; max-width: 480px; margin: 0 auto; background-color: #ffffff; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
         .icon-svg-wrapper { margin-right: 6px; display: flex; justify-content: center; align-items: center; }
         .status-pill { background: #e2e8f0; border-radius: 999px; padding: 4px 10px 4px 6px; display: flex; align-items: center; font-weight: 800; font-size: 0.85rem; color: #0f172a; cursor: pointer; transition: transform 0.1s; border: 2px solid transparent; min-width: 90px; justify-content: center; }
@@ -73,45 +95,71 @@
         #game-area { flex-grow: 1; position: relative; width: 100%; min-height: 400px;}
         #board-center { position: absolute; top: 45%; left: 50%; width: 0; height: 0; }
         
-        /* INCREASED TILE SIZE AND PREMIUM 3D BEVEL EFFECT */
-        .tile { position: absolute; width: 56px; height: 64px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 14px; border-bottom: 8px solid #cbd5e1; border-right: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; border-top: 1px solid #ffffff; box-shadow: 0 6px 12px rgba(0,0,0,0.15), inset 0 -2px 4px rgba(0,0,0,0.02); display: flex; justify-content: center; align-items: center; font-size: 40px; cursor: pointer; transition: top 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.1s ease, filter 0.3s ease; transform-origin: center; user-select: none; }
-        .tile:active { transform: scale(0.9) translateY(4px); border-bottom-width: 4px; }
+        /* PREMIUM 3D BEVEL EFFECT */
+        .tile { 
+            position: absolute; 
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); 
+            border-radius: 16px; 
+            border-bottom: 8px solid #cbd5e1; 
+            border-right: 2px solid #e2e8f0; 
+            border-left: 2px solid #e2e8f0; 
+            border-top: 2px solid #ffffff; 
+            box-shadow: 
+                inset 0 4px 8px rgba(255, 255, 255, 0.9), 
+                inset 0 -4px 6px rgba(148, 163, 184, 0.15), 
+                0 10px 15px -3px rgba(0, 0, 0, 0.15); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            cursor: pointer; 
+            /* Beautiful swooping transition for width/height/position */
+            transition: top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), font-size 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.15s ease-out, opacity 0.2s ease-out, filter 0.3s ease; 
+            transform-origin: center; 
+            user-select: none; 
+        }
+        .tile:active { 
+            transform: scale(0.92) translateY(4px); 
+            border-bottom-width: 4px; 
+            box-shadow: 
+                inset 0 4px 8px rgba(255, 255, 255, 0.9), 
+                inset 0 -2px 4px rgba(148, 163, 184, 0.15), 
+                0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
         .tile.blocked { filter: brightness(0.5); cursor: default; }
-        .tile.blocked:active { transform: none; border-bottom-width: 8px; }
+        .tile.blocked:active { transform: none; border-bottom-width: 8px; box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.9), inset 0 -4px 6px rgba(148, 163, 184, 0.15), 0 10px 15px -3px rgba(0, 0, 0, 0.15); }
         .tile.popping { transform: scale(1.3); opacity: 0; }
         .tile.mystery { background: linear-gradient(135deg, #cbd5e1, #94a3b8); border-color: #94a3b8; color: #ffffff;}
         
         /* ICE & BOMB OVERLAYS / EFFECTS */
-        .tile.ice::after { content: ''; position: absolute; inset: -2px; border-radius: 14px; background: rgba(103, 232, 249, 0.4); border: 2px solid #67e8f9; pointer-events: none; z-index: 10; }
+        .tile.ice::after { content: ''; position: absolute; inset: -2px; border-radius: 16px; background: rgba(103, 232, 249, 0.4); border: 2px solid #67e8f9; pointer-events: none; z-index: 10; }
         
         .tile.is-bomb::before {
             content: '';
             position: absolute;
             inset: -4px;
-            border-radius: 14px;
+            border-radius: 18px;
             background: rgba(239, 68, 68, 0.2);
             border: 2px solid #ef4444;
             pointer-events: none;
             z-index: 15;
-            animation: bombAlert 1s infinite alternate;
         }
         .tile.blocked.is-bomb::before {
-            animation: none;
             opacity: 0.3;
             background: transparent;
             border: 2px dashed #ef4444;
         }
-        @keyframes bombAlert {
-            0% { opacity: 0.5; box-shadow: 0 0 5px rgba(239,68,68,0.5); }
-            100% { opacity: 1; box-shadow: 0 0 20px rgba(239,68,68,1); }
+        
+        @keyframes urgentFlash {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(239,68,68,0.8)) brightness(1); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 20px rgba(239,68,68,1)) brightness(1.2); transform: scale(1.05); }
         }
-        .bomb-badge.tick {
-            animation: tickPop 0.3s ease-out;
+        .urgent-bomb {
+            animation: urgentFlash 0.5s infinite !important;
+            z-index: 250 !important;
         }
-        @keyframes tickPop {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.4); }
-        }
+
+        .bomb-badge { transition: transform 0.15s ease-out; }
+        .bomb-badge.tick { transform: scale(1.4); }
 
         .star-prog { fill: transparent; transition: all 0.3s ease; }
         .star-prog.glow { filter: drop-shadow(0 0 6px rgba(251,191,36,0.8)); transform: scale(1.2); }
@@ -130,9 +178,9 @@
         #tray-area-wrapper { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: flex-end; z-index: 5; }
         #extra-hand-btn { background: #4ade80; color: white; padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 900; display: none; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(74, 222, 128, 0.4); cursor: pointer; margin-bottom: 8px; border: 2px solid white; transform-origin: bottom right; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-        /* UPDATED TRAY DIMENSIONS TO HOLD LARGER TILES */
-        #tray-container { height: 78px; background: #e2e8f0; border-radius: 18px; border: 2px solid #cbd5e1; display: flex; padding: 7px; gap: 2px; box-sizing: border-box; transition: width 0.3s ease; position: relative; }
-        .tray-slot { width: 56px; height: 64px; border-radius: 12px; background: rgba(0,0,0,0.05); flex-shrink: 0; }
+        /* PREMIUM INSET TRAY */
+        #tray-container { height: 80px; background: #e2e8f0; border-radius: 20px; border: 3px solid #cbd5e1; box-shadow: inset 0 8px 10px rgba(0,0,0,0.08); display: flex; padding: 8px; gap: 4px; box-sizing: border-box; transition: width 0.3s ease; position: relative; }
+        .tray-slot { width: 56px; height: 64px; border-radius: 12px; background: rgba(15, 23, 42, 0.06); box-shadow: inset 0 3px 6px rgba(0,0,0,0.06); flex-shrink: 0; }
         .game-bottom-bar { padding: 10px 15px 30px 15px; display: flex; justify-content: center; gap: 12px; z-index: 10; position: relative; }
         .powerup-btn { background: white; border: 2px solid #e2e8f0; border-radius: 16px; width: 60px; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); position: relative; cursor: pointer; transition: transform 0.1s; }
         .powerup-btn:active { transform: translateY(2px); }
@@ -142,11 +190,13 @@
         .powerup-btn.locked-booster .powerup-icon, .powerup-btn.locked-booster .badge { display: none !important; }
         .lock-overlay { position: absolute; inset: 0; background: transparent; border-radius: 16px; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: #94a3b8; font-weight: 900; font-size: 12px; }
         .locked-booster .lock-overlay { display: flex; }
-        .ftue-highlight { z-index: 200 !important; box-shadow: 0 0 0 4px #fbbf24, 0 0 30px rgba(245, 158, 11, 0.8) !important; border: none !important;}
+        
+        .ftue-highlight { z-index: 200 !important; box-shadow: 0 0 0 4px #fbbf24, 0 0 30px rgba(245, 158, 11, 0.8) !important; border-color: #fbbf24 !important;}
         .ftue-dim { pointer-events: none !important; opacity: 0.9 !important; filter: brightness(0.4) !important; }
         .ftue-spotlight-active { z-index: 450 !important; }
         .hand-cursor { position: absolute; width: 48px; height: 48px; z-index: 250; pointer-events: none; animation: tapBounce 1s infinite; }
         @keyframes tapBounce { 0%, 100% { transform: scale(1) translate(0, 0); } 50% { transform: scale(0.9) translate(-5px, -5px); } }
+        
         .modal-overlay { position: absolute; inset: 0; background: rgba(30, 41, 59, 0.85); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 300; }
         .modal-content { background: white; border-radius: 24px; width: 85%; max-width: 360px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; position: relative; animation: popModal 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popModal { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -177,13 +227,12 @@
             <symbol id="svg-shuffle" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#faf5ff" /><path d="M 25 40 A 25 25 0 0 1 70 25" fill="none" stroke="#a855f7" stroke-width="8" stroke-linecap="round"/><polygon points="60 15, 85 25, 65 40" fill="#a855f7"/><path d="M 75 60 A 25 25 0 0 1 30 75" fill="none" stroke="#d8b4fe" stroke-width="8" stroke-linecap="round"/><polygon points="40 85, 15 75, 35 60" fill="#d8b4fe"/><circle cx="50" cy="50" r="8" fill="#e9d5ff"/></symbol>
             <symbol id="svg-undo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fefce8" /><path d="M 75 65 A 30 30 0 0 0 35 35" fill="none" stroke="#eab308" stroke-width="10" stroke-linecap="round"/><polygon points="20 50, 50 50, 35 25" fill="#eab308"/><path d="M 85 55 L 75 50 M 80 40 L 70 38" fill="none" stroke="#fde047" stroke-width="4" stroke-linecap="round"/></symbol>
             <symbol id="svg-magnet" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fef2f2" /><path d="M 30 65 L 30 45 A 20 20 0 0 1 70 45 L 70 65" fill="none" stroke="#ef4444" stroke-width="16" stroke-linecap="round"/><rect x="22" y="65" width="16" height="12" rx="2" fill="#cbd5e1"/><rect x="62" y="65" width="16" height="12" rx="2" fill="#cbd5e1"/><path d="M 30 85 L 30 95 M 70 85 L 70 95 M 50 75 L 50 85" fill="none" stroke="#fca5a5" stroke-width="4" stroke-linecap="round"/></symbol>
-            
             <symbol id="svg-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#94a3b8" stroke="none"/></symbol>
             <symbol id="svg-star-full" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#fbbf24" stroke="none"/></symbol>
-            
             <symbol id="svg-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></symbol>
             <symbol id="svg-infinity-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#ef4444"/><path d="M8.5 10c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5 c1.5 0 2.5-1.5 3.5-2.5 c1 1 2 2.5 3.5 2.5 c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5 c-1.5 0-2.5 1.5-3.5 2.5 c-1-1-2-2.5-3.5-2.5 z" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/></symbol>
             <symbol id="svg-yt-play" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4" fill="currentColor"/><polygon points="10 9 16 12 10 15" fill="white"/></symbol>
+            <symbol id="svg-bomb" viewBox="0 0 100 100"><circle cx="50" cy="55" r="30" fill="#1e293b" /><rect x="42" y="15" width="16" height="15" fill="#475569" /><path d="M50 15 Q 55 -5, 75 5" fill="none" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/><circle cx="75" cy="5" r="5" fill="#ef4444" /><circle cx="50" cy="55" r="10" fill="#ef4444" /><path d="M48 45 L52 45 L51 55 L49 55 Z" fill="white" /><rect x="49" y="58" width="2" height="2" fill="white" /></symbol>
         </defs>
     </svg>
 
@@ -228,8 +277,6 @@
                         <svg class="w-8 h-10 drop-shadow-md" viewBox="0 0 24 24" fill="#ef4444"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><circle cx="12" cy="9" r="2.5" fill="#fca5a5"/></svg>
                     </div>
                     <div class="bg-white text-slate-700 px-6 py-1.5 rounded-full text-[12px] font-black shadow z-10 absolute bottom-5 tracking-wide uppercase border-2 border-white" id="spin-widget-label">Free</div>
-                    
-                    <!-- Lock Overlay -->
                     <div id="lock-spin" class="absolute inset-0 bg-[#1e293b]/90 z-30 flex flex-col items-center justify-center transition-opacity duration-300 hidden">
                         <svg viewBox="0 0 24 24" class="w-12 h-12 mb-2 fill-[#60a5fa] drop-shadow-md"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6-5c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 13c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
                         <div class="bg-[#60a5fa] text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">Unlock After 13</div>
@@ -253,8 +300,6 @@
                             <path d="M 10 40 C 10 30, 20 30, 20 30 L 80 30 C 80 30, 90 30, 90 40 L 90 100 L 10 100 Z" fill="url(#calGrad)"/><defs><linearGradient id="calGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient></defs><path d="M 10 40 C 10 30, 20 30, 20 30 L 80 30 C 80 30, 90 30, 90 40 L 90 50 L 10 50 Z" fill="#ef4444"/><line x1="10" y1="50" x2="90" y2="50" stroke="#fca5a5" stroke-width="2"/><rect x="25" y="15" width="10" height="25" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" class="drop-shadow-md"/><rect x="45" y="15" width="10" height="25" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" class="drop-shadow-md"/><rect x="65" y="15" width="10" height="25" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" class="drop-shadow-md"/><text x="50" y="88" font-size="34" font-family="Nunito" font-weight="900" fill="#94a3b8" text-anchor="middle">8</text>
                         </svg>
                     </div>
-                    
-                    <!-- Lock Overlay -->
                     <div id="lock-challenge" class="absolute inset-0 bg-[#1e293b]/90 z-30 flex flex-col items-center justify-center transition-opacity duration-300 hidden">
                         <svg viewBox="0 0 24 24" class="w-12 h-12 mb-2 fill-[#60a5fa] drop-shadow-md"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6-5c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 13c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
                         <div class="bg-[#60a5fa] text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">Unlock After 20</div>
@@ -263,7 +308,6 @@
             </div>
 
             <div class="game-logo"><div class="logo-text">Tile<br><span>Match</span></div></div>
-            
             <div class="text-center mt-4">
                 <h3 class="text-2xl font-black text-[#1e3a8a] mb-2" id="home-level-display">Level 1</h3>
                 <button class="play-btn-green" onclick="window.startGame()">Play</button>
@@ -340,15 +384,10 @@
         <!-- ================= GAME SCREEN ================= -->
         <div id="game-screen" class="screen z-[100]">
             
-            <!-- FTUE Fade Overlay: Dim out the background -->
             <div id="match-ftue-fade" class="absolute inset-0 bg-slate-700/80 z-[150] hidden pointer-events-none transition-opacity duration-300"></div>
 
-            <!-- FTUE Warning Overlay (For Tray Full, etc) -->
             <div id="ftue-overlay" class="fixed inset-0 z-[400] hidden flex-col items-center px-6 transition-opacity pointer-events-none">
-                <!-- Click interceptor to dismiss with Restored Fade -->
                 <div class="absolute inset-0 pointer-events-auto bg-slate-700/80" onclick="window.dismissFTUE()"></div>
-                
-                <!-- Positioned firmly near the top (18%) so it NEVER covers the tray below, regardless of screen height -->
                 <div id="ftue-text-container" class="absolute w-full flex flex-col items-center top-[18%] pointer-events-none z-[450]">
                     <div class="bg-white rounded-2xl shadow-xl border border-slate-200 px-6 py-5 w-full max-w-[280px] flex items-center justify-center text-center pointer-events-auto">
                         <p id="ftue-msg" class="text-[#1e3a8a] text-lg font-black leading-snug"></p>
@@ -357,38 +396,27 @@
                 </div>
             </div>
             
-            <!-- FTUE Match Tutorial Text (Overlaps safely at top-100) -->
             <div id="match-ftue-text" class="absolute top-[100px] w-full flex justify-center z-[250] hidden pointer-events-none px-6">
                 <div class="bg-white rounded-2xl shadow-xl border border-slate-200 px-6 py-5 w-full max-w-[280px] flex items-center justify-center text-center">
                     <p class="text-[#1e3a8a] text-lg font-black leading-snug">Tap 3 matching tiles<br>to clear them!</p>
                 </div>
             </div>
             
-            <!-- Top Header -->
             <div class="game-top-bar">
                 <div class="w-[85px] flex justify-start relative">
-                    <!-- New Screenshot-Accurate Timer UI -->
                     <div id="level-timer-badge" class="normal" style="display: none;">
                         <div class="bg-[#0f5b99] text-white font-black text-[13px] px-3 py-1 pr-4 rounded-full ml-5 relative z-0 flex items-center shadow-sm timer-bg transition-colors">
                             <span id="level-timer-text" class="ml-4 tracking-wider">01:00</span>
                         </div>
                         <div class="absolute left-[-5px] top-1/2 -translate-y-1/2 z-10 w-[42px] h-[42px] drop-shadow-md">
-                            <svg width="100%" height="100%" viewBox="0 0 100 100">
-                                <circle cx="50" cy="50" r="48" fill="white" />
-                                <circle cx="50" cy="50" r="40" fill="#e0f2fe" stroke="#0f5b99" stroke-width="8" />
-                                <rect x="46" y="14" width="8" height="14" rx="4" fill="#0f5b99" />
-                                <rect id="timer-hand" x="47" y="50" width="6" height="22" rx="3" fill="#ef4444" transform="rotate(215 50 50)" />
-                                <circle cx="50" cy="50" r="6" fill="#0f5b99" />
-                            </svg>
+                            <svg width="100%" height="100%" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="white" /><circle cx="50" cy="50" r="40" fill="#e0f2fe" stroke="#0f5b99" stroke-width="8" /><rect x="46" y="14" width="8" height="14" rx="4" fill="#0f5b99" /><rect id="timer-hand" x="47" y="50" width="6" height="22" rx="3" fill="#ef4444" transform="rotate(215 50 50)" /><circle cx="50" cy="50" r="6" fill="#0f5b99" /></svg>
                         </div>
                     </div>
-                    <!-- DEV Button placed below safely -->
                     <button class="absolute top-[45px] left-0 bg-green-500 border-2 border-green-600 text-white font-black text-[10px] w-8 h-8 flex items-center justify-center rounded-lg shadow-sm z-50" onclick="window.openModal('debug-modal')">DEV</button>
                 </div>
                 <div class="flex-grow flex flex-col items-center mx-2 mt-1">
                     <h2 class="text-2xl font-black text-[#0f5b99] leading-none mb-1" id="game-level-text">Level 1</h2>
                     <div class="relative w-full max-w-[150px] h-3 bg-slate-200 rounded-full mt-2 shadow-inner border border-slate-300">
-                        <!-- Updated to Golden Fill -->
                         <div id="level-progress-fill" class="absolute top-0 left-0 h-full bg-[#fbbf24] rounded-full transition-all duration-300 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.1)]" style="width: 0%;"></div>
                         <div class="absolute top-1/2 left-[50%] -translate-x-1/2 -translate-y-1/2 w-6 h-6 z-10"><svg id="prog-star-1" class="star-prog drop-shadow-md w-full h-full"><use href="#svg-star"/></svg></div>
                         <div class="absolute top-1/2 left-[70%] -translate-x-1/2 -translate-y-1/2 w-6 h-6 z-10"><svg id="prog-star-2" class="star-prog drop-shadow-md w-full h-full"><use href="#svg-star"/></svg></div>
@@ -397,10 +425,7 @@
                 </div>
                 <div class="w-[85px] flex justify-end">
                     <button class="bg-white border-2 border-slate-200 shadow-sm w-10 h-10 rounded-[12px] flex items-center justify-center active:scale-95 transition-transform text-[#0f5b99]" onclick="window.openModal('ingame-settings-modal')">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <rect x="6" y="4" width="4" height="16" rx="2" />
-                            <rect x="14" y="4" width="4" height="16" rx="2" />
-                        </svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="2" /><rect x="14" y="4" width="4" height="16" rx="2" /></svg>
                     </button>
                 </div>
             </div>
@@ -409,37 +434,21 @@
                 <div id="board-center"></div>
                 <div id="tray-area-wrapper">
                     <div id="extra-hand-btn" onclick="window.useExtraHand()" class="absolute -top-10 bg-[#4ade80] text-white pl-3 pr-1.5 py-1 rounded-full text-xs font-black shadow-lg border border-white cursor-pointer z-20 flex items-center gap-1.5 transition active:scale-95">
-                        <span>+1 Slot</span>
-                        <div class="bg-white text-[#22c55e] text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1 font-bold leading-none shadow-sm">
-                            <svg width="10" height="10"><use href="#svg-yt-play"/></svg> Ad
-                        </div>
+                        <span>+1 Slot</span><div class="bg-white text-[#22c55e] text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1 font-bold leading-none shadow-sm"><svg width="10" height="10"><use href="#svg-yt-play"/></svg> Ad</div>
                     </div>
                     <div id="tray-container" class="relative bg-white z-10 transition-transform"></div>
                 </div>
             </div>
 
             <div class="game-bottom-bar">
-                <div class="powerup-btn locked-booster" id="booster-theme" onclick="window.handleBoosterClick('theme')">
-                    <div class="lock-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Lvl 2</span></div>
-                    <svg class="powerup-icon w-8 h-8"><use href="#svg-theme"/></svg><div class="badge bg-[#3b82f6]" id="theme-count">3</div>
-                </div>
-                <div class="powerup-btn locked-booster" id="booster-shuffle" onclick="window.handleBoosterClick('shuffle')">
-                    <div class="lock-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Lvl 3</span></div>
-                    <svg class="powerup-icon w-8 h-8"><use href="#svg-shuffle"/></svg><div class="badge bg-[#a855f7]" id="shuffle-count">3</div>
-                </div>
-                <div class="powerup-btn locked-booster" id="booster-undo" onclick="window.handleBoosterClick('undo')">
-                    <div class="lock-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Lvl 4</span></div>
-                    <svg class="powerup-icon w-8 h-8"><use href="#svg-undo"/></svg><div class="badge bg-[#eab308]" id="undo-count">3</div>
-                </div>
-                <div class="powerup-btn locked-booster" id="booster-magnet" onclick="window.handleBoosterClick('magnet')">
-                    <div class="lock-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Lvl 5</span></div>
-                    <svg class="powerup-icon w-8 h-8"><use href="#svg-magnet"/></svg><div class="badge bg-[#ef4444]" id="magnet-count">3</div>
-                </div>
+                <div class="powerup-btn locked-booster" id="booster-theme" onclick="window.handleBoosterClick('theme')"><div class="lock-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Lvl 2</span></div><svg class="powerup-icon w-8 h-8"><use href="#svg-theme"/></svg><div class="badge bg-[#3b82f6]" id="theme-count">3</div></div>
+                <div class="powerup-btn locked-booster" id="booster-shuffle" onclick="window.handleBoosterClick('shuffle')"><div class="lock-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Lvl 3</span></div><svg class="powerup-icon w-8 h-8"><use href="#svg-shuffle"/></svg><div class="badge bg-[#a855f7]" id="shuffle-count">3</div></div>
+                <div class="powerup-btn locked-booster" id="booster-undo" onclick="window.handleBoosterClick('undo')"><div class="lock-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Lvl 4</span></div><svg class="powerup-icon w-8 h-8"><use href="#svg-undo"/></svg><div class="badge bg-[#eab308]" id="undo-count">3</div></div>
+                <div class="powerup-btn locked-booster" id="booster-magnet" onclick="window.handleBoosterClick('magnet')"><div class="lock-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Lvl 5</span></div><svg class="powerup-icon w-8 h-8"><use href="#svg-magnet"/></svg><div class="badge bg-[#ef4444]" id="magnet-count">3</div></div>
             </div>
         </div>
 
         <!-- ================= POPUP MODALS ================= -->
-        <!-- Spin Wheel Modal -->
         <div id="spin-modal" class="modal-overlay z-[700]">
             <div class="flex flex-col items-center relative w-full max-w-sm px-4">
                 <div class="absolute top-0 right-4 text-white text-3xl font-black cursor-pointer z-50 drop-shadow-md" onclick="window.closeModal('spin-modal')">✖</div>
@@ -469,26 +478,18 @@
             </div>
         </div>
 
-        <!-- Daily Reward Modal -->
         <div id="daily-signin-modal" class="modal-overlay z-[700]">
             <div class="bg-white rounded-[24px] p-6 w-11/12 max-w-[340px] flex flex-col items-center relative shadow-2xl pb-6">
                 <div class="absolute top-4 right-4 text-[#0f172a] font-black text-xl cursor-pointer z-50" onclick="window.closeModal('daily-signin-modal')">✖</div>
                 <h2 class="text-2xl font-black text-[#1e3a8a] mb-5 mt-2 text-center">Daily Rewards</h2>
-                
                 <div class="grid grid-cols-3 gap-3 w-full mb-3" id="daily-rewards-grid"></div>
-
                 <div class="w-full bg-[#f8fafc] border-[2px] border-[#e2e8f0] py-3 rounded-xl flex flex-col items-center relative mb-6 aspect-[3/1] justify-center">
-                    <div class="w-12 h-12 bg-transparent rounded-full flex justify-center items-center mb-4 shadow-md relative z-10">
-                        <svg width="45" height="45" viewBox="0 0 24 24"><use href="#svg-infinity-heart"/></svg>
-                    </div>
+                    <div class="w-12 h-12 bg-transparent rounded-full flex justify-center items-center mb-4 shadow-md relative z-10"><svg width="45" height="45" viewBox="0 0 24 24"><use href="#svg-infinity-heart"/></svg></div>
                     <span class="text-[13px] font-black text-[#1e3a8a] bg-white px-10 py-1 rounded-full shadow-sm border border-slate-200 absolute bottom-2">Day 7</span>
                 </div>
-
                 <div id="daily-reward-action-area" class="w-full flex gap-3 flex-wrap">
                     <button id="dr-free-btn" class="bg-[#4ade80] text-white flex-1 py-3.5 rounded-[16px] font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.claimDailyReward('free')">Claim</button>
-                    <button id="dr-rv-btn" class="bg-[#2563eb] text-white flex-[1.2] py-3.5 rounded-[16px] font-black text-lg flex items-center justify-center gap-1 shadow-[0_4px_0_#1d4ed8] active:translate-y-[4px] active:shadow-none transition-all relative overflow-visible" onclick="window.claimDailyReward('rv')">
-                        Claim x2 <div class="bg-white text-[#2563eb] text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold absolute bottom-2 right-4 flex items-center gap-1 shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div>
-                    </button>
+                    <button id="dr-rv-btn" class="bg-[#2563eb] text-white flex-[1.2] py-3.5 rounded-[16px] font-black text-lg flex items-center justify-center gap-1 shadow-[0_4px_0_#1d4ed8] active:translate-y-[4px] active:shadow-none transition-all relative overflow-visible" onclick="window.claimDailyReward('rv')">Claim x2 <div class="bg-white text-[#2563eb] text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold absolute bottom-2 right-4 flex items-center gap-1 shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div></button>
                 </div>
                 <div id="daily-reward-timer-area" class="w-full hidden flex-col items-center bg-slate-50 rounded-2xl py-3 border border-slate-200">
                     <span class="text-slate-400 font-bold text-sm">Next reward in</span><span id="daily-reward-timer" class="text-slate-800 font-black text-xl">24:00:00</span>
@@ -496,7 +497,6 @@
             </div>
         </div>
 
-        <!-- Awesome Reward Claim Modal -->
         <div id="reward-claim-modal" class="modal-overlay z-[800]">
             <div class="bg-white rounded-[28px] p-8 w-11/12 max-w-[320px] flex flex-col items-center relative shadow-2xl">
                 <h2 class="text-2xl font-black text-[#1e3a8a] mb-6 text-center" id="reward-claim-title">Awesome!</h2>
@@ -509,12 +509,10 @@
             </div>
         </div>
 
-        <!-- Daily Challenge Modal -->
         <div id="daily-challenge-modal" class="modal-overlay z-[700]">
             <div class="bg-white rounded-3xl p-6 w-11/12 max-w-[360px] flex flex-col relative shadow-2xl overflow-hidden pb-6 pt-4">
                 <div class="absolute top-4 right-4 text-[#0f172a] font-black text-xl cursor-pointer z-50" onclick="window.closeModal('daily-challenge-modal')">✖</div>
                 <h2 class="text-xl font-black text-[#0f172a] mt-2 mb-4 text-center">Daily Challenge</h2>
-
                 <div class="w-full bg-[#e0f2fe] rounded-2xl p-4 mb-4 relative">
                     <h3 class="text-center text-[#1e3a8a] font-bold text-sm mb-6">Reward Progress</h3>
                     <div class="relative w-full h-4 bg-slate-300 rounded-full mb-6 mt-4">
@@ -524,21 +522,9 @@
                         <div class="absolute -top-6 left-[90%] -translate-x-1/2 flex flex-col items-center"><div class="text-4xl drop-shadow-md">🏆</div><span class="text-[10px] font-black text-[#1e3a8a] mt-1">28wins</span></div>
                     </div>
                 </div>
-
-                <div class="flex items-center justify-between px-2 mb-4">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    <span class="font-black text-[#1e3a8a] text-xl">May</span><div class="w-6"></div>
-                </div>
-
-                <div class="grid grid-cols-7 gap-1.5 text-center mb-6 px-1" id="calendar-grid">
-                    <!-- JS Injected -->
-                </div>
-
-                <div class="w-full flex justify-center mt-2">
-                    <button class="bg-[#4ade80] text-white rounded-full py-2.5 px-8 font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2" onclick="window.closeModal('daily-challenge-modal'); window.startDailyChallenge(8, false);">
-                        Play <span class="bg-[#22c55e] text-white text-[11px] px-2 py-0.5 rounded leading-tight">8<br>May</span>
-                    </button>
-                </div>
+                <div class="flex items-center justify-between px-2 mb-4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer"><polyline points="15 18 9 12 15 6"></polyline></svg><span class="font-black text-[#1e3a8a] text-xl">May</span><div class="w-6"></div></div>
+                <div class="grid grid-cols-7 gap-1.5 text-center mb-6 px-1" id="calendar-grid"></div>
+                <div class="w-full flex justify-center mt-2"><button class="bg-[#4ade80] text-white rounded-full py-2.5 px-8 font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2" onclick="window.closeModal('daily-challenge-modal'); window.startDailyChallenge(8, false);">Play <span class="bg-[#22c55e] text-white text-[11px] px-2 py-0.5 rounded leading-tight">8<br>May</span></button></div>
             </div>
         </div>
 
@@ -550,10 +536,7 @@
         </div>
 
         <div id="booster-desc-modal" class="modal-overlay z-[510]">
-            <div class="modal-content text-center !p-8">
-                <p id="bd-text" class="text-[#0f172a] font-black text-xl mb-6"></p>
-                <button class="btn-yellow w-full" onclick="window.finishBoosterUnlock()">Got It!</button>
-            </div>
+            <div class="modal-content text-center !p-8"><p id="bd-text" class="text-[#0f172a] font-black text-xl mb-6"></p><button class="btn-yellow w-full" onclick="window.finishBoosterUnlock()">Got It!</button></div>
         </div>
         
         <div id="booster-buy-modal" class="modal-overlay z-[800]">
@@ -561,119 +544,48 @@
                 <div class="absolute top-4 right-4 text-slate-400 font-bold text-xl cursor-pointer" onclick="window.closeModal('booster-buy-modal')">✖</div>
                 <h2 class="text-[#0f172a] font-black text-2xl mb-1 mt-2" id="buy-booster-title">Theme Switch</h2>
                 <p class="text-slate-500 font-bold mb-4 text-sm" id="buy-booster-desc">Switches to another theme.</p>
-                
-                <div class="w-full aspect-[2/1] bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[20px] relative overflow-hidden mb-6 flex items-center justify-center shadow-inner">
-                    <div class="absolute inset-0 opacity-20" style="background: repeating-conic-gradient(transparent 0 15deg, white 15deg 30deg);"></div>
-                    <div id="buy-booster-icon" class="w-20 h-20 drop-shadow-2xl z-10 relative flex justify-center items-center"></div>
-                    <span class="text-white font-black text-4xl absolute right-6 z-10 drop-shadow-md">x5</span>
-                </div>
-                
-                <button class="bg-[#4ade80] text-white py-3.5 px-8 rounded-full font-black text-xl shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2 w-full" onclick="window.confirmBuyBooster()">
-                    <svg class="drop-shadow-sm w-6 h-6" viewBox="0 0 24 24"><use href="#svg-coin"/></svg> 300
-                </button>
+                <div class="w-full aspect-[2/1] bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[20px] relative overflow-hidden mb-6 flex items-center justify-center shadow-inner"><div class="absolute inset-0 opacity-20" style="background: repeating-conic-gradient(transparent 0 15deg, white 15deg 30deg);"></div><div id="buy-booster-icon" class="w-20 h-20 drop-shadow-2xl z-10 relative flex justify-center items-center"></div><span class="text-white font-black text-4xl absolute right-6 z-10 drop-shadow-md">x5</span></div>
+                <button class="bg-[#4ade80] text-white py-3.5 px-8 rounded-full font-black text-xl shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2 w-full" onclick="window.confirmBuyBooster()"><svg class="drop-shadow-sm w-6 h-6" viewBox="0 0 24 24"><use href="#svg-coin"/></svg> 300</button>
             </div>
         </div>
 
         <div id="ftue-timer-modal" class="modal-overlay z-[510]">
-            <div class="modal-content text-center">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" class="mb-4 drop-shadow-md"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 16 14"></polyline></svg>
-                <h2 class="text-2xl font-black text-[#0f172a] mb-2">Beat the Clock!</h2>
-                <p class="text-slate-500 font-bold mb-8">This level is timed.<br>Clear the board before time runs out!</p>
-                <button class="btn-yellow w-full" onclick="window.beginTimerInterval()">Start</button>
-            </div>
+            <div class="modal-content text-center"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" class="mb-4 drop-shadow-md"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 16 14"></polyline></svg><h2 class="text-2xl font-black text-[#0f172a] mb-2">Beat the Clock!</h2><p class="text-slate-500 font-bold mb-8">This level is timed.<br>Clear the board before time runs out!</p><button class="btn-yellow w-full" onclick="window.beginTimerInterval()">Start</button></div>
         </div>
         
-        <!-- Out of Time / Extra Time Save Modal Redesigned -->
         <div id="out-of-time-modal" class="modal-overlay z-[650]">
             <div class="bg-white rounded-[24px] p-6 w-11/12 max-w-[340px] flex flex-col items-center relative shadow-2xl">
-                <div class="absolute top-4 right-4 text-[#0f5b99] font-black text-xl cursor-pointer hover:text-slate-800 transition-colors" onclick="window.declineExtraTime()">✖</div>
-                
+                <div class="absolute top-4 right-4 text-[#0f5b99] font-black text-xl cursor-pointer hover:text-slate-800 transition-colors" onclick="window.declineRevive('time')">✖</div>
                 <h2 class="text-[#0f5b99] font-black text-3xl mb-1 mt-2 tracking-wide text-center">Continue?</h2>
                 <p class="text-[#0f5b99] font-bold mb-6 text-sm text-center">Get more times!</p>
-                
-                <div class="w-full border-2 border-slate-200 rounded-[16px] py-6 flex items-center justify-center gap-3 mb-6 relative bg-white">
-                    <div class="w-14 h-14">
-                        <svg width="100%" height="100%" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="48" fill="white" />
-                            <circle cx="50" cy="50" r="40" fill="#e0f2fe" stroke="#0f5b99" stroke-width="8" />
-                            <rect x="46" y="14" width="8" height="14" rx="4" fill="#0f5b99" />
-                            <rect x="47" y="50" width="6" height="22" rx="3" fill="#ef4444" transform="rotate(215 50 50)" />
-                            <circle cx="50" cy="50" r="6" fill="#0f5b99" />
-                        </svg>
-                    </div>
-                    <span class="text-[#f59e0b] font-black text-4xl tracking-tighter" style="text-shadow: 1px 1px 0 #fbbf24;">+100s</span>
-                </div>
-                
-                <div class="w-full flex gap-3">
-                    <button class="flex-1 bg-[#4ade80] text-white py-3.5 rounded-[14px] font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-1.5" onclick="window.addExtraTime('rv')">
-                        <div class="bg-white text-[#22c55e] text-[10px] px-1.5 py-1 rounded flex items-center gap-1 font-bold leading-none shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div> Play On
-                    </button>
-                    <button class="flex-1 bg-[#3b82f6] text-white py-3.5 rounded-[14px] font-black text-lg shadow-[0_4px_0_#2563eb] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-2" onclick="window.restartGameFromOutOfTime()">
-                        Retry
-                    </button>
-                </div>
+                <div class="w-full border-2 border-slate-200 rounded-[16px] py-6 flex items-center justify-center gap-3 mb-6 relative bg-white"><div class="w-14 h-14"><svg width="100%" height="100%" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="white" /><circle cx="50" cy="50" r="40" fill="#e0f2fe" stroke="#0f5b99" stroke-width="8" /><rect x="46" y="14" width="8" height="14" rx="4" fill="#0f5b99" /><rect x="47" y="50" width="6" height="22" rx="3" fill="#ef4444" transform="rotate(215 50 50)" /><circle cx="50" cy="50" r="6" fill="#0f5b99" /></svg></div><span class="text-[#f59e0b] font-black text-4xl tracking-tighter" style="text-shadow: 1px 1px 0 #fbbf24;">+100s</span></div>
+                <div class="w-full flex gap-3"><button class="flex-1 bg-[#4ade80] text-white py-3.5 rounded-[14px] font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-1.5" onclick="window.addExtraTime('rv')"><div class="bg-white text-[#22c55e] text-[10px] px-1.5 py-1 rounded flex items-center gap-1 font-bold leading-none shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div> Play On</button><button class="flex-1 bg-[#3b82f6] text-white py-3.5 rounded-[14px] font-black text-lg shadow-[0_4px_0_#2563eb] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-2" onclick="window.restartGameFromRevive('time')">Retry</button></div>
             </div>
         </div>
 
-        <!-- Level Complete Screen -->
+        <div id="out-of-space-modal" class="modal-overlay z-[650]">
+            <div class="bg-white rounded-[24px] p-6 w-11/12 max-w-[340px] flex flex-col items-center relative shadow-2xl">
+                <div class="absolute top-4 right-4 text-[#0f5b99] font-black text-xl cursor-pointer hover:text-slate-800 transition-colors" onclick="window.declineRevive('space')">✖</div>
+                <h2 class="text-[#0f5b99] font-black text-3xl mb-1 mt-2 tracking-wide text-center">Tray Full!</h2>
+                <p class="text-[#0f5b99] font-bold mb-6 text-sm text-center">Undo last 3 moves?</p>
+                <div class="w-full border-2 border-slate-200 rounded-[16px] py-6 flex items-center justify-center gap-3 mb-6 relative bg-white"><div class="w-14 h-14"><svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-undo"/></svg></div><span class="text-[#f59e0b] font-black text-4xl tracking-tighter" style="text-shadow: 1px 1px 0 #fbbf24;">Undo 3</span></div>
+                <div class="w-full flex gap-3"><button class="flex-1 bg-[#4ade80] text-white py-3.5 rounded-[14px] font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-1.5" onclick="window.reviveSpace('rv')"><div class="bg-white text-[#22c55e] text-[10px] px-1.5 py-1 rounded flex items-center gap-1 font-bold leading-none shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div> Revive</button><button class="flex-1 bg-[#3b82f6] text-white py-3.5 rounded-[14px] font-black text-lg shadow-[0_4px_0_#2563eb] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-2" onclick="window.restartGameFromRevive('space')">Retry</button></div>
+            </div>
+        </div>
+
+        <div id="bomb-explode-modal" class="modal-overlay z-[650]">
+            <div class="bg-white rounded-[24px] p-6 w-11/12 max-w-[340px] flex flex-col items-center relative shadow-2xl">
+                <div class="absolute top-4 right-4 text-[#0f5b99] font-black text-xl cursor-pointer hover:text-slate-800 transition-colors" onclick="window.declineRevive('bomb')">✖</div>
+                <h2 class="text-[#0f5b99] font-black text-3xl mb-1 mt-2 tracking-wide text-center">Exploded!</h2>
+                <p class="text-[#0f5b99] font-bold mb-6 text-sm text-center">Defuse all bombs?</p>
+                <div class="w-full border-2 border-slate-200 rounded-[16px] py-6 flex items-center justify-center gap-3 mb-6 relative bg-white"><div class="w-14 h-14"><svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-bomb"/></svg></div><span class="text-[#f59e0b] font-black text-4xl tracking-tighter" style="text-shadow: 1px 1px 0 #fbbf24;">Defuse</span></div>
+                <div class="w-full flex gap-3"><button class="flex-1 bg-[#4ade80] text-white py-3.5 rounded-[14px] font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-1.5" onclick="window.reviveBomb('rv')"><div class="bg-white text-[#22c55e] text-[10px] px-1.5 py-1 rounded flex items-center gap-1 font-bold leading-none shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div> Revive</button><button class="flex-1 bg-[#3b82f6] text-white py-3.5 rounded-[14px] font-black text-lg shadow-[0_4px_0_#2563eb] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-2" onclick="window.restartGameFromRevive('bomb')">Retry</button></div>
+            </div>
+        </div>
+
         <div id="level-complete-overlay" class="fixed inset-0 z-[600] hidden bg-slate-800 flex-col items-center pt-8 overflow-hidden">
-            <div id="star-anim-phase" class="absolute inset-0 bg-white flex flex-col items-center justify-center transition-opacity duration-500 z-[610]">
-                <div id="anim-logo" class="transition-transform duration-500 scale-0 mb-8">
-                    <div class="logo-text text-[3rem] leading-none text-center">Tile<br><span>Match</span></div>
-                </div>
-                <div class="flex items-end gap-2 mb-8 h-16 w-full justify-center">
-                    <svg id="anim-star-1" class="star-icon transition-all duration-300" viewBox="0 0 24 24" width="45" height="45" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" fill="none"><use href="#svg-star"/></svg>
-                    <svg id="anim-star-2" class="star-icon transition-all duration-300 mb-1" viewBox="0 0 24 24" width="60" height="60" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" fill="none"><use href="#svg-star"/></svg>
-                    <svg id="anim-star-3" class="star-icon transition-all duration-300" viewBox="0 0 24 24" width="45" height="45" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" fill="none"><use href="#svg-star"/></svg>
-                </div>
-                <div id="anim-text-group" class="transition-opacity duration-500 opacity-0 text-center">
-                    <h2 class="text-3xl font-black text-[#1e3a8a] mb-2">Level <span id="anim-level-number"></span> Completed!</h2>
-                </div>
-            </div>
-
-            <div id="lb-phase" class="hidden flex-col items-center px-4 w-full h-full pb-8">
-                <div id="res-top-bar" class="w-full flex justify-between items-center mb-12 mt-4 max-w-[400px] opacity-0 transition-opacity duration-500 z-40 relative">
-                    <button class="bg-green-500 border-2 border-green-600 text-white font-black text-[10px] w-8 h-8 flex items-center justify-center rounded-lg shadow-sm" onclick="window.openModal('debug-modal')">DEV</button>
-                    <div class="status-pill bg-slate-100 shadow-sm border border-slate-200">
-                        <div class="icon-svg-wrapper"><svg class="drop-shadow-sm w-5 h-5" viewBox="0 0 24 24"><use href="#svg-coin"/></svg></div>
-                        <span class="coin-display text-blue-900 pr-2 font-black">40</span>
-                    </div>
-                    <div class="w-8"></div> 
-                </div>
-
-                <div class="w-full max-w-[400px] flex flex-col items-center relative opacity-0 transition-opacity duration-500 flex-1 min-h-[300px]" id="res-lb-container">
-                    <div class="bg-white w-full rounded-[30px] pt-14 pb-4 px-2 relative mb-6 mt-8 shadow-xl flex flex-col flex-1 min-h-0">
-                        <div class="absolute -top-[50px] left-1/2 -translate-x-1/2 bg-white rounded-full p-2 shadow-sm" style="border: 4px solid #f8fafc;">
-                            <div class="logo-text text-[1.6rem] leading-none text-center">Tile<br><span>Match</span></div>
-                        </div>
-                        <h2 class="text-xl font-black text-[#1e3a8a] text-center mb-3">Level <span id="res-level"></span> Completed!</h2>
-                        <div class="w-5/6 mx-auto h-[1px] bg-slate-200 mb-3 flex-shrink-0"></div>
-                        <div class="result-board w-full relative flex-1 min-h-[160px] overflow-hidden rounded-[16px]" id="result-lb-list">
-                            <!-- JS Populated -->
-                        </div>
-                    </div>
-
-                    <div class="bg-white w-full rounded-[30px] p-5 flex flex-col items-center relative shadow-xl flex-shrink-0">
-                        <div class="absolute -top-3 bg-white px-4 text-[10px] font-black text-slate-300 tracking-widest uppercase">Rewards</div>
-                        <div class="flex flex-col items-center mb-4 mt-2">
-                            <svg id="reward-coin-source" class="drop-shadow-sm w-12 h-12 mb-1" viewBox="0 0 24 24"><use href="#svg-coin"/></svg>
-                            <span class="font-black text-[#0f172a] text-xl">25</span>
-                        </div>
-                        <div class="w-full flex gap-3 px-2">
-                            <button class="flex-1 bg-slate-400 text-white font-black text-xl py-3 rounded-2xl border-none cursor-pointer shadow-sm active:scale-95 transition" onclick="window.animateCoinsAndProceed('home')">Home</button>
-                            <button class="flex-1 bg-[#4ade80] text-white font-black text-xl py-3 rounded-2xl border-none cursor-pointer shadow-sm active:scale-95 transition" onclick="window.animateCoinsAndProceed('next')">Next</button>
-                        </div>
-                        <button class="absolute -right-2 top-8 bg-[#a855f7] text-white font-black py-2 px-4 rounded-2xl flex items-center justify-center gap-1 shadow-lg cursor-pointer active:scale-95 transition z-10 border-2 border-white" style="border-bottom-left-radius: 4px;" onclick="window.animateCoinsAndProceed('double')">
-                            <div class="flex flex-col items-center leading-none">
-                                <span class="flex items-center gap-1 text-[22px] tracking-tighter">2x<svg width="18" height="18" fill="white" viewBox="0 0 24 24" class="ml-1"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm6 11l6-4-6-4v8z"/></svg></span>
-                                <span class="text-[10px] font-bold mt-1">Claim</span>
-                            </div>
-                            <div class="absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-r-8 border-r-white border-b-8 border-b-transparent"></div>
-                            <div class="absolute -left-[5px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-r-[6px] border-r-[#a855f7] border-b-[6px] border-b-transparent"></div>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <div id="star-anim-phase" class="absolute inset-0 bg-white flex flex-col items-center justify-center transition-opacity duration-500 z-[610]"><div id="anim-logo" class="transition-transform duration-500 scale-0 mb-8"><div class="logo-text text-[3rem] leading-none text-center">Tile<br><span>Match</span></div></div><div class="flex items-end gap-2 mb-8 h-16 w-full justify-center"><svg id="anim-star-1" class="star-icon transition-all duration-300" viewBox="0 0 24 24" width="45" height="45" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" fill="none"><use href="#svg-star"/></svg><svg id="anim-star-2" class="star-icon transition-all duration-300 mb-1" viewBox="0 0 24 24" width="60" height="60" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" fill="none"><use href="#svg-star"/></svg><svg id="anim-star-3" class="star-icon transition-all duration-300" viewBox="0 0 24 24" width="45" height="45" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" fill="none"><use href="#svg-star"/></svg></div><div id="anim-text-group" class="transition-opacity duration-500 opacity-0 text-center"><h2 class="text-3xl font-black text-[#1e3a8a] mb-2">Level <span id="anim-level-number"></span> Completed!</h2></div></div>
+            <div id="lb-phase" class="hidden flex-col items-center px-4 w-full h-full pb-8"><div id="res-top-bar" class="w-full flex justify-between items-center mb-12 mt-4 max-w-[400px] opacity-0 transition-opacity duration-500 z-40 relative"><button class="bg-green-500 border-2 border-green-600 text-white font-black text-[10px] w-8 h-8 flex items-center justify-center rounded-lg shadow-sm" onclick="window.openModal('debug-modal')">DEV</button><div class="status-pill bg-slate-100 shadow-sm border border-slate-200"><div class="icon-svg-wrapper"><svg class="drop-shadow-sm w-5 h-5" viewBox="0 0 24 24"><use href="#svg-coin"/></svg></div><span class="coin-display text-blue-900 pr-2 font-black">40</span></div><div class="w-8"></div></div><div class="w-full max-w-[400px] flex flex-col items-center relative opacity-0 transition-opacity duration-500 flex-1 min-h-[300px]" id="res-lb-container"><div class="bg-white w-full rounded-[30px] pt-14 pb-4 px-2 relative mb-6 mt-8 shadow-xl flex flex-col flex-1 min-h-0"><div class="absolute -top-[50px] left-1/2 -translate-x-1/2 bg-white rounded-full p-2 shadow-sm" style="border: 4px solid #f8fafc;"><div class="logo-text text-[1.6rem] leading-none text-center">Tile<br><span>Match</span></div></div><h2 class="text-xl font-black text-[#1e3a8a] text-center mb-3">Level <span id="res-level"></span> Completed!</h2><div class="w-5/6 mx-auto h-[1px] bg-slate-200 mb-3 flex-shrink-0"></div><div class="result-board w-full relative flex-1 min-h-[160px] overflow-hidden rounded-[16px]" id="result-lb-list"></div></div><div class="bg-white w-full rounded-[30px] p-5 flex flex-col items-center relative shadow-xl flex-shrink-0"><div class="absolute -top-3 bg-white px-4 text-[10px] font-black text-slate-300 tracking-widest uppercase">Rewards</div><div class="flex flex-col items-center mb-4 mt-2"><svg id="reward-coin-source" class="drop-shadow-sm w-12 h-12 mb-1" viewBox="0 0 24 24"><use href="#svg-coin"/></svg><span class="font-black text-[#0f172a] text-xl">25</span></div><div class="w-full flex gap-3 px-2"><button class="flex-1 bg-slate-400 text-white font-black text-xl py-3 rounded-2xl border-none cursor-pointer shadow-sm active:scale-95 transition" onclick="window.animateCoinsAndProceed('home')">Home</button><button class="flex-1 bg-[#4ade80] text-white font-black text-xl py-3 rounded-2xl border-none cursor-pointer shadow-sm active:scale-95 transition" onclick="window.animateCoinsAndProceed('next')">Next</button></div><button class="absolute -right-2 top-8 bg-[#a855f7] text-white font-black py-2 px-4 rounded-2xl flex items-center justify-center gap-1 shadow-lg cursor-pointer active:scale-95 transition z-10 border-2 border-white" style="border-bottom-left-radius: 4px;" onclick="window.animateCoinsAndProceed('double')"><div class="flex flex-col items-center leading-none"><span class="flex items-center gap-1 text-[22px] tracking-tighter">2x<svg width="18" height="18" fill="white" viewBox="0 0 24 24" class="ml-1"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm6 11l6-4-6-4v8z"/></svg></span><span class="text-[10px] font-bold mt-1">Claim</span></div><div class="absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-r-8 border-r-white border-b-8 border-b-transparent"></div><div class="absolute -left-[5px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-r-[6px] border-r-[#a855f7] border-b-[6px] border-b-transparent"></div></button></div></div></div>
         </div>
 
         <div id="game-over" class="modal-overlay z-[500]">
@@ -681,19 +593,11 @@
                 <div class="absolute top-5 right-5 text-slate-800 font-black text-xl cursor-pointer" onclick="window.closeModal('game-over')">✖</div>
                 <h2 class="text-[#0f172a] font-black text-2xl mb-6 mt-2 tracking-wide" id="game-over-title">Level Failed</h2>
                 <div class="w-36 h-36 bg-white rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex items-center justify-center relative mb-8">
-                    <!-- Inline unique gradient and explicit path to avoid browser mask collision bugs -->
-                    <svg class="w-24 h-24 drop-shadow-[0_10px_20px_rgba(244,63,94,0.4)]" viewBox="0 0 24 24">
-                        <defs><linearGradient id="failGrad_GO" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4b4b" /><stop offset="100%" stop-color="#e11d48" /></linearGradient></defs>
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#failGrad_GO)"/>
-                        <polygon points="14,-2 8,11 13,12 10,25 17,12 11,11" fill="white"/>
-                    </svg>
+                    <svg class="w-24 h-24 drop-shadow-[0_10px_20px_rgba(244,63,94,0.4)]" viewBox="0 0 24 24"><defs><linearGradient id="failGrad_GO" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4b4b" /><stop offset="100%" stop-color="#e11d48" /></linearGradient></defs><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#failGrad_GO)"/><polygon points="14,-2 8,11 13,12 10,25 17,12 11,11" fill="white"/></svg>
                     <span class="absolute bottom-2 right-4 text-[#0f172a] font-black text-3xl tracking-tighter" style="text-shadow: 2px 2px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white;">- 1</span>
                 </div>
                 <h3 class="text-[#0f172a] font-bold text-xl mb-6 tracking-wide" id="game-over-desc">Are you sure?</h3>
-                <div class="w-full flex gap-4">
-                    <button class="flex-1 bg-[#4ade80] text-white py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.restartGame()">Restart</button>
-                    <button class="flex-1 bg-[#3b82f6] text-white py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#2563eb] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.confirmQuit()">Go Home</button>
-                </div>
+                <div class="w-full flex gap-4"><button class="flex-1 bg-[#4ade80] text-white py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.restartGame()">Restart</button><button class="flex-1 bg-[#3b82f6] text-white py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#2563eb] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.confirmQuit()">Go Home</button></div>
             </div>
         </div>
 
@@ -702,19 +606,11 @@
                 <div class="absolute top-5 right-5 text-slate-800 font-black text-xl cursor-pointer" onclick="window.closeModal('quit-confirm-modal')">✖</div>
                 <h2 class="text-[#0f172a] font-black text-2xl mb-6 mt-2 tracking-wide" id="quit-confirm-title">Quit Level?</h2>
                 <div class="w-36 h-36 bg-white rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex items-center justify-center relative mb-8">
-                    <!-- Inline unique gradient and explicit path to avoid browser mask collision bugs -->
-                    <svg class="w-24 h-24 drop-shadow-[0_10px_20px_rgba(244,63,94,0.4)]" viewBox="0 0 24 24">
-                        <defs><linearGradient id="failGrad_QC" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4b4b" /><stop offset="100%" stop-color="#e11d48" /></linearGradient></defs>
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#failGrad_QC)"/>
-                        <polygon points="14,-2 8,11 13,12 10,25 17,12 11,11" fill="white"/>
-                    </svg>
+                    <svg class="w-24 h-24 drop-shadow-[0_10px_20px_rgba(244,63,94,0.4)]" viewBox="0 0 24 24"><defs><linearGradient id="failGrad_QC" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4b4b" /><stop offset="100%" stop-color="#e11d48" /></linearGradient></defs><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#failGrad_QC)"/><polygon points="14,-2 8,11 13,12 10,25 17,12 11,11" fill="white"/></svg>
                     <span class="absolute bottom-2 right-4 text-[#0f172a] font-black text-3xl tracking-tighter" style="text-shadow: 2px 2px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white;">- 1</span>
                 </div>
                 <h3 class="text-[#0f172a] font-bold text-xl mb-6 tracking-wide">Are you sure?</h3>
-                <div class="w-full flex gap-4">
-                    <button class="flex-1 bg-slate-300 text-slate-700 py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#94a3b8] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.closeModal('quit-confirm-modal')">Cancel</button>
-                    <button class="flex-1 bg-[#ef4444] text-white py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#dc2626] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.confirmQuit()">Quit</button>
-                </div>
+                <div class="w-full flex gap-4"><button class="flex-1 bg-slate-300 text-slate-700 py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#94a3b8] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.closeModal('quit-confirm-modal')">Cancel</button><button class="flex-1 bg-[#ef4444] text-white py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#dc2626] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.confirmQuit()">Quit</button></div>
             </div>
         </div>
 
@@ -723,19 +619,11 @@
                 <div class="absolute top-5 right-5 text-slate-800 font-black text-xl cursor-pointer" onclick="window.closeModal('restart-confirm-modal')">✖</div>
                 <h2 class="text-[#0f172a] font-black text-2xl mb-6 mt-2 tracking-wide">Restart Level?</h2>
                 <div class="w-36 h-36 bg-white rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex items-center justify-center relative mb-8">
-                    <!-- Inline unique gradient and explicit path to avoid browser mask collision bugs -->
-                    <svg class="w-24 h-24 drop-shadow-[0_10px_20px_rgba(244,63,94,0.4)]" viewBox="0 0 24 24">
-                        <defs><linearGradient id="failGrad_RC" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4b4b" /><stop offset="100%" stop-color="#e11d48" /></linearGradient></defs>
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#failGrad_RC)"/>
-                        <polygon points="14,-2 8,11 13,12 10,25 17,12 11,11" fill="white"/>
-                    </svg>
+                    <svg class="w-24 h-24 drop-shadow-[0_10px_20px_rgba(244,63,94,0.4)]" viewBox="0 0 24 24"><defs><linearGradient id="failGrad_RC" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4b4b" /><stop offset="100%" stop-color="#e11d48" /></linearGradient></defs><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#failGrad_RC)"/><polygon points="14,-2 8,11 13,12 10,25 17,12 11,11" fill="white"/></svg>
                     <span class="absolute bottom-2 right-4 text-[#0f172a] font-black text-3xl tracking-tighter" style="text-shadow: 2px 2px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white;">- 1</span>
                 </div>
                 <h3 class="text-[#0f172a] font-bold text-xl mb-6 tracking-wide">Are you sure?</h3>
-                <div class="w-full flex gap-4">
-                    <button class="flex-1 bg-slate-300 text-slate-700 py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#94a3b8] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.closeModal('restart-confirm-modal')">Cancel</button>
-                    <button class="flex-1 bg-[#4ade80] text-white py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.executeRestart()">Restart</button>
-                </div>
+                <div class="w-full flex gap-4"><button class="flex-1 bg-slate-300 text-slate-700 py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#94a3b8] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.closeModal('restart-confirm-modal')">Cancel</button><button class="flex-1 bg-[#4ade80] text-white py-4 rounded-[20px] font-black text-lg shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all" onclick="window.executeRestart()">Restart</button></div>
             </div>
         </div>
 
@@ -745,25 +633,15 @@
                 <h2 class="text-xl font-black text-[#0f172a] mb-4 text-center">Lives</h2>
                 <div class="w-40 h-40 bg-white rounded-3xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] flex items-center justify-center relative mb-6">
                     <div class="absolute inset-0 bg-red-500 rounded-3xl blur-xl opacity-20" id="lives-modal-glow"></div>
-                    <div class="relative flex items-center justify-center">
-                        <svg width="100" height="100" fill="#ef4444"><use href="#svg-heart"/></svg>
-                        <span class="absolute text-white font-black text-4xl drop-shadow-md" id="lives-modal-count-center">4</span>
-                    </div>
+                    <div class="relative flex items-center justify-center"><svg width="100" height="100" fill="#ef4444"><use href="#svg-heart"/></svg><span class="absolute text-white font-black text-4xl drop-shadow-md" id="lives-modal-count-center">4</span></div>
                 </div>
+                <div id="lives-full-text" class="hidden text-[#7dd3fc] font-black text-4xl tracking-widest mt-2 mb-4">LIVES FULL</div>
                 <div id="lives-timer-section" class="flex flex-col items-center mb-6 w-full">
                     <h3 class="text-[#0f172a] font-black text-sm mb-2" id="lives-modal-timer-title">Next life in:</h3>
-                    <div class="bg-[#1e293b] text-white font-bold text-sm px-5 py-2 rounded-full flex items-center gap-2 shadow-inner">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        <span id="lives-modal-timer" class="tracking-widest">01:59:51</span>
-                    </div>
+                    <div class="bg-[#1e293b] text-white font-bold text-sm px-5 py-2 rounded-full flex items-center gap-2 shadow-inner"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span id="lives-modal-timer" class="tracking-widest">01:59:51</span></div>
                 </div>
-                <button id="refill-lives-btn" class="w-full bg-[#4ade80] text-white font-black text-lg py-3 rounded-2xl shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-2 mb-3" onclick="window.refillLives()">
-                    <svg class="drop-shadow-sm w-5 h-5" viewBox="0 0 24 24"><use href="#svg-coin"/></svg> 360
-                </button>
-                <button id="free-life-btn" class="w-full bg-[#4ade80] text-white font-black text-lg py-3 rounded-2xl shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-2">
-                    <div class="bg-red-500 text-white text-[11px] px-1.5 py-0.5 rounded flex items-center gap-1">+1 <svg width="10" height="10" fill="white"><use href="#svg-heart"/></svg></div> Free 
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10 8 16 12 10 16 10 8" fill="#4ade80"/></svg>
-                </button>
+                <button id="refill-lives-btn" class="w-full bg-[#4ade80] text-white font-black text-lg py-3 rounded-2xl shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-2 mb-3" onclick="window.refillLives()"><svg class="drop-shadow-sm w-5 h-5" viewBox="0 0 24 24"><use href="#svg-coin"/></svg> 360</button>
+                <button id="free-life-btn" class="w-full bg-[#4ade80] text-white font-black text-lg py-3 rounded-2xl shadow-[0_4px_0_#22c55e] active:translate-y-[4px] active:shadow-none transition-all flex justify-center items-center gap-2"><div class="bg-red-500 text-white text-[11px] px-1.5 py-0.5 rounded flex items-center gap-1">+1 <svg width="10" height="10" fill="white"><use href="#svg-heart"/></svg></div> Free <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10 8 16 12 10 16 10 8" fill="#4ade80"/></svg></button>
             </div>
         </div>
         
@@ -791,8 +669,7 @@
                     <div class="toggle-row" onclick="window.toggleSwitch(this)"><span class="toggle-label">Haptics</span><div class="toggle-bg on"><div class="toggle-text">ON</div><div class="toggle-knob"></div></div></div>
                     <div class="toggle-row" onclick="window.toggleSwitch(this)"><span class="toggle-label">Visual</span><div class="toggle-bg on"><div class="toggle-text">ON</div><div class="toggle-knob"></div></div></div>
                 </div>
-                <button class="btn-yellow w-full max-w-[200px] mb-3" onclick="window.promptRestart()">Restart</button>
-                <button class="btn-red w-full max-w-[200px] mb-6" onclick="window.openModal('quit-confirm-modal'); window.closeModal('ingame-settings-modal');">Quit</button>
+                <button class="btn-yellow w-full max-w-[200px] mb-3" onclick="window.promptRestart()">Restart</button><button class="btn-red w-full max-w-[200px] mb-6" onclick="window.openModal('quit-confirm-modal'); window.closeModal('ingame-settings-modal');">Quit</button>
                 <div class="modal-link border-t border-slate-200">Feedback</div><div class="modal-link" style="border:none; padding-top:5px; margin-top:0;">Privacy Policy</div><div class="text-[#cbd5e1] font-bold text-xs mt-6 text-center">Version<br>1.0.0</div>
             </div>
         </div>
@@ -812,9 +689,7 @@
                     <button class="flex-1 bg-white text-[#0f172a] font-black py-2.5 rounded-t-[16px] text-sm shadow-[0_-2px_4px_rgba(0,0,0,0.02)]" id="tab-btn-avatar" onclick="window.switchProfileTab('avatar')">Avatar</button>
                     <button class="flex-1 bg-[#bae6fd] text-[#1e3a8a] font-black py-2.5 rounded-t-[16px] text-sm opacity-60 shadow-[0_-2px_4px_rgba(0,0,0,0.02)]" id="tab-btn-frame" onclick="window.switchProfileTab('frame')">Frame</button>
                 </div>
-                <div class="bg-white mx-4 rounded-b-[16px] p-4 min-h-[260px] shadow-sm">
-                    <div id="tab-content-avatar" class="grid grid-cols-4 gap-3"></div><div id="tab-content-frame" class="grid grid-cols-4 gap-3 hidden"></div>
-                </div>
+                <div class="bg-white mx-4 rounded-b-[16px] p-4 min-h-[260px] shadow-sm"><div id="tab-content-avatar" class="grid grid-cols-4 gap-3"></div><div id="tab-content-frame" class="grid grid-cols-4 gap-3 hidden"></div></div>
             </div>
         </div>
         
@@ -822,34 +697,20 @@
             <div class="modal-content pt-8 px-6 pb-6 w-11/12 max-w-[320px]">
                 <div class="absolute top-4 right-4 text-slate-400 font-bold text-xl cursor-pointer" onclick="window.closeModal('debug-modal')">✖</div>
                 <h2 class="text-2xl font-black text-[#0f172a] mb-6 text-center tracking-wide">Debug Menu</h2>
-                
                 <div class="w-full flex flex-col gap-3">
                     <button class="btn-green bg-[#4ade80] text-white py-3 rounded-xl font-black shadow-sm active:scale-95 transition-transform" onclick="window.debugForceWin()">Force Complete Level</button>
-                    
-                    <div class="flex gap-2">
-                        <button class="bg-[#ef4444] text-white py-3 rounded-xl font-black shadow-sm active:scale-95 transition-transform flex-1" onclick="window.debugFailTime()">Fail: Time</button>
-                        <button class="bg-[#f97316] text-white py-3 rounded-xl font-black shadow-sm active:scale-95 transition-transform flex-1" onclick="window.debugFailBomb()">Fail: Bomb</button>
-                    </div>
-
-                    <div class="flex gap-2 w-full mt-2">
-                        <input type="number" id="debug-level-input" class="border-2 border-slate-200 rounded-xl px-3 w-20 font-bold text-center outline-none focus:border-blue-400" value="1">
-                        <button class="bg-[#3b82f6] text-white rounded-xl font-bold px-4 py-3 flex-grow shadow-sm active:scale-95 transition-transform" onclick="window.debugJumpLevel()">Jump to Level</button>
-                    </div>
-                    
+                    <div class="grid grid-cols-3 gap-2 w-full mt-2"><button class="bg-[#ef4444] text-white py-2.5 rounded-xl font-black shadow-sm text-sm active:scale-95 transition-transform" onclick="window.debugFailTime()">Fail: Time</button><button class="bg-[#f97316] text-white py-2.5 rounded-xl font-black shadow-sm text-sm active:scale-95 transition-transform" onclick="window.debugFailBomb()">Fail: Bomb</button><button class="bg-[#8b5cf6] text-white py-2.5 rounded-xl font-black shadow-sm text-sm active:scale-95 transition-transform" onclick="window.debugFailSpace()">Fail: Space</button></div>
+                    <div class="flex gap-2 w-full mt-2"><input type="number" id="debug-level-input" class="border-2 border-slate-200 rounded-xl px-3 w-20 font-bold text-center outline-none focus:border-blue-400" value="1"><button class="bg-[#3b82f6] text-white rounded-xl font-bold px-4 py-3 flex-grow shadow-sm active:scale-95 transition-transform" onclick="window.debugJumpLevel()">Jump to Level</button></div>
                     <button class="bg-amber-400 text-white rounded-xl font-black px-4 py-3 w-full mt-2 shadow-sm active:scale-95 transition-transform" onclick="window.debugAddCoins()">+1000 Coins</button>
-                    
-                    <div class="grid grid-cols-2 gap-2 mt-2">
-                        <button class="bg-[#3b82f6] text-white rounded-xl font-bold py-2.5 text-xs shadow-sm active:scale-95 transition-transform" onclick="window.debugAddBooster('theme')">+5 Theme</button>
-                        <button class="bg-[#a855f7] text-white rounded-xl font-bold py-2.5 text-xs shadow-sm active:scale-95 transition-transform" onclick="window.debugAddBooster('shuffle')">+5 Shuffle</button>
-                        <button class="bg-[#eab308] text-white rounded-xl font-bold py-2.5 text-xs shadow-sm active:scale-95 transition-transform" onclick="window.debugAddBooster('undo')">+5 Undo</button>
-                        <button class="bg-[#ef4444] text-white rounded-xl font-bold py-2.5 text-xs shadow-sm active:scale-95 transition-transform" onclick="window.debugAddBooster('magnet')">+5 Magnet</button>
-                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-2"><button class="bg-[#3b82f6] text-white rounded-xl font-bold py-2.5 text-xs shadow-sm active:scale-95 transition-transform" onclick="window.debugAddBooster('theme')">+5 Theme</button><button class="bg-[#a855f7] text-white rounded-xl font-bold py-2.5 text-xs shadow-sm active:scale-95 transition-transform" onclick="window.debugAddBooster('shuffle')">+5 Shuffle</button><button class="bg-[#eab308] text-white rounded-xl font-bold py-2.5 text-xs shadow-sm active:scale-95 transition-transform" onclick="window.debugAddBooster('undo')">+5 Undo</button><button class="bg-[#ef4444] text-white rounded-xl font-bold py-2.5 text-xs shadow-sm active:scale-95 transition-transform" onclick="window.debugAddBooster('magnet')">+5 Magnet</button></div>
+                    <button class="bg-slate-500 text-white rounded-xl font-black px-4 py-3 w-full mt-2 shadow-sm active:scale-95 transition-transform" onclick="window.debugResetProgress()">Delete Progress</button>
                 </div>
             </div>
         </div>
     </div>
     
     <script>
+        var SAVE_KEY = "pastel_match_save_v1";
         window.openModal = function(id) { let el = document.getElementById(id); if(el) el.style.display = 'flex'; };
         window.closeModal = function(id) { let el = document.getElementById(id); if(el) el.style.display = 'none'; };
         window.closeAllModals = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); ['level-complete-overlay', 'booster-unlock-screen', 'ftue-overlay'].forEach(id => { let el = document.getElementById(id); if (el) el.style.display = 'none'; }); if (ftueState.activeTargetId) { let target = document.getElementById(ftueState.activeTargetId); if(target) target.classList.remove('ftue-spotlight-active'); ftueState.activeTargetId = null; } };
@@ -862,18 +723,36 @@
         var spinState = { freeAvailable: true, nextTime: 0 }, rewardState = { claimed: false, baseClaimed: false, rvClaimed: false, nextTime: 0 };
         var previousScreenId = 'home-screen', currentScreenId = 'home-screen';
         var isDailyChallenge = false, challengeDay = null;
-        
-        var THEMES = { Fruit: ['🍎','🍌','🍇','🍉','🍓','🍒','🍑'], Cakes: ['🍰','🧁','🎂','🥞','🧇','🥮','🥧'], Hats: ['🎩','🧢','👒','🎓','⛑️','🤠','👲'], Flowers: ['🌸','🌺','🌻','🌼','🌷','🌹','🪷'], Planets: ['🌍','🌕','🪐','☀️','☄️','🌑','🌟'], Household: ['🪑','🛋️','🛏️','🚪','🚽','🛁','🪞'], Elements: ['🔥','💧','💨','🪨','⚡','❄️','🌿'], Makeup: ['💄','💅','💋','🎀','🧴','🪮','💎'] };
-        
-        // UPDATED JS TILE DIMENSIONS
-        var THEME_NAMES = Object.keys(THEMES), TILE_W = 56, TILE_H = 64;
-        
-        var BOOSTER_UNLOCKS = [ { level: 2, key: 'theme', name: 'THEME SWITCH', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-theme"/></svg>`, desc: "Switches to another theme." }, { level: 3, key: 'shuffle', name: 'SHUFFLE', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-shuffle"/></svg>`, desc: "Rearranges all tiles on the board." }, { level: 4, key: 'undo', name: 'UNDO', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-undo"/></svg>`, desc: "Returns the last tile from the tray." }, { level: 5, key: 'magnet', name: 'MAGNET', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-magnet"/></svg>`, desc: "Automatically pulls matching tiles to the tray." } ];
         var ftueState = { matchStep: 0, trayWarning: false, timerTutorial: false, active: false, targetType: null, currentTarget: null, unlocked_theme: false, unlocked_shuffle: false, unlocked_undo: false, unlocked_magnet: false, pendingBooster: null, activeTargetId: null };
-        var levelProgress = 0, progressTarget = 30, lbRowElements = [], targetMeIdx = -1, meElementIdx = -1, lbItemHeight = 56;
-        
         var playerProfile = { name: "Player89143444", avatarIdx: 7, frameIdx: 9 };
         
+        window.saveGameData = function() { const data = { inventory, level, appSettings, playerProfile, spinState, rewardState, lbCurrentRank, ftueState }; try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e) {} };
+        window.loadGameData = function() {
+            try {
+                const saved = localStorage.getItem(SAVE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if(data.inventory) Object.assign(inventory, data.inventory);
+                    if(data.level) level = data.level;
+                    if(data.appSettings) Object.assign(appSettings, data.appSettings);
+                    if(data.playerProfile) Object.assign(playerProfile, data.playerProfile);
+                    if(data.spinState) Object.assign(spinState, data.spinState);
+                    if(data.rewardState) Object.assign(rewardState, data.rewardState);
+                    if(data.lbCurrentRank) lbCurrentRank = data.lbCurrentRank;
+                    if(data.ftueState) Object.assign(ftueState, data.ftueState);
+                }
+            } catch(e) {}
+        };
+        window.saveProgress = function() { window.saveGameData(); };
+        window.addEventListener('beforeunload', window.saveGameData);
+        window.addEventListener('pagehide', window.saveGameData);
+        setInterval(window.saveGameData, 5000);
+        window.loadGameData();
+
+        var THEMES = { Fruit: ['🍎','🍌','🍇','🍉','🍓','🍒','🍑'], Cakes: ['🍰','🧁','🎂','🥞','🧇','🥮','🥧'], Hats: ['🎩','🧢','👒','🎓','⛑️','🤠','👲'], Flowers: ['🌸','🌺','🌻','🌼','🌷','🌹','🪷'], Planets: ['🌍','🌕','🪐','☀️','☄️','🌑','🌟'], Household: ['🪑','🛋️','🛏️','🚪','🚽','🛁','🪞'], Elements: ['🔥','💧','💨','🪨','⚡','❄️','🌿'], Makeup: ['💄','💅','💋','🎀','🧴','🪮','💎'] };
+        var THEME_NAMES = Object.keys(THEMES), TILE_W = 56, TILE_H = 64;
+        window.currentTileW = TILE_W; window.currentTileH = TILE_H; window.currentScale = 1;
+        var BOOSTER_UNLOCKS = [ { level: 2, key: 'theme', name: 'THEME SWITCH', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-theme"/></svg>`, desc: "Switches to another theme." }, { level: 3, key: 'shuffle', name: 'SHUFFLE', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-shuffle"/></svg>`, desc: "Rearranges all tiles on the board." }, { level: 4, key: 'undo', name: 'UNDO', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-undo"/></svg>`, desc: "Returns the last tile from the tray." }, { level: 5, key: 'magnet', name: 'MAGNET', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-magnet"/></svg>`, desc: "Automatically pulls matching tiles to the tray." } ];
         var AVATAR_DATA = [
             { bg: '#facc15', face: '<svg viewBox="0 0 100 100"><circle cx="30" cy="40" r="8" fill="#1e293b"/><circle cx="70" cy="40" r="8" fill="#1e293b"/><path d="M 25 60 Q 50 85 75 60" fill="none" stroke="#1e293b" stroke-width="10" stroke-linecap="round"/></svg>' },
             { bg: '#f8fafc', face: '<svg viewBox="0 0 100 100"><path d="M 10 100 C 10 10, 90 10, 90 100" fill="#1e293b"/><path d="M 25 100 C 25 40, 75 40, 75 100" fill="white"/><circle cx="35" cy="55" r="7" fill="#1e293b"/><circle cx="65" cy="55" r="7" fill="#1e293b"/><path d="M 35 65 L 65 65 L 50 85 Z" fill="#ea580c"/></svg>' },
@@ -906,15 +785,18 @@
             'background: #1d4ed8;' 
         ];
 
+        window.updateSettingsUI = function() {
+            document.querySelectorAll('.toggle-row').forEach(row => {
+                let labelText = row.querySelector('.toggle-label').innerText.toLowerCase(); let bg = row.querySelector('.toggle-bg'); let txt = row.querySelector('.toggle-text');
+                if(appSettings[labelText] !== undefined) { if(appSettings[labelText]) { bg.classList.remove('off'); bg.classList.add('on'); txt.innerText = 'ON'; } else { bg.classList.remove('on'); bg.classList.add('off'); txt.innerText = 'OFF'; } }
+            });
+        };
+
         window.renderStorePacks = function() {
             let bGrid = document.getElementById('booster-packs-grid');
-            if (bGrid) {
-                bGrid.innerHTML = ['undo','shuffle','magnet'].map(x => `<div class="store-grid-item" onclick="window.buyBoosterFromStore('${x}', 300, 3)"><svg class="w-14 h-14 mb-2 drop-shadow-sm"><use href="#svg-${x}"/></svg><span class="font-black text-[#0f172a] text-sm capitalize">3x ${x}</span><button class="store-btn-blue w-full mt-2 pointer-events-none flex justify-center items-center gap-1" style="font-size:0.75rem;"><svg class="drop-shadow-sm w-4 h-4" viewBox="0 0 24 24"><use href="#svg-coin"/></svg> 300</button></div>`).join('');
-            }
+            if (bGrid) bGrid.innerHTML = ['undo','shuffle','magnet'].map(x => `<div class="store-grid-item" onclick="window.buyBoosterFromStore('${x}', 300, 3)"><svg class="w-14 h-14 mb-2 drop-shadow-sm"><use href="#svg-${x}"/></svg><span class="font-black text-[#0f172a] text-sm capitalize">3x ${x}</span><button class="store-btn-blue w-full mt-2 pointer-events-none flex justify-center items-center gap-1" style="font-size:0.75rem;"><svg class="drop-shadow-sm w-4 h-4" viewBox="0 0 24 24"><use href="#svg-coin"/></svg> 300</button></div>`).join('');
             let cGrid = document.getElementById('coin-packs-grid');
-            if (cGrid) {
-                cGrid.innerHTML = [{a:800, c:330}, {a:3200, c:1100}, {a:28000, c:5500}].map(x => `<div class="store-grid-item" onclick="window.buyCoins(${x.a}, ${x.c})"><svg class="drop-shadow-sm w-12 h-12 mb-2" viewBox="0 0 24 24"><use href="#svg-coin"/></svg><span class="font-black text-[#0f172a] text-lg">${x.a.toLocaleString()}</span><button class="store-btn-blue w-full mt-2 pointer-events-none" style="font-size:0.75rem;">₹${x.c.toLocaleString()}.00</button></div>`).join('');
-            }
+            if (cGrid) cGrid.innerHTML = [{a:800, c:330}, {a:3200, c:1100}, {a:28000, c:5500}].map(x => `<div class="store-grid-item" onclick="window.buyCoins(${x.a}, ${x.c})"><svg class="drop-shadow-sm w-12 h-12 mb-2" viewBox="0 0 24 24"><use href="#svg-coin"/></svg><span class="font-black text-[#0f172a] text-lg">${x.a.toLocaleString()}</span><button class="store-btn-blue w-full mt-2 pointer-events-none" style="font-size:0.75rem;">₹${x.c.toLocaleString()}.00</button></div>`).join('');
         };
 
         window.renderDailyRewards = function() {
@@ -931,15 +813,10 @@
             h += '<div></div><div></div><div></div><div></div>';
             let today = 8;
             for(let i=1; i<=31; i++){ 
-                let c = "aspect-square rounded-lg flex items-center justify-center font-black text-sm relative "; 
-                let o = "";
+                let c = "aspect-square rounded-lg flex items-center justify-center font-black text-sm relative "; let o = "";
                 if(i < today) {
                     if (i <= 3) { c += "bg-[#93c5fd] text-white"; o = `onclick="window.showToast('Already completed!')"`; }
-                    else { 
-                        c += "bg-slate-200 text-slate-500 cursor-pointer"; o = `onclick="window.startDailyChallenge(${i}, true)"`; 
-                        h += `<div class="${c}" ${o}>${i}<div class="absolute -bottom-1 -right-1 bg-white rounded flex items-center px-0.5 shadow-sm"><svg width="8" height="8" viewBox="0 0 24 24" fill="#2563eb"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div></div>`;
-                        continue; 
-                    }
+                    else { c += "bg-slate-200 text-slate-500 cursor-pointer"; o = `onclick="window.startDailyChallenge(${i}, true)"`; h += `<div class="${c}" ${o}>${i}<div class="absolute -bottom-1 -right-1 bg-white rounded flex items-center px-0.5 shadow-sm"><svg width="8" height="8" viewBox="0 0 24 24" fill="#2563eb"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div></div>`; continue; }
                 }
                 else if(i === today) { c += "bg-white border-[3px] border-[#4ade80] text-slate-700 shadow-sm cursor-pointer"; o = `onclick="window.startDailyChallenge(${i}, false)"`; }
                 else { c += "bg-white border border-slate-200 text-slate-300 pointer-events-none"; }
@@ -949,23 +826,13 @@
         };
 
         window.initApp = function() {
-            window.renderStorePacks(); window.renderDailyRewards(); window.renderCalendar(); window.renderProfileTabs(); window.updateProfileUI(); window.updateGlobalStats(); window.switchScreen('home-screen');
+            window.updateSettingsUI(); window.renderStorePacks(); window.renderDailyRewards(); window.renderCalendar(); window.renderProfileTabs(); window.updateProfileUI(); window.updateGlobalStats(); window.switchScreen('home-screen');
             setInterval(() => {
-                if (spinState.nextTime > 0) { spinState.nextTime--; let el = document.getElementById('spin-timer'); if(el) el.innerText = window.formatTime(spinState.nextTime); if (spinState.nextTime <= 0) { spinState.freeAvailable = true; window.updateSpinUI(); } }
-                if (rewardState.nextTime > 0) { 
-                    rewardState.nextTime--; 
-                    let el = document.getElementById('daily-reward-timer'); 
-                    if(el) el.innerText = window.formatTime(rewardState.nextTime); 
-                    if (rewardState.nextTime <= 0) { 
-                        rewardState.claimed = false; 
-                        rewardState.baseClaimed = false;
-                        rewardState.rvClaimed = false;
-                        window.updateRewardUI(); 
-                    } 
-                }
+                if (spinState.nextTime > 0) { spinState.nextTime--; let el = document.getElementById('spin-timer'); if(el) el.innerText = window.formatTime(spinState.nextTime); if (spinState.nextTime <= 0) { spinState.freeAvailable = true; window.updateSpinUI(); window.saveProgress(); } }
+                if (rewardState.nextTime > 0) { rewardState.nextTime--; let el = document.getElementById('daily-reward-timer'); if(el) el.innerText = window.formatTime(rewardState.nextTime); if (rewardState.nextTime <= 0) { rewardState.claimed = false; rewardState.baseClaimed = false; rewardState.rvClaimed = false; window.updateRewardUI(); window.saveProgress(); } }
             }, 1000);
         };
-        if (document.readyState === 'complete' || document.readyState === 'interactive') { setTimeout(window.initApp, 1); } else { document.addEventListener('DOMContentLoaded', window.initApp); }
+        if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(window.initApp, 1); else document.addEventListener('DOMContentLoaded', window.initApp);
 
         window.switchProfileTab = function(tab) {
             document.getElementById('tab-content-avatar').classList.toggle('hidden', tab !== 'avatar'); document.getElementById('tab-content-frame').classList.toggle('hidden', tab !== 'frame');
@@ -980,103 +847,54 @@
                 avGrid.innerHTML = ''; 
                 AVATAR_DATA.forEach((av, idx) => { 
                     let isSelected = playerProfile.avatarIdx === idx;
-                    let div = document.createElement('div'); 
-                    div.className = `w-14 h-14 rounded-[16px] overflow-hidden relative cursor-pointer shadow-sm transition-transform active:scale-95 ${isSelected ? 'scale-105 shadow-md' : ''}`; 
-                    div.style.background = av.bg; 
-                    div.innerHTML = av.face; 
-                    if(isSelected) {
-                        div.innerHTML += `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="absolute -bottom-2 -right-2 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] z-10"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-                    }
-                    div.onclick = () => { playerProfile.avatarIdx = idx; window.updateProfileUI(); window.renderProfileTabs(); }; 
-                    avGrid.appendChild(div); 
+                    let div = document.createElement('div'); div.className = `w-14 h-14 rounded-[16px] overflow-hidden relative cursor-pointer shadow-sm transition-transform active:scale-95 ${isSelected ? 'scale-105 shadow-md' : ''}`; div.style.background = av.bg; div.innerHTML = av.face; 
+                    if(isSelected) div.innerHTML += `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="absolute -bottom-2 -right-2 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] z-10"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                    div.onclick = () => { playerProfile.avatarIdx = idx; window.updateProfileUI(); window.renderProfileTabs(); window.saveProgress(); }; avGrid.appendChild(div); 
                 });
             }
             const frGrid = document.getElementById('tab-content-frame');
             if(frGrid) {
-                frGrid.innerHTML = ''; 
-                const currentAv = AVATAR_DATA[playerProfile.avatarIdx]; 
+                frGrid.innerHTML = ''; const currentAv = AVATAR_DATA[playerProfile.avatarIdx]; 
                 FRAME_DATA.forEach((fr, idx) => { 
                     let isSelected = playerProfile.frameIdx === idx;
-                    let div = document.createElement('div'); 
-                    div.className = `w-14 h-14 rounded-[16px] p-[3px] relative cursor-pointer shadow-sm transition-transform active:scale-95 ${isSelected ? 'scale-105 shadow-md' : ''}`; 
-                    div.style = fr; 
-                    let inner = document.createElement('div');
-                    inner.className = 'w-full h-full rounded-[13px] overflow-hidden';
-                    inner.style.background = currentAv.bg;
-                    inner.innerHTML = currentAv.face;
-                    div.appendChild(inner);
-                    if(isSelected) {
-                        div.innerHTML += `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="absolute -bottom-2 -right-2 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] z-10"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-                    }
-                    div.onclick = () => { playerProfile.frameIdx = idx; window.updateProfileUI(); window.renderProfileTabs(); }; 
-                    frGrid.appendChild(div); 
+                    let div = document.createElement('div'); div.className = `w-14 h-14 rounded-[16px] p-[3px] relative cursor-pointer shadow-sm transition-transform active:scale-95 ${isSelected ? 'scale-105 shadow-md' : ''}`; div.style = fr; 
+                    let inner = document.createElement('div'); inner.className = 'w-full h-full rounded-[13px] overflow-hidden'; inner.style.background = currentAv.bg; inner.innerHTML = currentAv.face; div.appendChild(inner);
+                    if(isSelected) div.innerHTML += `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="absolute -bottom-2 -right-2 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] z-10"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                    div.onclick = () => { playerProfile.frameIdx = idx; window.updateProfileUI(); window.renderProfileTabs(); window.saveProgress(); }; frGrid.appendChild(div); 
                 });
             }
         };
 
         window.updateProfileUI = function() {
-            const hName = document.getElementById('home-profile-name'); 
-            const hIcon = document.getElementById('home-profile-icon'); 
-            const pInput = document.getElementById('profile-name-input'); 
-            const mAvatar = document.getElementById('modal-active-avatar');
-            
-            const currentAv = AVATAR_DATA[playerProfile.avatarIdx]; 
-            const currentFr = FRAME_DATA[playerProfile.frameIdx];
-            
+            const hName = document.getElementById('home-profile-name'); const hIcon = document.getElementById('home-profile-icon'); const pInput = document.getElementById('profile-name-input'); const mAvatar = document.getElementById('modal-active-avatar');
+            const currentAv = AVATAR_DATA[playerProfile.avatarIdx]; const currentFr = FRAME_DATA[playerProfile.frameIdx];
             if(hName) hName.innerText = playerProfile.name;
             if(pInput) pInput.value = playerProfile.name;
-            
-            if(hIcon) { 
-                hIcon.className = 'w-8 h-8 rounded-lg p-[2px] shadow-sm flex-shrink-0';
-                hIcon.style = currentFr;
-                hIcon.innerHTML = `<div class="w-full h-full rounded-[6px] overflow-hidden" style="background: ${currentAv.bg}">${currentAv.face}</div>`; 
-            }
-            
-            if(mAvatar) { 
-                mAvatar.className = 'w-[72px] h-[72px] rounded-[18px] flex-shrink-0 p-[4px] shadow-sm relative transition-all';
-                mAvatar.style = currentFr;
-                mAvatar.innerHTML = `<div class="w-full h-full rounded-[14px] overflow-hidden" style="background: ${currentAv.bg}">${currentAv.face}</div><div class="absolute -bottom-2 -right-2 bg-white border border-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-sm z-20 cursor-pointer hover:bg-slate-50 transition-colors" onclick="document.getElementById('profile-name-input').focus();">✏️</div>`; 
-            }
+            if(hIcon) { hIcon.className = 'w-8 h-8 rounded-lg p-[2px] shadow-sm flex-shrink-0'; hIcon.style = currentFr; hIcon.innerHTML = `<div class="w-full h-full rounded-[6px] overflow-hidden" style="background: ${currentAv.bg}">${currentAv.face}</div>`; }
+            if(mAvatar) { mAvatar.className = 'w-[72px] h-[72px] rounded-[18px] flex-shrink-0 p-[4px] shadow-sm relative transition-all'; mAvatar.style = currentFr; mAvatar.innerHTML = `<div class="w-full h-full rounded-[14px] overflow-hidden" style="background: ${currentAv.bg}">${currentAv.face}</div><div class="absolute -bottom-2 -right-2 bg-white border border-slate-800 rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-sm z-20 cursor-pointer hover:bg-slate-50 transition-colors" onclick="document.getElementById('profile-name-input').focus();">✏️</div>`; }
         };
 
-        window.saveProfileName = function() { let newName = document.getElementById('profile-name-input').value.trim(); if(newName) { playerProfile.name = newName; window.updateProfileUI(); } else { document.getElementById('profile-name-input').value = playerProfile.name; } };
+        window.saveProfileName = function() { let newName = document.getElementById('profile-name-input').value.trim(); if(newName) { playerProfile.name = newName; window.updateProfileUI(); } else { document.getElementById('profile-name-input').value = playerProfile.name; } window.saveProgress(); };
 
         window.handleWidgetClick = function(widget) {
-            if (widget === 'spin') {
-                if (level <= 13) { window.showToast('Unlock by reaching Level 14!'); return; }
-                window.openModal('spin-modal');
-            } else if (widget === 'challenge') {
-                if (level <= 20) { window.showToast('Unlock by reaching Level 21!'); return; }
-                window.openModal('daily-challenge-modal');
-            }
+            if (widget === 'spin') { if (level <= 13) { window.showToast('Unlock by reaching Level 14!'); return; } window.openModal('spin-modal'); }
+            else if (widget === 'challenge') { if (level <= 20) { window.showToast('Unlock by reaching Level 21!'); return; } window.openModal('daily-challenge-modal'); }
         };
 
         window.updateGlobalStats = function() {
             document.querySelectorAll('.coin-display').forEach(el => el.textContent = inventory.coins);
-            const homeLevelDisplay = document.getElementById('home-level-display');
-            if (homeLevelDisplay) homeLevelDisplay.textContent = `Level ${level}`;
-            
-            const spinLock = document.getElementById('lock-spin');
-            if (spinLock) {
-                if (level <= 13) { spinLock.classList.remove('hidden'); spinLock.classList.add('flex'); }
-                else { spinLock.classList.add('hidden'); spinLock.classList.remove('flex'); }
-            }
-            
-            const challengeLock = document.getElementById('lock-challenge');
-            if (challengeLock) {
-                if (level <= 20) { challengeLock.classList.remove('hidden'); challengeLock.classList.add('flex'); }
-                else { challengeLock.classList.add('hidden'); challengeLock.classList.remove('flex'); }
-            }
+            const homeLevelDisplay = document.getElementById('home-level-display'); if (homeLevelDisplay) homeLevelDisplay.textContent = `Level ${level}`;
+            const spinLock = document.getElementById('lock-spin'); if (spinLock) { if (level <= 13) { spinLock.classList.remove('hidden'); spinLock.classList.add('flex'); } else { spinLock.classList.add('hidden'); spinLock.classList.remove('flex'); } }
+            const challengeLock = document.getElementById('lock-challenge'); if (challengeLock) { if (level <= 20) { challengeLock.classList.remove('hidden'); challengeLock.classList.add('flex'); } else { challengeLock.classList.add('hidden'); challengeLock.classList.remove('flex'); } }
+            const modalCount = document.getElementById('lives-modal-count-center'); const modalTimer = document.getElementById('lives-modal-timer'); const modalTimerTitle = document.getElementById('lives-modal-timer-title'); const refillBtn = document.getElementById('refill-lives-btn'); const timerSection = document.getElementById('lives-timer-section'); const livesFullText = document.getElementById('lives-full-text'); const freeLifeBtn = document.getElementById('free-life-btn');
 
-            const modalCount = document.getElementById('lives-modal-count-center'); const modalTimer = document.getElementById('lives-modal-timer'); const modalTimerTitle = document.getElementById('lives-modal-timer-title'); const refillBtn = document.getElementById('refill-lives-btn'); const timerSection = document.getElementById('lives-timer-section');
             if(inventory.lives >= MAX_LIVES) {
-                document.querySelectorAll('.life-display').forEach(el => el.textContent = 'Max Lives!');
-                document.querySelectorAll('.life-inner-text').forEach(el => el.textContent = '5');
-                if(modalCount) modalCount.textContent = '5'; if(timerSection) timerSection.style.display = 'none'; if(refillBtn) refillBtn.style.display = 'none'; if(lifeTimer) { clearInterval(lifeTimer); lifeTimer = null; }
+                document.querySelectorAll('.life-display').forEach(el => el.textContent = 'Max Lives!'); document.querySelectorAll('.life-inner-text').forEach(el => el.textContent = '5');
+                if(modalCount) modalCount.textContent = '5'; if(timerSection) timerSection.style.display = 'none'; if(refillBtn) refillBtn.style.display = 'none'; if(freeLifeBtn) freeLifeBtn.style.display = 'none'; if(livesFullText) livesFullText.style.display = 'block'; if(lifeTimer) { clearInterval(lifeTimer); lifeTimer = null; }
             } else {
-                if(refillBtn) refillBtn.style.display = 'flex'; if(timerSection) timerSection.style.display = 'flex'; let mins = Math.floor(timeRemaining / 60); let secs = timeRemaining % 60; let timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`; 
-                document.querySelectorAll('.life-display').forEach(el => el.textContent = timeStr);
-                document.querySelectorAll('.life-inner-text').forEach(el => el.textContent = inventory.lives);
+                if(refillBtn) refillBtn.style.display = 'flex'; if(freeLifeBtn) freeLifeBtn.style.display = 'flex'; if(timerSection) timerSection.style.display = 'flex'; if(livesFullText) livesFullText.style.display = 'none';
+                let mins = Math.floor(timeRemaining / 60); let secs = timeRemaining % 60; let timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`; 
+                document.querySelectorAll('.life-display').forEach(el => el.textContent = timeStr); document.querySelectorAll('.life-inner-text').forEach(el => el.textContent = inventory.lives);
                 if(modalCount) modalCount.textContent = inventory.lives; if(modalTimerTitle) modalTimerTitle.textContent = 'Next life in:'; if(modalTimer) modalTimer.textContent = timeStr;
             }
             ['undo', 'shuffle', 'magnet', 'theme'].forEach(type => { let el = document.getElementById(`${type}-count`); if(el) { if(inventory[type] > 0) { el.textContent = inventory[type]; el.className = `badge bg-[${window.getBoosterColor(type)}]`; } else { el.textContent = "+"; el.className = "badge !bg-[#4ade80] !px-3 !py-[3px] shadow"; } } });
@@ -1086,10 +904,10 @@
         window.getBoosterColor = function(type) { if(type === 'undo') return '#eab308'; if(type === 'shuffle') return '#a855f7'; if(type === 'magnet') return '#ef4444'; return '#3b82f6'; };
         window.updateBoosterLocks = function() { const bt = document.getElementById('booster-theme'); if(bt) bt.classList.toggle('locked-booster', level < 2); const bs = document.getElementById('booster-shuffle'); if(bs) bs.classList.toggle('locked-booster', level < 3); const bu = document.getElementById('booster-undo'); if(bu) bu.classList.toggle('locked-booster', level < 4); const bm = document.getElementById('booster-magnet'); if(bm) bm.classList.toggle('locked-booster', level < 5); };
         window.startLifeTimer = function() { if (lifeTimer) return; timeRemaining = REFILL_TIME; lifeTimer = setInterval(() => { timeRemaining--; if (timeRemaining <= 0) { inventory.lives++; if (inventory.lives >= MAX_LIVES) { clearInterval(lifeTimer); lifeTimer = null; } else { timeRemaining = REFILL_TIME; } } window.updateGlobalStats(); }, 1000); };
-        window.refillLives = function() { if (inventory.coins >= 100 && inventory.lives < MAX_LIVES) { inventory.coins -= 100; inventory.lives = MAX_LIVES; window.updateGlobalStats(); window.closeModal('lives-modal'); } else if (inventory.coins < 100) { window.closeModal('lives-modal'); window.switchScreen('store-screen'); } };
-        window.buyCoins = function(amount, cost, isAd = false) { if (isAd) { window.showToast("Watching Ad..."); setTimeout(() => { inventory.coins += amount; window.updateGlobalStats(); window.playSound('win'); window.showToast(`+${amount} Coins!`); }, 1500); } else if (cost === 0) { inventory.coins += amount; window.updateGlobalStats(); window.playSound('win'); window.showToast(`+${amount} Coins!`); } else { inventory.coins += amount; window.updateGlobalStats(); window.playSound('win'); window.showToast(`Purchased ${amount} Coins!`); } };
-        window.buyBoosterFromStore = function(type, cost, amount) { if (inventory.coins >= cost) { inventory.coins -= cost; inventory[type] += amount; window.updateGlobalStats(); window.playSound('win'); window.showToast(`Purchased ${amount}x ${type.toUpperCase()}!`); } else { window.showToast('Not enough coins!'); } };
-        window.buyStarterPack = function() { inventory.coins += 500; inventory.shuffle += 5; inventory.undo += 5; window.updateGlobalStats(); window.playSound('win'); window.showToast("Starter Pack Purchased!"); };
+        window.refillLives = function() { if (inventory.coins >= 100 && inventory.lives < MAX_LIVES) { inventory.coins -= 100; inventory.lives = MAX_LIVES; window.updateGlobalStats(); window.closeModal('lives-modal'); window.saveProgress(); } else if (inventory.coins < 100) { window.closeModal('lives-modal'); window.switchScreen('store-screen'); } };
+        window.buyCoins = function(amount, cost, isAd = false) { if (isAd) { window.showToast("Watching Ad..."); setTimeout(() => { inventory.coins += amount; window.updateGlobalStats(); window.playSound('win'); window.showToast(`+${amount} Coins!`); window.saveProgress(); }, 1500); } else if (cost === 0) { inventory.coins += amount; window.updateGlobalStats(); window.playSound('win'); window.showToast(`+${amount} Coins!`); window.saveProgress(); } else { inventory.coins += amount; window.updateGlobalStats(); window.playSound('win'); window.showToast(`Purchased ${amount} Coins!`); window.saveProgress(); } };
+        window.buyBoosterFromStore = function(type, cost, amount) { if (inventory.coins >= cost) { inventory.coins -= cost; inventory[type] += amount; window.updateGlobalStats(); window.playSound('win'); window.showToast(`Purchased ${amount}x ${type.toUpperCase()}!`); window.saveProgress(); } else { window.showToast('Not enough coins!'); } };
+        window.buyStarterPack = function() { inventory.coins += 500; inventory.shuffle += 5; inventory.undo += 5; window.updateGlobalStats(); window.playSound('win'); window.showToast("Starter Pack Purchased!"); window.saveProgress(); };
         window.showToast = function(msg) { const t = document.getElementById('toast-notification'); if(!t) return; t.innerText = msg; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2500); };
 
         let audioCtx = null;
@@ -1120,63 +938,45 @@
             if (targetElementId) { 
                 const target = document.getElementById(targetElementId); 
                 if(target) {
-                    target.classList.add('ftue-spotlight-active'); 
-                    target.classList.add('ftue-highlight');
-                    
-                    // Dynamically elevate wrapper parents so they break out of the stacking context above the fade
-                    if (targetElementId === 'level-timer-badge') {
-                        const topBar = target.closest('.game-top-bar');
-                        if (topBar) topBar.classList.add('!z-[450]');
-                    } else if (targetElementId === 'tray-container') {
-                        const trayWrap = document.getElementById('tray-area-wrapper');
-                        if (trayWrap) trayWrap.classList.add('!z-[450]');
-                    }
+                    target.classList.add('ftue-spotlight-active'); target.classList.add('ftue-highlight');
+                    if (targetElementId === 'level-timer-badge') { const topBar = target.closest('.game-top-bar'); if (topBar) topBar.classList.add('!z-[450]'); } 
+                    else if (targetElementId === 'tray-container') { const trayWrap = document.getElementById('tray-area-wrapper'); if (trayWrap) trayWrap.classList.add('!z-[450]'); }
                 }
             }
             ftueState.activeTargetId = targetElementId;
-            const fade = document.getElementById('match-ftue-fade');
-            if(fade) fade.style.display = 'block';
+            const fade = document.getElementById('match-ftue-fade'); if(fade) fade.style.display = 'block';
         };
 
         window.dismissFTUE = function() {
             const ftueOverlay = document.getElementById('ftue-overlay'); if(ftueOverlay) ftueOverlay.style.display = 'none';
-            const fade = document.getElementById('match-ftue-fade');
-            if(fade) fade.style.display = 'none';
+            const fade = document.getElementById('match-ftue-fade'); if(fade) fade.style.display = 'none';
             
             let previousTargetId = ftueState.activeTargetId; 
             if (previousTargetId) { 
                 const target = document.getElementById(previousTargetId); 
                 if(target) {
-                    target.classList.remove('ftue-spotlight-active'); 
-                    target.classList.remove('ftue-highlight');
-                    
-                    // Remove dynamic elevation
-                    if (previousTargetId === 'level-timer-badge') {
-                        const topBar = target.closest('.game-top-bar');
-                        if (topBar) topBar.classList.remove('!z-[450]');
-                    } else if (previousTargetId === 'tray-container') {
-                        const trayWrap = document.getElementById('tray-area-wrapper');
-                        if (trayWrap) trayWrap.classList.remove('!z-[450]');
-                    }
+                    target.classList.remove('ftue-spotlight-active'); target.classList.remove('ftue-highlight');
+                    if (previousTargetId === 'level-timer-badge') { const topBar = target.closest('.game-top-bar'); if (topBar) topBar.classList.remove('!z-[450]'); } 
+                    else if (previousTargetId === 'tray-container') { const trayWrap = document.getElementById('tray-area-wrapper'); if (trayWrap) trayWrap.classList.remove('!z-[450]'); }
                 }
             }
             ftueState.activeTargetId = null;
-            if (previousTargetId === 'tray-container') { window.updateTrayVisuals(); setTimeout(window.checkForMatch, 100);
-            } else if (currentLevelConfig.timeLimit > 0 && !gameTimerInterval && ftueState.timerTutorial) { window.beginTimerInterval(); }
+            if (previousTargetId === 'tray-container') { window.updateTrayVisuals(); setTimeout(window.checkForMatch, 100); } 
+            else if (currentLevelConfig.timeLimit > 0 && !gameTimerInterval && ftueState.timerTutorial) { window.beginTimerInterval(); }
         };
 
         window.showRewardModal = function(type, amount) {
             let title = document.getElementById('reward-claim-title'); let icon = document.getElementById('reward-claim-icon'); let amt = document.getElementById('reward-claim-amount'); let desc = document.getElementById('reward-claim-desc');
             amt.innerText = '+' + amount;
-            if (type === 'coins' || type === 'coin') { title.innerText = 'Jackpot!'; icon.innerHTML = '<use href="#svg-coin"/>'; icon.setAttribute('viewBox', '0 0 24 24'); desc.innerText = 'You got Coins!';
-            } else { title.innerText = 'Sweet!'; icon.innerHTML = `<use href="#svg-${type}"/>`; icon.setAttribute('viewBox', '0 0 100 100'); desc.innerText = `You got ${type}!`; }
+            if (type === 'coins' || type === 'coin') { title.innerText = 'Jackpot!'; icon.innerHTML = '<use href="#svg-coin"/>'; icon.setAttribute('viewBox', '0 0 24 24'); desc.innerText = 'You got Coins!'; } 
+            else { title.innerText = 'Sweet!'; icon.innerHTML = `<use href="#svg-${type}"/>`; icon.setAttribute('viewBox', '0 0 100 100'); desc.innerText = `You got ${type}!`; }
             window.playSound('win'); window.spawnParticles(window.innerWidth/2, window.innerHeight/2, '#facc15', 30); window.openModal('reward-claim-modal');
         };
 
         window.updateSpinUI = function() {
             const btn = document.getElementById('spin-btn'); const timerTxt = document.getElementById('spin-timer-text'); const badge = document.getElementById('spin-widget-label'); if(!btn || !timerTxt) return;
-            if(spinState.freeAvailable) { btn.innerHTML = 'Free Spin'; btn.className = 'bg-[#4ade80] text-white w-full max-w-[220px] rounded-full py-4 text-xl font-black shadow-[0_6px_0_#16a34a] active:translate-y-[6px] active:shadow-none transition-all flex justify-center items-center gap-2 mt-4'; timerTxt.classList.add('hidden'); if(badge) { badge.innerText = "Free"; badge.classList.remove('hidden'); }
-            } else { btn.innerHTML = `Spin <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`; btn.className = 'bg-[#8b5cf6] text-white w-full max-w-[220px] rounded-full py-4 text-xl font-black shadow-[0_6px_0_#6d28d9] active:translate-y-[6px] active:shadow-none transition-all flex justify-center items-center gap-2 mt-4'; timerTxt.classList.remove('hidden'); if(badge) badge.classList.add('hidden'); }
+            if(spinState.freeAvailable) { btn.innerHTML = 'Free Spin'; btn.className = 'bg-[#4ade80] text-white w-full max-w-[220px] rounded-full py-4 text-xl font-black shadow-[0_6px_0_#16a34a] active:translate-y-[6px] active:shadow-none transition-all flex justify-center items-center gap-2 mt-4'; timerTxt.classList.add('hidden'); if(badge) { badge.innerText = "Free"; badge.classList.remove('hidden'); } } 
+            else { btn.innerHTML = `Spin <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`; btn.className = 'bg-[#8b5cf6] text-white w-full max-w-[220px] rounded-full py-4 text-xl font-black shadow-[0_6px_0_#6d28d9] active:translate-y-[6px] active:shadow-none transition-all flex justify-center items-center gap-2 mt-4'; timerTxt.classList.remove('hidden'); if(badge) badge.classList.add('hidden'); }
         };
 
         window.initiateSpin = function() { if (!spinState.freeAvailable) { window.showToast("Watching Ad for Spin..."); setTimeout(window.executeSpin, 1500); } else { window.executeSpin(); } };
@@ -1190,6 +990,7 @@
                 if (prize.type === 'coins') inventory.coins += prize.amount; else inventory[prize.type] += prize.amount;
                 window.updateGlobalStats(); window.closeModal('spin-modal'); window.showRewardModal(prize.type, prize.amount);
                 if(spinState.freeAvailable) { spinState.freeAvailable = false; spinState.nextTime = 86400; window.updateSpinUI(); }
+                window.saveProgress();
                 wheel.style.transition = 'none'; wheel.style.transform = `rotate(0deg)`; wheel.offsetHeight; wheel.style.transition = 'transform 3s cubic-bezier(0.2, 0.8, 0.2, 1)';
             }, 3000);
         };
@@ -1198,71 +999,37 @@
             if (rewardState.claimed && rewardState.rvClaimed) return; 
             if (type === 'free' && rewardState.baseClaimed) return;
             if (type === 'rv' && rewardState.rvClaimed) return;
-            
-            if (type === 'rv') { 
-                window.showToast("Watching Ad..."); 
-                setTimeout(() => window.executeRewardClaim('rv'), 1500); 
-            } else { 
-                window.executeRewardClaim('free'); 
-            }
+            if (type === 'rv') { window.showToast("Watching Ad..."); setTimeout(() => window.executeRewardClaim('rv'), 1500); } else { window.executeRewardClaim('free'); }
         };
 
         window.executeRewardClaim = function(type) {
             let amount = 0;
-            if (type === 'free') {
-                amount = 10;
-                rewardState.baseClaimed = true;
-                if (!rewardState.nextTime) rewardState.nextTime = 86400; 
-            } else if (type === 'rv') {
-                amount = rewardState.baseClaimed ? 10 : 20;
-                rewardState.rvClaimed = true;
-                rewardState.baseClaimed = true; 
-                rewardState.claimed = true;
-                if (!rewardState.nextTime) rewardState.nextTime = 86400;
-            }
-            
-            inventory.coins += amount; window.updateGlobalStats();
-            window.updateRewardUI();
-            window.showRewardModal('coins', amount);
+            if (type === 'free') { amount = 10; rewardState.baseClaimed = true; if (!rewardState.nextTime) rewardState.nextTime = 86400; } 
+            else if (type === 'rv') { amount = rewardState.baseClaimed ? 10 : 20; rewardState.rvClaimed = true; rewardState.baseClaimed = true; rewardState.claimed = true; if (!rewardState.nextTime) rewardState.nextTime = 86400; }
+            inventory.coins += amount; window.updateGlobalStats(); window.updateRewardUI(); window.showRewardModal('coins', amount); window.saveProgress();
         };
 
         window.updateRewardUI = function() {
             const actionArea = document.getElementById('daily-reward-action-area'); const timerArea = document.getElementById('daily-reward-timer-area'); const badge = document.getElementById('daily-reward-badge'); 
             const freeBtn = document.getElementById('dr-free-btn'); const rvBtn = document.getElementById('dr-rv-btn');
             if(!actionArea || !timerArea) return;
-            
-            if(rewardState.baseClaimed && rewardState.rvClaimed) { 
-                actionArea.classList.add('hidden'); actionArea.classList.remove('flex'); 
-                timerArea.classList.remove('hidden'); timerArea.classList.add('flex'); 
-                if(badge) badge.classList.add('hidden');
-            } else if (rewardState.baseClaimed && !rewardState.rvClaimed) {
-                actionArea.classList.remove('hidden'); actionArea.classList.add('flex'); 
-                timerArea.classList.remove('hidden'); timerArea.classList.add('flex'); 
-                if(badge) badge.classList.remove('hidden');
-                
+            if(rewardState.baseClaimed && rewardState.rvClaimed) { actionArea.classList.add('hidden'); actionArea.classList.remove('flex'); timerArea.classList.remove('hidden'); timerArea.classList.add('flex'); if(badge) badge.classList.add('hidden'); } 
+            else if (rewardState.baseClaimed && !rewardState.rvClaimed) {
+                actionArea.classList.remove('hidden'); actionArea.classList.add('flex'); timerArea.classList.remove('hidden'); timerArea.classList.add('flex'); if(badge) badge.classList.remove('hidden');
                 if (freeBtn) freeBtn.style.display = 'none';
-                if (rvBtn) {
-                    rvBtn.classList.remove('flex-[1.2]'); rvBtn.classList.add('flex-1');
-                    rvBtn.innerHTML = 'Claim Extra <div class="bg-white text-[#2563eb] text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold flex items-center gap-1 shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div>';
-                }
+                if (rvBtn) { rvBtn.classList.remove('flex-[1.2]'); rvBtn.classList.add('flex-1'); rvBtn.innerHTML = 'Claim Extra <div class="bg-white text-[#2563eb] text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold flex items-center gap-1 shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div>'; }
             } else { 
-                actionArea.classList.remove('hidden'); actionArea.classList.add('flex'); 
-                timerArea.classList.add('hidden'); timerArea.classList.remove('flex'); 
-                if(badge) badge.classList.remove('hidden');
-                
+                actionArea.classList.remove('hidden'); actionArea.classList.add('flex'); timerArea.classList.add('hidden'); timerArea.classList.remove('flex'); if(badge) badge.classList.remove('hidden');
                 if (freeBtn) freeBtn.style.display = 'flex';
-                if (rvBtn) {
-                    rvBtn.classList.add('flex-[1.2]'); rvBtn.classList.remove('flex-1');
-                    rvBtn.innerHTML = 'Claim x2 <div class="bg-white text-[#2563eb] text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold absolute bottom-2 right-4 flex items-center gap-1 shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div>';
-                }
+                if (rvBtn) { rvBtn.classList.add('flex-[1.2]'); rvBtn.classList.remove('flex-1'); rvBtn.innerHTML = 'Claim x2 <div class="bg-white text-[#2563eb] text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold absolute bottom-2 right-4 flex items-center gap-1 shadow-sm"><svg width="12" height="12"><use href="#svg-yt-play"/></svg> Ad</div>'; }
             }
         };
 
         window.toggleSwitch = function(row) {
             let label = row.querySelector('.toggle-label').innerText.toLowerCase(); let bg = row.querySelector('.toggle-bg'); let txt = row.querySelector('.toggle-text');
-            if(bg.classList.contains('off')) { bg.classList.remove('off'); bg.classList.add('on'); txt.innerText = 'ON'; appSettings[label] = true;
-            } else { bg.classList.remove('on'); bg.classList.add('off'); txt.innerText = 'OFF'; appSettings[label] = false; }
-            if(label === 'sfx' || label === 'music') window.initAudio();
+            if(bg.classList.contains('off')) { bg.classList.remove('off'); bg.classList.add('on'); txt.innerText = 'ON'; appSettings[label] = true; } 
+            else { bg.classList.remove('on'); bg.classList.add('off'); txt.innerText = 'OFF'; appSettings[label] = false; }
+            if(label === 'sfx' || label === 'music') window.initAudio(); window.saveProgress();
         };
 
         window.switchScreen = function(screenId) {
@@ -1284,37 +1051,37 @@
         window.showHome = function() { window.switchScreen('home-screen'); };
 
         window.startDailyChallenge = function(day, requiresAd) {
-            if (requiresAd) { window.showToast("Watching Ad to unlock..."); setTimeout(() => window.launchChallenge(day), 1500);
-            } else { window.launchChallenge(day); }
+            if (requiresAd) { window.showToast("Watching Ad to unlock..."); setTimeout(() => window.launchChallenge(day), 1500); } 
+            else { window.launchChallenge(day); }
         };
 
         window.launchChallenge = function(day) { window.closeAllModals(); isDailyChallenge = true; challengeDay = day; window.switchScreen('game-screen'); window.startLevel(); };
 
         window.getLevelConfig = function(lvl) {
-            if (isDailyChallenge) { return { level: 'C', timeLimit: 150, variety: 6, hasMystery: true, hasIce: true, hasBomb: true, layoutType: 'challenge_grid', numTiles: 120 }; }
-            
+            if (isDailyChallenge) return { level: 'C', timeLimit: 390, variety: 6, hasMystery: true, hasIce: true, hasBomb: true, layoutType: 'challenge_grid', numTiles: 120 };
             let config = { level: lvl, timeLimit: 0, variety: Math.min(4 + Math.floor(lvl / 2), THEMES[THEME_NAMES[currentThemeIndex]].length), hasMystery: false, hasIce: false, hasBomb: false, layoutType: 'pyramid', numTiles: 30 };
-            
             if (lvl === 1) { config.numTiles = 9; config.variety = 3; } 
             else if (lvl === 2) { config.numTiles = 36; config.variety = 4; } 
-            else { config.numTiles = 45 + (lvl * 12); if (lvl >= 3) config.hasMystery = true; if (lvl >= 4) config.timeLimit = Math.max(30, 90 - (lvl * 5)); if (lvl >= 5) config.hasIce = true; if (lvl >= 6) config.hasBomb = true; if (lvl % 3 === 0) config.layoutType = 'twin_peaks'; }
+            else { 
+                config.numTiles = 45 + (lvl * 12); 
+                if (lvl >= 3) config.hasMystery = true; 
+                if (lvl >= 4) config.timeLimit = Math.min(390, Math.max(30, 90 - (lvl * 5)) * 4); 
+                if (lvl >= 5) config.hasIce = true; 
+                if (lvl >= 6) config.hasBomb = true; 
+                if (lvl % 3 === 0) config.layoutType = 'twin_peaks'; 
+            }
             return config;
         };
 
         window.startGame = function() { window.initAudio(); if (inventory.lives <= 0) { window.openModal('lives-modal'); return; } isDailyChallenge = false; window.closeAllModals(); window.switchScreen('game-screen'); window.startLevel(); };
-        
         window.promptRestart = function() { window.closeModal('ingame-settings-modal'); window.openModal('restart-confirm-modal'); };
-        window.executeRestart = function() { window.closeAllModals(); if (inventory.lives <= 0) { window.openModal('lives-modal'); return; } inventory.lives = Math.max(0, inventory.lives - 1); window.updateGlobalStats(); window.startLevel(); };
+        window.executeRestart = function() { window.closeAllModals(); if (inventory.lives <= 0) { window.openModal('lives-modal'); return; } inventory.lives = Math.max(0, inventory.lives - 1); window.updateGlobalStats(); window.saveProgress(); window.startLevel(); };
         window.restartGame = function() { window.executeRestart(); };
-        
-        window.confirmQuit = function() { window.closeAllModals(); clearInterval(gameTimerInterval); const badge = document.getElementById('level-timer-badge'); if(badge) badge.classList.remove('timer-running'); inventory.lives = Math.max(0, inventory.lives - 1); window.updateGlobalStats(); window.showHome(); };
+        window.confirmQuit = function() { window.closeAllModals(); clearInterval(gameTimerInterval); const badge = document.getElementById('level-timer-badge'); if(badge) badge.classList.remove('timer-running'); inventory.lives = Math.max(0, inventory.lives - 1); window.updateGlobalStats(); window.saveProgress(); window.showHome(); };
         window.quitGame = function() { const title = document.getElementById('quit-confirm-title'); if (title) title.innerText = "Quit Level?"; window.openModal('quit-confirm-modal'); };
 
         window.triggerGameOver = function(reason) {
-            clearInterval(gameTimerInterval);
-            const badge = document.getElementById('level-timer-badge'); 
-            if(badge) badge.classList.remove('timer-running');
-
+            clearInterval(gameTimerInterval); const badge = document.getElementById('level-timer-badge'); if(badge) badge.classList.remove('timer-running');
             const tEl = document.getElementById('game-over-title'); const dEl = document.getElementById('game-over-desc');
             if(tEl && dEl) { tEl.innerText = reason; if(reason === "Time's Up!") dEl.innerText = "You ran out of time."; else if (reason === "Bomb Exploded!") dEl.innerText = "A bomb tile exploded."; else { tEl.innerText = "Level Failed"; dEl.innerText = "Are you sure?"; } }
             window.openModal('game-over');
@@ -1334,15 +1101,15 @@
         };
 
         window.renderTrayBackground = function() {
-            const tc = document.getElementById('tray-container'); if(!tc) return; tc.innerHTML = ''; 
-            // Scaled dynamically for larger tile elements (58px per slot to include gap)
-            tc.style.width = `${(currentTrayMax * 58) + 14}px`;
+            const tc = document.getElementById('tray-container'); if(!tc) return; tc.innerHTML = ''; tc.style.width = `${(currentTrayMax * 58) + 14}px`;
             for(let i=0; i<currentTrayMax; i++) { let slot = document.createElement('div'); slot.className = 'tray-slot'; tc.appendChild(slot); }
         };
 
         window.startLevel = function() {
-            const levelTextEl = document.getElementById('game-level-text'); 
-            if(levelTextEl) levelTextEl.innerText = isDailyChallenge ? `Challenge ${challengeDay}` : `Level ${level}`;
+            if (!isDailyChallenge) { if (level >= 5) currentThemeIndex = (level - 5) % THEME_NAMES.length; else currentThemeIndex = 0; } 
+            else { currentThemeIndex = (challengeDay || 1) % THEME_NAMES.length; }
+
+            const levelTextEl = document.getElementById('game-level-text'); if(levelTextEl) levelTextEl.innerText = isDailyChallenge ? `Challenge ${challengeDay}` : `Level ${level}`;
             const bc = document.getElementById('board-center'); if(bc) bc.innerHTML = ''; 
             tiles = []; tray = []; moveHistory = []; isCheckingMatch = false;
             
@@ -1360,13 +1127,13 @@
             
             window.generateLayout(currentLevelConfig); 
             
-            // Critical 2.5D Depth Engine - computes rigorous Z-index to support complex overlaps
-            tiles.sort((a, b) => {
-                if (a.z !== b.z) return a.z - b.z;
-                if (a.y !== b.y) return a.y - b.y; 
-                return a.x - b.x; 
-            });
+            tiles.sort((a, b) => { if (a.z !== b.z) return a.z - b.z; if (a.y !== b.y) return a.y - b.y; return a.x - b.x; });
             tiles.forEach((t, i) => t.renderOrder = i);
+
+            tiles.forEach(t1 => {
+                t1.blockedBy = [];
+                tiles.forEach(t2 => { if (t1 === t2) return; if (t2.z > t1.z && Math.abs(t2.x - t1.x) < (window.currentTileW - 2) && Math.abs(t2.y - t1.y) < (window.currentTileH - 2)) { t1.blockedBy.push(t2); } });
+            });
             
             window.renderTiles(); window.updateTileStates();
             
@@ -1381,21 +1148,16 @@
         };
 
         window.showBoosterDescription = function() { const bus = document.getElementById('booster-unlock-screen'); if(bus) bus.style.display = 'none'; window.openModal('booster-desc-modal'); };
-        window.finishBoosterUnlock = function() { window.closeModal('booster-desc-modal'); if(ftueState.pendingBooster) { ftueState[`unlocked_${ftueState.pendingBooster.key}`] = true; ftueState.pendingBooster = null; } window.resumeStartLevel(); };
+        window.finishBoosterUnlock = function() { window.closeModal('booster-desc-modal'); if(ftueState.pendingBooster) { ftueState[`unlocked_${ftueState.pendingBooster.key}`] = true; ftueState.pendingBooster = null; } window.resumeStartLevel(); window.saveProgress(); };
 
         window.resumeStartLevel = function() {
             if (!isDailyChallenge && level === 1 && ftueState.matchStep < 3) { 
                 ftueState.active = true; 
-                const mftue = document.getElementById('match-ftue-text'); 
-                const mfade = document.getElementById('match-ftue-fade');
-                if(mftue) mftue.style.display = 'flex'; 
-                if(mfade) mfade.style.display = 'block';
-                window.updateMatchFTUE(); 
+                const mftue = document.getElementById('match-ftue-text'); const mfade = document.getElementById('match-ftue-fade');
+                if(mftue) mftue.style.display = 'flex'; if(mfade) mfade.style.display = 'block'; window.updateMatchFTUE(); 
             } else { 
-                const mftue = document.getElementById('match-ftue-text'); 
-                const mfade = document.getElementById('match-ftue-fade');
-                if(mftue) mftue.style.display = 'none'; 
-                if(mfade) mfade.style.display = 'none';
+                const mftue = document.getElementById('match-ftue-text'); const mfade = document.getElementById('match-ftue-fade');
+                if(mftue) mftue.style.display = 'none'; if(mfade) mfade.style.display = 'none';
             }
             if (currentLevelConfig.timeLimit > 0 || currentLevelConfig.hasBomb) { window.startGameTimer(); }
         };
@@ -1406,15 +1168,11 @@
             if(handCursorEl) { handCursorEl.remove(); handCursorEl = null; }
             if (ftueState.matchStep >= 3) { 
                 ftueState.active = false; 
-                const mftue = document.getElementById('match-ftue-text'); 
-                const mfade = document.getElementById('match-ftue-fade');
-                if(mftue) mftue.style.display = 'none'; 
-                if(mfade) mfade.style.display = 'none';
-                return; 
+                const mftue = document.getElementById('match-ftue-text'); const mfade = document.getElementById('match-ftue-fade');
+                if(mftue) mftue.style.display = 'none'; if(mfade) mfade.style.display = 'none'; return; 
             }
             let clickable = tiles.filter(t => t.state === 'board' && window.isClickable(t)); if (clickable.length === 0) return;
             
-            // Only set targetType once at the very beginning to prevent soft lock
             if (ftueState.matchStep === 0) {
                 let typeCounts = {}; clickable.forEach(t => typeCounts[t.iconType] = (typeCounts[t.iconType] || 0) + 1);
                 let validTarget = Object.keys(typeCounts).find(k => typeCounts[k] >= 3); 
@@ -1422,12 +1180,7 @@
             }
             
             let target = clickable.find(t => t.iconType === ftueState.targetType);
-            
-            // Fault tolerance: If no target matches (shouldn't happen on lv1), pick the first one
-            if (!target) {
-                target = clickable[0];
-                ftueState.targetType = target.iconType;
-            }
+            if (!target) { target = clickable[0]; ftueState.targetType = target.iconType; }
 
             ftueState.currentTarget = target;
             tiles.forEach(t => { if (t.state === 'board' && t !== target && t.element) { t.element.classList.add('ftue-dim'); } });
@@ -1441,52 +1194,41 @@
 
         window.startGameTimer = function() {
             if (currentLevelConfig.timeLimit > 0) { currentLevelTime = currentLevelConfig.timeLimit; const ltb = document.getElementById('level-timer-badge'); if(ltb) ltb.style.display = 'flex'; window.updateTimerUI(); }
-            if (!isDailyChallenge && level === 4 && !ftueState.timerTutorial) { ftueState.timerTutorial = true; window.showFTUE("Beat the clock!<br>Clear the board before time runs out.", 'level-timer-badge'); return; }
+            if (!isDailyChallenge && level === 4 && !ftueState.timerTutorial) { ftueState.timerTutorial = true; window.saveProgress(); window.showFTUE("Beat the clock!<br>Clear the board before time runs out.", 'level-timer-badge'); return; }
             window.beginTimerInterval();
         };
 
         window.beginTimerInterval = function() {
             gameTimerInterval = setInterval(() => {
                 if (ftueState.activeTargetId) return; 
-                
-                // Pause timer and bombs if any modal is currently open (Settings, Store, Confirmations, etc.)
                 const isPaused = Array.from(document.querySelectorAll('.modal-overlay')).some(el => el.style.display === 'flex') || document.getElementById('level-complete-overlay').style.display === 'flex';
-                
                 const badge = document.getElementById('level-timer-badge');
-                if (isPaused) {
-                    if (badge) badge.classList.remove('timer-running');
-                    return;
-                } else {
-                    if (badge && currentLevelConfig.timeLimit > 0 && currentLevelTime > 0) badge.classList.add('timer-running');
-                }
+                
+                if (isPaused) { if (badge) badge.classList.remove('timer-running'); return; } 
+                else { if (badge && currentLevelConfig.timeLimit > 0 && currentLevelTime > 0) badge.classList.add('timer-running'); }
 
                 if (currentLevelConfig.timeLimit > 0) {
                     currentLevelTime--; window.updateTimerUI();
                     if (currentLevelTime <= 0) { clearInterval(gameTimerInterval); if(badge) badge.classList.remove('timer-running'); window.triggerOutOfTime(); return; }
                 }
+                
                 let bombExploded = false;
                 tiles.forEach(t => {
-                    // Only tick down the bomb timer if the tile is NOT blocked (greyed out)
                     if (t.state === 'board' && t.bombTimer > 0 && t.element && !t.element.classList.contains('blocked')) {
-                        t.bombTimer--; if (t.bombTimer <= 0) bombExploded = true;
+                        t.bombTimer--; 
                         let bEl = t.element.querySelector('.bomb-badge'); 
                         if (bEl) {
                             bEl.innerText = t.bombTimer; 
-                            
-                            // Pulse animation for the badge
-                            bEl.classList.remove('tick');
-                            void bEl.offsetWidth; // Force Reflow
-                            bEl.classList.add('tick');
-                            
-                            // Emit red warning particles from the ticking bomb
-                            if (appSettings.visual) {
-                                const rect = bEl.getBoundingClientRect();
-                                window.spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, '#ef4444', 4);
-                            }
+                            if (t.bombTimer <= 3 && t.bombTimer > 0) t.element.classList.add('urgent-bomb');
+                        }
+                        if (t.bombTimer <= 0) { 
+                            bombExploded = true;
+                            if (appSettings.visual) window.spawnParticles(t.x + window.currentTileW/2, t.y + window.currentTileH/2, '#ef4444', 40);
+                            t.element.style.transform = 'scale(1.5)'; t.element.style.opacity = '0'; t.element.classList.remove('urgent-bomb');
                         }
                     }
                 });
-                if (bombExploded) { clearInterval(gameTimerInterval); if(badge) badge.classList.remove('timer-running'); window.triggerGameOver("Bomb Exploded!"); }
+                if (bombExploded) { clearInterval(gameTimerInterval); if(badge) badge.classList.remove('timer-running'); window.triggerBombExploded(); }
             }, 1000);
         };
 
@@ -1499,42 +1241,28 @@
 
         window.generateLayout = function(config) {
             let idCounter = 0; 
+            if (config.numTiles > 60) window.currentScale = 0.8; else if (config.numTiles > 40) window.currentScale = 0.9; else window.currentScale = 1;
+            window.currentTileW = TILE_W * window.currentScale; window.currentTileH = TILE_H * window.currentScale;
 
-            // Level 1 Explicit Flat Override for FTUE
             if (config.level === 1) { 
                 let availableIcons = Array.from({length: config.variety}, (_, i) => i).sort(() => Math.random() - 0.5);
-                const stepX = TILE_W * 1.2;
-                const stepY = TILE_H * 1.25;
-                for (let r = 0; r < 3; r++) {
-                    let iconType = availableIcons[r % availableIcons.length];
-                    for (let c = 0; c < 3; c++) {
-                        let px = Math.round((c - 1) * stepX);
-                        let py = Math.round((r - 1) * stepY - 30);
-                        window.createTileObj(idCounter++, iconType, px, py, 0, 'none');
-                    }
-                }
+                const stepX = window.currentTileW * 1.08; const stepY = window.currentTileH * 1.1;
+                for (let r = 0; r < 3; r++) { let iconType = availableIcons[r % availableIcons.length]; for (let c = 0; c < 3; c++) { let px = Math.round((c - 1) * stepX); let py = Math.round((r - 1) * stepY - 30); window.createTileObj(idCounter++, iconType, px, py, 0, 'none'); } }
                 return;
             }
 
-            // More spacious, breathable board layout (Increased step ratios)
-            const stepX = TILE_W * 0.85; 
-            const stepY = TILE_H * 0.85; 
-            
-            // Dynamically scale grid to ensure enough tiles fit cleanly
+            const stepX = window.currentTileW * 1.08; const stepY = window.currentTileH * 1.1; 
             let maxZ = isDailyChallenge ? 6 : Math.min(6, 2 + Math.floor(config.level / 3));
             let cols = isDailyChallenge ? 7 : Math.min(7, 4 + Math.floor(config.level / 4));
             let rows = isDailyChallenge ? 9 : Math.min(9, 5 + Math.floor(config.level / 4));
             
             let possibleCoords = [];
             for(let z=0; z<maxZ; z++) {
-                let shrink = Math.floor(z / 2); // Shrink layers to form a pyramid
+                let shrink = Math.floor(z / 2); 
                 for(let r = shrink; r < rows - shrink; r++) {
                     for(let c = shrink; c < cols - shrink; c++) {
-                        // Create holes in the base layers for structural variety
                         if (z > 0 || Math.random() > 0.10) {
-                            // Half-tile offset for alternating Z layers
-                            let zOffsetX = (z % 2) * (stepX / 2);
-                            let zOffsetY = (z % 2) * (stepY / 2);
+                            let zOffsetX = (z % 2) * (stepX / 2); let zOffsetY = (z % 2) * (stepY / 2);
                             possibleCoords.push({c: c, r: r, z: z, ox: zOffsetX, oy: zOffsetY});
                         }
                     }
@@ -1542,65 +1270,43 @@
             }
             
             possibleCoords.sort(() => Math.random() - 0.5);
+            let maxValidSets = Math.floor(possibleCoords.length / 3); let targetSets = Math.ceil(config.numTiles / 3);
+            let finalSets = Math.min(maxValidSets, targetSets); let finalTilesCount = finalSets * 3;
             
-            // Soft-Lock Fix: Guaranteed multiple of 3
-            let maxValidSets = Math.floor(possibleCoords.length / 3);
-            let targetSets = Math.ceil(config.numTiles / 3);
-            let finalSets = Math.min(maxValidSets, targetSets);
-            let finalTilesCount = finalSets * 3;
-            
-            let pool = []; 
-            let availableIcons = Array.from({length: config.variety}, (_, i) => i);
-            for (let i = 0; i < finalSets; i++) { 
-                let iconId = availableIcons[Math.floor(Math.random() * availableIcons.length)]; 
-                pool.push(iconId, iconId, iconId); 
-            }
+            let pool = []; let availableIcons = Array.from({length: config.variety}, (_, i) => i);
+            for (let i = 0; i < finalSets; i++) { let iconId = availableIcons[Math.floor(Math.random() * availableIcons.length)]; pool.push(iconId, iconId, iconId); }
             pool.sort(() => Math.random() - 0.5); 
             
             let selectedCoords = possibleCoords.slice(0, finalTilesCount);
-            
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
             selectedCoords.forEach(pos => {
-                let px = pos.c * stepX + pos.ox; 
-                let py = pos.r * stepY + pos.oy;
-                if(px < minX) minX = px; if(px > maxX) maxX = px;
-                if(py < minY) minY = py; if(py > maxY) maxY = py;
+                let px = pos.c * stepX + pos.ox; let py = pos.r * stepY + pos.oy;
+                if(px < minX) minX = px; if(px > maxX) maxX = px; if(py < minY) minY = py; if(py > maxY) maxY = py;
             });
             
-            const offsetX = -(maxX - minX)/2 - minX - (TILE_W/2);
-            const offsetY = -(maxY - minY)/2 - minY - (TILE_H/2) - 15;
-            
-            let mysteryCount = config.hasMystery ? Math.floor(pool.length * 0.1) : 0; 
-            let iceCount = config.hasIce ? Math.floor(pool.length * 0.1) : 0; 
-            let bombCount = config.hasBomb ? Math.floor(pool.length * 0.05) : 0;
+            const offsetX = -(maxX - minX)/2 - minX - (window.currentTileW/2); const offsetY = -(maxY - minY)/2 - minY - (window.currentTileH/2) - 15;
+            let mysteryCount = config.hasMystery ? Math.floor(pool.length * 0.1) : 0; let iceCount = config.hasIce ? Math.floor(pool.length * 0.1) : 0; let bombCount = config.hasBomb ? Math.floor(pool.length * 0.05) : 0;
             
             selectedCoords.forEach((pos) => {
                 let special = 'none';
                 if (mysteryCount > 0 && Math.random() < 0.2) { special = 'mystery'; mysteryCount--; }
                 else if (iceCount > 0 && Math.random() < 0.2) { special = 'ice'; iceCount--; }
                 else if (bombCount > 0 && pos.z > 0 && Math.random() < 0.2) { special = 'bomb'; bombCount--; }
-                
-                let px = Math.round(pos.c * stepX + pos.ox + offsetX);
-                let py = Math.round(pos.r * stepY + pos.oy + offsetY);
-                
+                let px = Math.round(pos.c * stepX + pos.ox + offsetX); let py = Math.round(pos.r * stepY + pos.oy + offsetY);
                 window.createTileObj(idCounter++, pool.pop(), px, py, pos.z, special);
             });
         };
 
-        window.createTileObj = function(id, iconType, x, y, z, special) { tiles.push({ id, iconType, x, y, z, state: 'board', element: null, isMystery: special === 'mystery', isIce: special === 'ice', bombTimer: special === 'bomb' ? 15 : 0 }); };
+        window.createTileObj = function(id, iconType, x, y, z, special) { tiles.push({ id, iconType, x, y, z, state: 'board', element: null, isMystery: special === 'mystery', isIce: special === 'ice', bombTimer: special === 'bomb' ? 15 : 0, blockedBy: [] }); };
 
         window.renderTiles = function() {
             let activeTheme = THEME_NAMES[currentThemeIndex]; const bc = document.getElementById('board-center');
             tiles.forEach(t => {
                 let el = document.createElement('div'); el.className = 'tile'; el.id = 'tile-' + t.id;
-                if (t.isMystery) { el.classList.add('mystery'); el.innerHTML = `<span class="text-white text-4xl opacity-80">?</span>`; } else { el.innerText = THEMES[activeTheme][t.iconType]; }
-                if (t.isIce) { el.classList.add('ice'); el.innerHTML += `<div class="absolute inset-0 bg-cyan-300/40 rounded-[10px] border-2 border-cyan-200 pointer-events-none flex items-center justify-center text-xl" style="z-index: 10;">❄️</div>`; }
-                
-                if (t.bombTimer > 0) { 
-                    el.classList.add('is-bomb');
-                    el.innerHTML += `<div class="bomb-badge absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm" style="z-index: 20;">${t.bombTimer}</div>`; 
-                }
-                
+                el.style.width = window.currentTileW + 'px'; el.style.height = window.currentTileH + 'px'; el.style.fontSize = (40 * window.currentScale) + 'px';
+                if (t.isMystery) { el.classList.add('mystery'); el.innerHTML = `<span class="text-white opacity-80">?</span>`; } else { el.innerText = THEMES[activeTheme][t.iconType]; }
+                if (t.isIce) { el.classList.add('ice'); el.innerHTML += `<div class="absolute inset-0 bg-cyan-300/40 rounded-[16px] border-2 border-cyan-200 pointer-events-none flex items-center justify-center text-xl" style="z-index: 10;">❄️</div>`; }
+                if (t.bombTimer > 0) { el.classList.add('is-bomb'); el.innerHTML += `<div class="bomb-badge absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm" style="z-index: 20;">${t.bombTimer}</div>`; }
                 el.style.left = `${t.x}px`; el.style.top = `${t.y}px`; el.style.zIndex = t.renderOrder; el.addEventListener('pointerdown', () => window.handleTap(t)); if(bc) bc.appendChild(el); t.element = el;
             });
         };
@@ -1611,8 +1317,7 @@
                 if(!t.isMystery && t.element) {
                     const ice = t.element.querySelector('.bg-cyan-300\\/40'); const bomb = t.element.querySelector('.bomb-badge');
                     t.element.innerText = THEMES[activeTheme][t.iconType];
-                    if (ice) t.element.appendChild(ice); 
-                    if (bomb) t.element.appendChild(bomb);
+                    if (ice) t.element.appendChild(ice); if (bomb) t.element.appendChild(bomb);
                     if (t.bombTimer > 0) t.element.classList.add('is-bomb');
                 }
             });
@@ -1620,13 +1325,7 @@
 
         window.isClickable = function(tile) {
             if (tile.state !== 'board') return false;
-            for (let other of tiles) {
-                if (other.id === tile.id || other.state !== 'board') continue;
-                // BUG FIX: Only tiles strictly HIGHER in the Z-axis (stacked on top) can block a tile.
-                if (other.z > tile.z) { 
-                    if (Math.abs(other.x - tile.x) < (TILE_W - 2) && Math.abs(other.y - tile.y) < (TILE_H - 2)) return false; 
-                }
-            }
+            for (let i = 0; i < tile.blockedBy.length; i++) { if (tile.blockedBy[i].state === 'board') return false; }
             return true;
         };
 
@@ -1640,7 +1339,7 @@
                             t.isMystery = false; t.element.classList.remove('mystery');
                             const ice = t.element.querySelector('.bg-cyan-300\\/40'); const bomb = t.element.querySelector('.bomb-badge');
                             t.element.innerText = THEMES[activeTheme][t.iconType]; if (ice) t.element.appendChild(ice); if (bomb) t.element.appendChild(bomb);
-                            const rect = t.element.getBoundingClientRect(); window.spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, '#cbd5e1', 5);
+                            if(appSettings.visual) { const rect = t.element.getBoundingClientRect(); window.spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, '#cbd5e1', 5); }
                         }
                     } else { t.element.classList.add('blocked'); }
                 }
@@ -1649,19 +1348,12 @@
 
         window.handleTap = function(t) {
             if (t.state !== 'board' || !window.isClickable(t) || ftueState.activeTargetId) return;
-            if (ftueState.active) {
-                if (t !== ftueState.currentTarget) { if(t.element) { t.element.style.transform = 'translate(-2px, 0)'; setTimeout(() => t.element.style.transform = '', 100); } return; }
-                ftueState.matchStep++;
-            }
+            if (ftueState.active) { if (t !== ftueState.currentTarget) { if(t.element) { t.element.style.transform = 'translate(-2px, 0)'; setTimeout(() => t.element.style.transform = '', 100); } return; } ftueState.matchStep++; }
             if (t.isIce) { if(t.element) { t.element.style.transform = 'translate(-4px, 0)'; setTimeout(() => t.element.style.transform = 'translate(4px, 0)', 50); setTimeout(() => t.element.style.transform = '', 100); } window.playSound('tap'); return; }
             if (tray.length >= currentTrayMax) return;
             
             t.bombTimer = 0; 
-            if (t.element) { 
-                t.element.classList.remove('is-bomb'); 
-                const bombBadge = t.element.querySelector('.bomb-badge'); 
-                if (bombBadge) bombBadge.remove(); 
-            }
+            if (t.element) { t.element.classList.remove('is-bomb', 'urgent-bomb'); const bombBadge = t.element.querySelector('.bomb-badge'); if (bombBadge) bombBadge.remove(); }
             
             window.playSound('tap'); t.state = 'tray'; moveHistory.push(t); tray.push(t); tray.sort((a, b) => { if (a.iconType === b.iconType) return 0; return a.iconType > b.iconType ? 1 : -1; });
             
@@ -1669,11 +1361,11 @@
             tiles.forEach(other => {
                 if (other.state === 'board' && other.isIce) {
                     let dx = Math.abs(t.x - other.x); let dy = Math.abs(t.y - other.y);
-                    let isHoriz = (dy < 15 && dx >= TILE_W * 0.5 && dx <= TILE_W * 1.5); let isVert = (dx < 15 && dy >= TILE_H * 0.5 && dy <= TILE_H * 1.5);
+                    let isHoriz = (dy < 15 && dx >= window.currentTileW * 0.5 && dx <= window.currentTileW * 1.5); let isVert = (dx < 15 && dy >= window.currentTileH * 0.5 && dy <= window.currentTileH * 1.5);
                     if (isHoriz || isVert) {
                         other.isIce = false;
                         if(other.element) { other.element.classList.remove('ice'); const iceOverlay = other.element.querySelector('.bg-cyan-300\\/40'); if(iceOverlay) iceOverlay.remove(); }
-                        window.spawnParticles(other.x + TILE_W/2, other.y + TILE_H/2, '#67e8f9', 10); iceBroken = true;
+                        if(appSettings.visual) window.spawnParticles(other.x + window.currentTileW/2, other.y + window.currentTileH/2, '#67e8f9', 10); iceBroken = true;
                     }
                 }
             });
@@ -1682,35 +1374,22 @@
             if (ftueState.active) window.updateMatchFTUE();
             
             if (tray.length === 6 && !ftueState.trayWarning) { 
-                let willMatch = false;
-                let counts = {};
-                tray.forEach(item => {
-                    counts[item.iconType] = (counts[item.iconType] || 0) + 1;
-                    if (counts[item.iconType] >= 3) willMatch = true;
-                });
-                
-                if (!willMatch) {
-                    ftueState.trayWarning = true; 
-                    window.showFTUE("Careful!<br>If the tray fills up,<br>you lose.", 'tray-container'); 
-                    window.updateTrayVisuals(); 
-                }
+                let willMatch = false; let counts = {}; tray.forEach(item => { counts[item.iconType] = (counts[item.iconType] || 0) + 1; if (counts[item.iconType] >= 3) willMatch = true; });
+                if (!willMatch) { ftueState.trayWarning = true; window.saveProgress(); window.showFTUE("Careful!<br>If the tray fills up,<br>you lose.", 'tray-container'); window.updateTrayVisuals(); }
             }
-            
-            setTimeout(window.checkForMatch, 50);
+            setTimeout(window.checkForMatch, 150);
         };
 
         window.updateTrayVisuals = function() {
             const tc = document.getElementById('tray-container'); const bc = document.getElementById('board-center'); const eh = document.getElementById('extra-hand-btn'); if(!tc || !bc) return;
             let trayRect = tc.getBoundingClientRect(); let boardRect = bc.getBoundingClientRect(); 
-            let offsetY = Math.round(trayRect.top - boardRect.top + 7); 
-            let startX = Math.round((trayRect.left - boardRect.left) + 7); 
-            let baseZ = (ftueState.activeTargetId === 'tray-container') ? 450 : 100;
+            let offsetY = Math.round(trayRect.top - boardRect.top + 8); let startX = Math.round((trayRect.left - boardRect.left) + 8); 
+            let baseZ = (ftueState.activeTargetId === 'tray-container') ? 460 : 100;
             tray.forEach((t, index) => { 
                 if(t.element) { 
-                    t.element.style.zIndex = baseZ + index; 
-                    // Spaced dynamically for larger 56px wide elements + padding
-                    t.element.style.left = `${startX + (index * 58)}px`; 
-                    t.element.style.top = `${offsetY}px`; 
+                    t.element.style.zIndex = baseZ + index;
+                    t.element.style.width = TILE_W + 'px'; t.element.style.height = TILE_H + 'px'; t.element.style.fontSize = '40px'; 
+                    t.element.style.left = `${startX + (index * 60)}px`; t.element.style.top = `${offsetY}px`; 
                 } 
             });
             if (tray.length === currentTrayMax - 1 && currentTrayMax === 7 && !extraHandUsed) { if(eh) eh.style.display = 'flex'; } else { if(eh) eh.style.display = 'none'; }
@@ -1741,7 +1420,7 @@
                 tray = tray.filter(t => !matchedTiles.includes(t)); window.playSound('match');
                 matchedTiles.forEach(t => {
                     t.state = 'matched'; 
-                    if(t.element) { t.element.classList.add('popping'); const rect = t.element.getBoundingClientRect(); window.spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, '#fbbf24', 8); setTimeout(() => t.element.style.display = 'none', 200); }
+                    if(t.element) { t.element.classList.add('popping'); if(appSettings.visual) { const rect = t.element.getBoundingClientRect(); window.spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, '#fbbf24', 8); } setTimeout(() => t.element.style.display = 'none', 200); }
                 });
                 moveHistory = moveHistory.filter(t => !matchedTiles.includes(t));
                 window.spawnFlyingStars(matchedTiles); window.updateTrayVisuals(); window.checkWinCondition(); isCheckingMatch = false; setTimeout(window.checkForMatch, 250); 
@@ -1754,68 +1433,34 @@
         window.buildResultLeaderboard = function(startRank, endRank, startScore, endScore, containerId) {
             const listEl = document.getElementById(containerId); if (!listEl) return;
             const isResult = containerId === 'result-lb-list';
-            
-            if (isResult) { 
-                listEl.innerHTML = '<div id="lb-inner" class="flex flex-col gap-[6px] w-full transition-transform duration-[2500ms] ease-in-out px-1"></div>'; 
-            } else { 
-                listEl.innerHTML = ''; 
-                listEl.className = "lb-list pb-6 flex flex-col gap-[8px]"; 
-            }
+            if (isResult) { listEl.innerHTML = '<div id="lb-inner" class="flex flex-col gap-[6px] w-full transition-transform duration-[2500ms] ease-in-out px-1"></div>'; } else { listEl.innerHTML = ''; listEl.className = "lb-list pb-6 flex flex-col gap-[8px]"; }
             const appendTarget = isResult ? document.getElementById('lb-inner') : listEl;
             
-            let topRank = endRank - 6; 
-            let bottomRank = startRank + 6; 
-            let entries = []; 
-            let botNames = ['LucA', 'aidan360', 'TyLEr_YT', 'olivia', 'Elsie', 'AndRew', 'grAcE', 'maDiSoN', 'Thesam', 'Robert']; 
-            
-            let scoreDiff = endScore - startScore;
-            let rankDiff = startRank - endRank;
-            let scorePerRank = rankDiff > 0 ? (scoreDiff / rankDiff) : 1;
+            let topRank = endRank - 6; let bottomRank = startRank + 6; let entries = []; let botNames = ['LucA', 'aidan360', 'TyLEr_YT', 'olivia', 'Elsie', 'AndRew', 'grAcE', 'maDiSoN', 'Thesam', 'Robert']; 
+            let scoreDiff = endScore - startScore; let rankDiff = startRank - endRank; let scorePerRank = rankDiff > 0 ? (scoreDiff / rankDiff) : 1;
 
             for (let r = topRank; r <= bottomRank; r++) { 
-                if (r === startRank) { 
-                    entries.push({ rank: r, name: playerProfile.name, score: startScore, isMe: true }); 
-                } else { 
-                    let bScore = Math.round(startScore + (startRank - r) * scorePerRank);
-                    entries.push({ rank: r, name: botNames[Math.abs(r) % botNames.length] + (Math.random()>0.5?'_YT':''), score: bScore, isMe: false }); 
-                } 
+                if (r === startRank) { entries.push({ rank: r, name: playerProfile.name, score: startScore, isMe: true }); } 
+                else { let bScore = Math.round(startScore + (startRank - r) * scorePerRank); entries.push({ rank: r, name: botNames[Math.abs(r) % botNames.length] + (Math.random()>0.5?'_YT':''), score: bScore, isMe: false }); } 
             }
             
-            meElementIdx = entries.findIndex(e => e.isMe); 
-            targetMeIdx = entries.findIndex(e => e.rank === endRank); 
-            if (isResult) lbRowElements = [];
-            
-            const currentAv = AVATAR_DATA[playerProfile.avatarIdx]; 
-            const currentFr = FRAME_DATA[playerProfile.frameIdx].replace('border-[5px]', 'border-2').replace('border-[6px]', 'border-[3px]');
+            meElementIdx = entries.findIndex(e => e.isMe); targetMeIdx = entries.findIndex(e => e.rank === endRank); if (isResult) lbRowElements = [];
+            const currentAv = AVATAR_DATA[playerProfile.avatarIdx]; const currentFr = FRAME_DATA[playerProfile.frameIdx].replace('border-[5px]', 'border-2').replace('border-[6px]', 'border-[3px]');
             
             entries.forEach((e, index) => {
-                let div = document.createElement('div'); 
-                
-                let cl = `w-full h-[46px] border border-slate-200 rounded-[12px] px-3 flex items-center gap-3 relative transition-transform duration-[2500ms] ease-in-out flex-shrink-0 ${e.isMe ? 'bg-[#eff6ff] border-[#3b82f6] shadow-sm z-20' : 'bg-white z-10'}`;
-                
-                div.className = cl; 
+                let div = document.createElement('div'); let cl = `w-full h-[46px] border border-slate-200 rounded-[12px] px-3 flex items-center gap-3 relative transition-transform duration-[2500ms] ease-in-out flex-shrink-0 ${e.isMe ? 'bg-[#eff6ff] border-[#3b82f6] shadow-sm z-20' : 'bg-white z-10'}`; div.className = cl; 
                 if(e.isMe && isResult) div.id = 'climb-me-row';
-                
-                let av = e.isMe ? currentAv : AVATAR_DATA[Math.abs(e.rank) % AVATAR_DATA.length]; 
-                let fr = e.isMe ? currentFr : FRAME_DATA[Math.abs(e.rank) % FRAME_DATA.length].replace('border-[5px]', 'border-2').replace('border-[6px]', 'border-[3px]');
-                
+                let av = e.isMe ? currentAv : AVATAR_DATA[Math.abs(e.rank) % AVATAR_DATA.length]; let fr = e.isMe ? currentFr : FRAME_DATA[Math.abs(e.rank) % FRAME_DATA.length].replace('border-[5px]', 'border-2').replace('border-[6px]', 'border-[3px]');
                 div.innerHTML = `<span class="lb-rank text-center w-10 font-black text-sm ${e.isMe ? 'text-blue-800' : 'text-slate-500'}" ${e.isMe && isResult ? 'id="climb-me-rank"' : ''}>${e.rank.toLocaleString()}</span><div class="w-8 h-8 rounded-lg flex justify-center items-center flex-shrink-0 overflow-hidden ${fr}" style="background:${av.bg}; font-size:18px;">${av.face}</div><span class="flex-grow font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis ${e.isMe ? 'text-blue-800' : 'text-slate-800'}">${e.name}</span><div class="bg-white border border-slate-200 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm text-xs font-black text-slate-700"><span>Score</span><span ${e.isMe && isResult ? 'id="climb-me-score"' : ''}>${e.score.toLocaleString()}</span></div>`;
-                appendTarget.appendChild(div); 
-                if (isResult) lbRowElements.push(div);
+                appendTarget.appendChild(div); if (isResult) lbRowElements.push(div);
             });
             
             if (isResult) { 
                 setTimeout(() => {
-                    const inner = document.getElementById('lb-inner'); 
-                    if(!inner || inner.children.length < 2) return;
-                    
-                    const r1 = inner.children[0].getBoundingClientRect();
-                    const r2 = inner.children[1].getBoundingClientRect();
-                    lbItemHeight = r2.top - r1.top; 
-                    if(lbItemHeight <= 0) lbItemHeight = 52; 
-
-                    const containerHeight = listEl.clientHeight || 220;
-                    let startY = (meElementIdx * lbItemHeight) - (containerHeight / 2) + (lbItemHeight / 2); 
+                    const inner = document.getElementById('lb-inner'); if(!inner || inner.children.length < 2) return;
+                    const r1 = inner.children[0].getBoundingClientRect(); const r2 = inner.children[1].getBoundingClientRect();
+                    lbItemHeight = r2.top - r1.top; if(lbItemHeight <= 0) lbItemHeight = 52; 
+                    const containerHeight = listEl.clientHeight || 220; let startY = (meElementIdx * lbItemHeight) - (containerHeight / 2) + (lbItemHeight / 2); 
                     inner.style.transform = `translateY(-${startY}px)`; 
                 }, 50);
             }
@@ -1848,15 +1493,8 @@
         window.checkWinCondition = function() {
             let activeBlocks = tiles.filter(t => t.state === 'board').length;
             if (activeBlocks === 0 && tray.length === 0) {
-                clearInterval(gameTimerInterval);
-                const badge = document.getElementById('level-timer-badge'); 
-                if(badge) badge.classList.remove('timer-running');
-
-                if (isDailyChallenge) {
-                    window.showToast("Challenge Completed!");
-                    setTimeout(() => window.showHome(), 1500);
-                    return;
-                }
+                clearInterval(gameTimerInterval); const badge = document.getElementById('level-timer-badge'); if(badge) badge.classList.remove('timer-running');
+                if (isDailyChallenge) { window.showToast("Challenge Completed!"); setTimeout(() => window.showHome(), 1500); return; }
                 const resLevel = document.getElementById('res-level'); if(resLevel) resLevel.innerText = level;
                 let oldStars = inventory.stars; let newStars = oldStars + 25; inventory.stars = newStars;
                 let oldRank = lbCurrentRank; let newRank = Math.max(1, lbCurrentRank - 25); lbCurrentRank = newRank;
@@ -1865,30 +1503,16 @@
         };
 
         window.triggerLeaderboardClimb = function(endRank, endScore) {
-            const lbInner = document.getElementById('lb-inner'); 
-            const listEl = document.getElementById('result-lb-list'); 
-            const meRow = document.getElementById('climb-me-row'); 
+            const lbInner = document.getElementById('lb-inner'); const listEl = document.getElementById('result-lb-list'); const meRow = document.getElementById('climb-me-row'); 
             if (!meRow || !lbInner || !listEl) return;
-            
             window.playSound('match'); 
-            
-            let rankDiff = meElementIdx - targetMeIdx;
-            meRow.style.transform = `translateY(-${rankDiff * lbItemHeight}px)`;
+            let rankDiff = meElementIdx - targetMeIdx; meRow.style.transform = `translateY(-${rankDiff * lbItemHeight}px)`;
             
             for (let i = targetMeIdx; i < meElementIdx; i++) { 
-                if(lbRowElements[i]) {
-                    lbRowElements[i].style.transform = `translateY(${lbItemHeight}px)`;
-                    let rankSpan = lbRowElements[i].querySelector('.lb-rank');
-                    if (rankSpan) {
-                        let rNum = parseInt(rankSpan.innerText.replace(/,/g, ''));
-                        rankSpan.innerText = (rNum + 1).toLocaleString();
-                    }
-                } 
+                if(lbRowElements[i]) { lbRowElements[i].style.transform = `translateY(${lbItemHeight}px)`; let rankSpan = lbRowElements[i].querySelector('.lb-rank'); if (rankSpan) { let rNum = parseInt(rankSpan.innerText.replace(/,/g, '')); rankSpan.innerText = (rNum + 1).toLocaleString(); } } 
             }
             
-            const containerHeight = listEl.clientHeight || 220;
-            let endY = (targetMeIdx * lbItemHeight) - (containerHeight / 2) + (lbItemHeight / 2);
-            lbInner.style.transform = `translateY(-${endY}px)`;
+            const containerHeight = listEl.clientHeight || 220; let endY = (targetMeIdx * lbItemHeight) - (containerHeight / 2) + (lbItemHeight / 2); lbInner.style.transform = `translateY(-${endY}px)`;
             
             let tickInterval = setInterval(() => {
                 let rankEl = document.getElementById('climb-me-rank'); if(!rankEl) { clearInterval(tickInterval); return; }
@@ -1900,7 +1524,7 @@
 
         window.animateCoinsAndProceed = function(action) {
             const sourceEl = document.getElementById('reward-coin-source'); const targetEl = document.getElementById('res-coin-display');
-            if(!sourceEl || !targetEl) { if(action === 'home') { level++; window.showHome(); } else window.nextLevel(); return; }
+            if(!sourceEl || !targetEl) { if(action === 'home') { level++; window.showHome(); window.saveProgress(); } else window.nextLevel(); return; }
             const source = sourceEl.getBoundingClientRect(); const target = targetEl.getBoundingClientRect();
             let multiplier = (action === 'double') ? 2 : 1; let coinsToAdd = 10 * multiplier; let animDuration = 600;
             for (let i = 0; i < 6; i++) {
@@ -1915,9 +1539,9 @@
                 }, i * 80);
             }
             setTimeout(() => { 
-                inventory.coins += coinsToAdd; window.updateGlobalStats(); if(targetEl) targetEl.innerText = inventory.coins; 
+                inventory.coins += coinsToAdd; window.updateGlobalStats(); window.saveProgress(); if(targetEl) targetEl.innerText = inventory.coins; 
                 setTimeout(() => { 
-                    if(action === 'home') { level++; window.showHome(); } 
+                    if(action === 'home') { level++; window.showHome(); window.saveProgress(); } 
                     else window.nextLevel(); 
                 }, 300); 
             }, animDuration + 6 * 80);
@@ -1931,25 +1555,49 @@
                 inventory.undo--; window.updateGlobalStats(); window.playSound('tap');
                 let lastTile = moveHistory.pop(); tray = tray.filter(t => t.id !== lastTile.id);
                 lastTile.state = 'board'; lastTile.element.style.left = `${lastTile.x}px`; lastTile.element.style.top = `${lastTile.y}px`; lastTile.element.style.zIndex = lastTile.renderOrder;
-                window.updateTileStates(); window.updateTrayVisuals();
+                window.updateTileStates(); window.updateTrayVisuals(); window.saveProgress();
             } else if (type === 'shuffle') {
                 inventory.shuffle--; window.updateGlobalStats(); window.playSound('tap');
                 let boardTiles = tiles.filter(t => t.state === 'board'); let types = boardTiles.map(t => t.iconType); types.sort(() => Math.random() - 0.5);
-                boardTiles.forEach((t, i) => { t.iconType = types[i]; }); window.updateAllTileVisuals();
+                boardTiles.forEach((t, i) => { t.iconType = types[i]; }); window.updateAllTileVisuals(); window.saveProgress();
             } else if (type === 'magnet') {
                 let targetType = null; let countInTray = 0;
                 if (tray.length > 0) { let counts = {}; tray.forEach(t => counts[t.iconType] = (counts[t.iconType] || 0) + 1); for (let t in counts) { if (counts[t] < 3) { targetType = parseInt(t); countInTray = counts[t]; break; } } }
-                if (targetType === null) { let boardTiles = tiles.filter(t => t.state === 'board'); if (boardTiles.length === 0) return; targetType = boardTiles[Math.floor(Math.random() * boardTiles.length)].iconType; }
-                let needed = 3 - countInTray; let matchingBoardTiles = tiles.filter(t => t.state === 'board' && t.iconType === targetType);
-                if(matchingBoardTiles.length < needed) return;
+                
+                let availableMatches = tiles.filter(t => t.state === 'board' && t.iconType === targetType && window.isClickable(t));
+                if (availableMatches.length === 0 || targetType === null) {
+                    let clickableTiles = tiles.filter(t => t.state === 'board' && window.isClickable(t));
+                    if(clickableTiles.length === 0) return;
+                    targetType = clickableTiles[Math.floor(Math.random() * clickableTiles.length)].iconType;
+                    availableMatches = tiles.filter(t => t.state === 'board' && t.iconType === targetType && window.isClickable(t));
+                    countInTray = tray.filter(t => t.iconType === targetType).length;
+                }
+
+                let needed = Math.min(3 - countInTray, availableMatches.length);
+                if(needed <= 0) return;
+                
                 inventory.magnet--; window.updateGlobalStats(); window.playSound('tap');
-                for (let i = 0; i < needed; i++) { let t = matchingBoardTiles[i]; t.state = 'tray'; moveHistory.push(t); tray.push(t); }
+                for (let i = 0; i < needed; i++) { 
+                    let t = availableMatches[i]; 
+                    t.state = 'tray'; 
+                    
+                    t.bombTimer = 0; 
+                    if (t.element) { 
+                        t.element.classList.remove('is-bomb', 'urgent-bomb'); 
+                        const bombBadge = t.element.querySelector('.bomb-badge'); 
+                        if (bombBadge) bombBadge.remove(); 
+                    }
+
+                    moveHistory.push(t); tray.push(t); 
+                }
                 tray.sort((a, b) => { if (a.iconType === b.iconType) return 0; return a.iconType > b.iconType ? 1 : -1; });
                 window.updateTileStates(); window.updateTrayVisuals(); setTimeout(window.checkForMatch, 50);
+                window.saveProgress();
             } else if (type === 'theme') {
                 inventory.theme--; window.updateGlobalStats(); window.playSound('tap');
                 currentThemeIndex = (currentThemeIndex + 1) % THEME_NAMES.length; window.updateAllTileVisuals();
                 tiles.filter(t => t.state === 'board').forEach(t => { if(t.element) { t.element.style.transform = 'scale(1.1)'; setTimeout(() => t.element.style.transform = 'scale(1)', 150); } });
+                window.saveProgress();
             }
         };
 
@@ -1963,6 +1611,7 @@
             if (inventory.coins >= 300) {
                 inventory.coins -= 300; inventory[ftueState.pendingBooster.key] += 5; window.updateGlobalStats();
                 window.closeModal('booster-buy-modal'); window.playSound('win'); window.showToast(`+5 ${ftueState.pendingBooster.name}`); ftueState.pendingBooster = null;
+                window.saveProgress();
             } else { window.closeModal('booster-buy-modal'); window.switchScreen('store-screen'); window.showToast('Not enough coins!'); }
         };
 
@@ -1978,7 +1627,6 @@
                 window.playSound('win'); 
                 window.renderTrayBackground(); 
                 
-                // Sync tile positions continuously while the tray's 300ms CSS width transition plays out
                 let elapsed = 0;
                 let syncInterval = setInterval(() => {
                     window.updateTrayVisuals();
@@ -2019,7 +1667,13 @@
             clearInterval(gameTimerInterval);
             const badge = document.getElementById('level-timer-badge'); 
             if(badge) badge.classList.remove('timer-running');
-            window.triggerGameOver("Bomb Exploded!");
+            window.triggerBombExploded();
+        };
+        
+        window.debugFailSpace = function() {
+            window.closeModal('debug-modal');
+            if (currentScreenId !== 'game-screen') return;
+            window.openModal('out-of-space-modal');
         };
 
         window.debugJumpLevel = function() {
@@ -2045,19 +1699,31 @@
             window.showToast(`+5 ${type.toUpperCase()} added!`);
         };
 
+        window.debugResetProgress = function() {
+            localStorage.removeItem(SAVE_KEY);
+            location.reload();
+        };
+
         window.triggerOutOfTime = function() {
             const badge = document.getElementById('level-timer-badge'); 
             if(badge) badge.classList.remove('timer-running');
             window.openModal('out-of-time-modal');
         };
+        
+        window.triggerBombExploded = function() {
+            window.openModal('bomb-explode-modal');
+        };
 
-        window.declineExtraTime = function() {
-            window.closeModal('out-of-time-modal');
-            window.triggerGameOver("Time's Up!");
+        window.declineRevive = function(type) {
+            if(type === 'time') { window.closeModal('out-of-time-modal'); window.triggerGameOver("Time's Up!"); }
+            else if (type === 'space') { window.closeModal('out-of-space-modal'); window.triggerGameOver("Tray Full!"); }
+            else if (type === 'bomb') { window.closeModal('bomb-explode-modal'); window.triggerGameOver("Bomb Exploded!"); }
         };
         
-        window.restartGameFromOutOfTime = function() {
-            window.closeModal('out-of-time-modal');
+        window.restartGameFromRevive = function(type) {
+            if(type === 'time') window.closeModal('out-of-time-modal');
+            if(type === 'space') window.closeModal('out-of-space-modal');
+            if(type === 'bomb') window.closeModal('bomb-explode-modal');
             window.executeRestart();
         };
 
@@ -2077,6 +1743,64 @@
             window.updateTimerUI();
             window.beginTimerInterval(); // Restart the clock
             window.showToast("+100 Seconds Added!");
+        };
+        
+        window.reviveSpace = function(method) {
+            if (method === 'rv') {
+                window.showToast("Watching Ad...");
+                setTimeout(() => {
+                    window.executeReviveSpace();
+                }, 1500);
+            }
+        };
+        
+        window.executeReviveSpace = function() {
+            window.closeModal('out-of-space-modal');
+            window.playSound('win');
+            
+            let undos = Math.min(3, tray.length);
+            for(let i=0; i<undos; i++) {
+                if (moveHistory.length === 0 || tray.length === 0) break;
+                let lastTile = moveHistory.pop(); 
+                tray = tray.filter(t => t.id !== lastTile.id);
+                lastTile.state = 'board'; 
+                lastTile.element.style.left = `${lastTile.x}px`; 
+                lastTile.element.style.top = `${lastTile.y}px`; 
+                lastTile.element.style.zIndex = lastTile.renderOrder;
+            }
+            
+            window.updateTileStates(); window.updateTrayVisuals();
+            window.showToast("Last 3 moves undone!");
+        };
+        
+        window.reviveBomb = function(method) {
+            if (method === 'rv') {
+                window.showToast("Watching Ad...");
+                setTimeout(() => {
+                    window.executeReviveBomb();
+                }, 1500);
+            }
+        };
+        
+        window.executeReviveBomb = function() {
+            window.closeModal('bomb-explode-modal');
+            window.playSound('win');
+            
+            tiles.forEach(t => {
+                if (t.state === 'board' && t.bombTimer <= 0) {
+                    t.bombTimer = 0;
+                    if (t.element) {
+                        t.element.style.transform = 'scale(1)';
+                        t.element.style.opacity = '1';
+                        t.element.classList.remove('is-bomb', 'urgent-bomb');
+                        const bombBadge = t.element.querySelector('.bomb-badge'); 
+                        if (bombBadge) bombBadge.remove(); 
+                    }
+                }
+            });
+            
+            window.beginTimerInterval(); // Restart the clock
+            window.showToast("Bombs Defused!");
         };
 
     </script>
