@@ -95,7 +95,7 @@
         #game-area { flex-grow: 1; position: relative; width: 100%; min-height: 400px;}
         #board-center { position: absolute; top: 45%; left: 50%; width: 0; height: 0; }
         
-        /* PREMIUM 3D BEVEL EFFECT */
+        /* HARDWARE ACCELERATED PREMIUM 3D BEVEL EFFECT */
         .tile { 
             position: absolute; 
             background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); 
@@ -112,10 +112,11 @@
             justify-content: center; 
             align-items: center; 
             cursor: pointer; 
-            /* Beautiful swooping transition for width/height/position */
             transition: top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), font-size 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.15s ease-out, opacity 0.2s ease-out, filter 0.3s ease; 
             transform-origin: center; 
             user-select: none; 
+            will-change: transform, left, top; 
+            transform: translateZ(0); 
         }
         .tile:active { 
             transform: scale(0.92) translateY(4px); 
@@ -150,8 +151,8 @@
         }
         
         @keyframes urgentFlash {
-            0%, 100% { filter: drop-shadow(0 0 5px rgba(239,68,68,0.8)) brightness(1); transform: scale(1); }
-            50% { filter: drop-shadow(0 0 20px rgba(239,68,68,1)) brightness(1.2); transform: scale(1.05); }
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(239,68,68,0.8)) brightness(1); transform: scale(1) translateZ(0); }
+            50% { filter: drop-shadow(0 0 20px rgba(239,68,68,1)) brightness(1.2); transform: scale(1.05) translateZ(0); }
         }
         .urgent-bomb {
             animation: urgentFlash 0.5s infinite !important;
@@ -245,18 +246,10 @@
             <div class="home-top-bar">
                 <button class="bg-green-500 border-2 border-green-600 text-white font-black text-[10px] w-8 h-8 flex items-center justify-center rounded-lg shadow-sm" onclick="window.openModal('debug-modal')">DEV</button>
                 <div class="flex gap-2 bg-[#f1f5f9] px-2 py-1 rounded-full">
-                    <div class="status-pill !bg-white !border-slate-200" onclick="window.switchScreen('store-screen')">
-                        <div class="icon-svg-wrapper"><svg class="w-5 h-5 drop-shadow-sm"><use href="#svg-coin"/></svg></div>
-                        <span class="coin-display font-bold">40</span><div class="add-btn">+</div>
-                    </div>
-                    <div class="status-pill !bg-white !border-slate-200" onclick="window.openModal('lives-modal')">
-                        <div class="icon-svg-wrapper"><svg width="20" height="20" fill="#EF4444" viewBox="0 0 24 24"><use href="#svg-heart"/><text x="12" y="14" font-family="Arial" font-weight="900" font-size="10" fill="white" text-anchor="middle" class="life-inner-text">5</text></svg></div>
-                        <span class="life-display">Max Lives!</span><div class="add-btn">+</div>
-                    </div>
+                    <div class="status-pill !bg-white !border-slate-200" onclick="window.switchScreen('store-screen')"><div class="icon-svg-wrapper"><svg class="w-5 h-5 drop-shadow-sm"><use href="#svg-coin"/></svg></div><span class="coin-display font-bold">40</span><div class="add-btn">+</div></div>
+                    <div class="status-pill !bg-white !border-slate-200" onclick="window.openModal('lives-modal')"><div class="icon-svg-wrapper"><svg width="20" height="20" fill="#EF4444" viewBox="0 0 24 24"><use href="#svg-heart"/><text x="12" y="14" font-family="Arial" font-weight="900" font-size="10" fill="white" text-anchor="middle" class="life-inner-text">5</text></svg></div><span class="life-display">Max Lives!</span><div class="add-btn">+</div></div>
                 </div>
-                <button class="icon-btn" onclick="window.openModal('settings-modal')">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#0f172a"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"></path></svg>
-                </button>
+                <button class="icon-btn" onclick="window.openModal('settings-modal')"><svg width="28" height="28" viewBox="0 0 24 24" fill="#0f172a"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"></path></svg></button>
             </div>
 
             <div class="profile-pill" onclick="window.openModal('profile-modal')">
@@ -266,44 +259,27 @@
             </div>
 
             <div class="feature-grid">
-                <!-- Spin Wheel Widget -->
                 <div class="widget-card" onclick="window.handleWidgetClick('spin')" style="background: linear-gradient(180deg, #60a5fa, #3b82f6);">
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[50%] w-[160%] aspect-square flex justify-center items-center">
-                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
-                            <circle cx="50" cy="50" r="48" fill="#38bdf8" /><circle cx="50" cy="6" r="2.5" fill="white" opacity="0.6"/><circle cx="19" cy="19" r="2.5" fill="white" opacity="0.6"/><circle cx="81" cy="19" r="2.5" fill="white" opacity="0.6"/><circle cx="8" cy="50" r="2.5" fill="white" opacity="0.6"/><circle cx="92" cy="50" r="2.5" fill="white" opacity="0.6"/><circle cx="50" cy="50" r="43" fill="#60a5fa" /><path d="M 50 7 L 50 50 L 7 50 A 43 43 0 0 1 50 7" fill="#3b82f6"/><path d="M 50 7 L 50 50 L 93 50 A 43 43 0 0 0 50 7" fill="#818cf8"/><path d="M 7 50 L 50 50 L 50 93 A 43 43 0 0 0 7 50" fill="#818cf8"/><path d="M 93 50 L 50 50 L 50 93 A 43 43 0 0 1 93 50" fill="#3b82f6"/><circle cx="50" cy="50" r="43" fill="none" stroke="white" stroke-width="1.5" opacity="0.5"/><circle cx="50" cy="50" r="12" fill="#38bdf8"/><circle cx="50" cy="50" r="8" fill="#3b82f6"/>
-                        </svg>
+                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md"><circle cx="50" cy="50" r="48" fill="#38bdf8" /><circle cx="50" cy="6" r="2.5" fill="white" opacity="0.6"/><circle cx="19" cy="19" r="2.5" fill="white" opacity="0.6"/><circle cx="81" cy="19" r="2.5" fill="white" opacity="0.6"/><circle cx="8" cy="50" r="2.5" fill="white" opacity="0.6"/><circle cx="92" cy="50" r="2.5" fill="white" opacity="0.6"/><circle cx="50" cy="50" r="43" fill="#60a5fa" /><path d="M 50 7 L 50 50 L 7 50 A 43 43 0 0 1 50 7" fill="#3b82f6"/><path d="M 50 7 L 50 50 L 93 50 A 43 43 0 0 0 50 7" fill="#818cf8"/><path d="M 7 50 L 50 50 L 50 93 A 43 43 0 0 0 7 50" fill="#818cf8"/><path d="M 93 50 L 50 50 L 50 93 A 43 43 0 0 1 93 50" fill="#3b82f6"/><circle cx="50" cy="50" r="43" fill="none" stroke="white" stroke-width="1.5" opacity="0.5"/><circle cx="50" cy="50" r="12" fill="#38bdf8"/><circle cx="50" cy="50" r="8" fill="#3b82f6"/></svg>
                     </div>
-                    <div class="absolute top-[8%] left-1/2 -translate-x-1/2 z-20">
-                        <svg class="w-8 h-10 drop-shadow-md" viewBox="0 0 24 24" fill="#ef4444"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><circle cx="12" cy="9" r="2.5" fill="#fca5a5"/></svg>
-                    </div>
+                    <div class="absolute top-[8%] left-1/2 -translate-x-1/2 z-20"><svg class="w-8 h-10 drop-shadow-md" viewBox="0 0 24 24" fill="#ef4444"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><circle cx="12" cy="9" r="2.5" fill="#fca5a5"/></svg></div>
                     <div class="bg-white text-slate-700 px-6 py-1.5 rounded-full text-[12px] font-black shadow z-10 absolute bottom-5 tracking-wide uppercase border-2 border-white" id="spin-widget-label">Free</div>
-                    <div id="lock-spin" class="absolute inset-0 bg-[#1e293b]/90 z-30 flex flex-col items-center justify-center transition-opacity duration-300 hidden">
-                        <svg viewBox="0 0 24 24" class="w-12 h-12 mb-2 fill-[#60a5fa] drop-shadow-md"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6-5c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 13c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-                        <div class="bg-[#60a5fa] text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">Unlock After 13</div>
-                    </div>
+                    <div id="lock-spin" class="absolute inset-0 bg-[#1e293b]/90 z-30 flex flex-col items-center justify-center transition-opacity duration-300 hidden"><svg viewBox="0 0 24 24" class="w-12 h-12 mb-2 fill-[#60a5fa] drop-shadow-md"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6-5c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 13c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg><div class="bg-[#60a5fa] text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">Unlock After 13</div></div>
                 </div>
 
-                <!-- Reward Widget -->
                 <div class="widget-card signin-card" onclick="window.openModal('daily-signin-modal')" style="background: #60a5fa;">
                     <div class="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white font-black text-[14px] border-2 border-white z-20 shadow" id="daily-reward-badge">!</div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[25%] w-[165%] aspect-square flex justify-center items-end">
-                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-lg">
-                            <path d="M 20 50 L 80 50 L 80 100 L 20 100 Z" fill="#10b981"/><path d="M 50 50 L 80 50 L 80 100 L 50 100 Z" fill="#059669"/><rect x="42" y="50" width="16" height="50" fill="#f59e0b"/><rect x="50" y="50" width="8" height="50" fill="#d97706"/><rect x="15" y="32" width="70" height="18" fill="#34d399" rx="2"/><path d="M 50 32 L 83 32 Q 85 32 85 34 L 85 50 L 50 50 Z" fill="#10b981"/><rect x="42" y="32" width="16" height="18" fill="#fbbf24"/><rect x="50" y="32" width="8" height="18" fill="#f59e0b"/><path d="M 50 38 C 10 -5 -15 45 45 40 Z" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/><path d="M 50 38 C 90 -5 115 45 55 40 Z" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/><path d="M 45 38 C 25 55 20 65 15 80 C 30 75 40 60 50 40 Z" fill="#fbbf24"/><path d="M 55 38 C 75 55 80 65 85 80 C 70 75 60 60 50 40 Z" fill="#fbbf24"/><circle cx="50" cy="38" r="6" fill="#f59e0b"/>
-                        </svg>
+                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-lg"><path d="M 20 50 L 80 50 L 80 100 L 20 100 Z" fill="#10b981"/><path d="M 50 50 L 80 50 L 80 100 L 50 100 Z" fill="#059669"/><rect x="42" y="50" width="16" height="50" fill="#f59e0b"/><rect x="50" y="50" width="8" height="50" fill="#d97706"/><rect x="15" y="32" width="70" height="18" fill="#34d399" rx="2"/><path d="M 50 32 L 83 32 Q 85 32 85 34 L 85 50 L 50 50 Z" fill="#10b981"/><rect x="42" y="32" width="16" height="18" fill="#fbbf24"/><rect x="50" y="32" width="8" height="18" fill="#f59e0b"/><path d="M 50 38 C 10 -5 -15 45 45 40 Z" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/><path d="M 50 38 C 90 -5 115 45 55 40 Z" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/><path d="M 45 38 C 25 55 20 65 15 80 C 30 75 40 60 50 40 Z" fill="#fbbf24"/><path d="M 55 38 C 75 55 80 65 85 80 C 70 75 60 60 50 40 Z" fill="#fbbf24"/><circle cx="50" cy="38" r="6" fill="#f59e0b"/></svg>
                     </div>
                 </div>
 
-                <!-- Challenge Widget -->
                 <div class="widget-card wide-card" onclick="window.handleWidgetClick('challenge')" style="background: #60a5fa;">
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[20%] w-[48%] aspect-square flex justify-center items-end">
-                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl overflow-visible" preserveAspectRatio="xMidYMax slice">
-                            <path d="M 10 40 C 10 30, 20 30, 20 30 L 80 30 C 80 30, 90 30, 90 40 L 90 100 L 10 100 Z" fill="url(#calGrad)"/><defs><linearGradient id="calGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient></defs><path d="M 10 40 C 10 30, 20 30, 20 30 L 80 30 C 80 30, 90 30, 90 40 L 90 50 L 10 50 Z" fill="#ef4444"/><line x1="10" y1="50" x2="90" y2="50" stroke="#fca5a5" stroke-width="2"/><rect x="25" y="15" width="10" height="25" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" class="drop-shadow-md"/><rect x="45" y="15" width="10" height="25" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" class="drop-shadow-md"/><rect x="65" y="15" width="10" height="25" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" class="drop-shadow-md"/><text x="50" y="88" font-size="34" font-family="Nunito" font-weight="900" fill="#94a3b8" text-anchor="middle">8</text>
-                        </svg>
+                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl overflow-visible" preserveAspectRatio="xMidYMax slice"><path d="M 10 40 C 10 30, 20 30, 20 30 L 80 30 C 80 30, 90 30, 90 40 L 90 100 L 10 100 Z" fill="url(#calGrad)"/><defs><linearGradient id="calGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient></defs><path d="M 10 40 C 10 30, 20 30, 20 30 L 80 30 C 80 30, 90 30, 90 40 L 90 50 L 10 50 Z" fill="#ef4444"/><line x1="10" y1="50" x2="90" y2="50" stroke="#fca5a5" stroke-width="2"/><rect x="25" y="15" width="10" height="25" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" class="drop-shadow-md"/><rect x="45" y="15" width="10" height="25" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" class="drop-shadow-md"/><rect x="65" y="15" width="10" height="25" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" class="drop-shadow-md"/><text x="50" y="88" font-size="34" font-family="Nunito" font-weight="900" fill="#94a3b8" text-anchor="middle">8</text></svg>
                     </div>
-                    <div id="lock-challenge" class="absolute inset-0 bg-[#1e293b]/90 z-30 flex flex-col items-center justify-center transition-opacity duration-300 hidden">
-                        <svg viewBox="0 0 24 24" class="w-12 h-12 mb-2 fill-[#60a5fa] drop-shadow-md"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6-5c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 13c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-                        <div class="bg-[#60a5fa] text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">Unlock After 20</div>
-                    </div>
+                    <div id="lock-challenge" class="absolute inset-0 bg-[#1e293b]/90 z-30 flex flex-col items-center justify-center transition-opacity duration-300 hidden"><svg viewBox="0 0 24 24" class="w-12 h-12 mb-2 fill-[#60a5fa] drop-shadow-md"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6-5c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 13c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg><div class="bg-[#60a5fa] text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">Unlock After 20</div></div>
                 </div>
             </div>
 
@@ -317,22 +293,14 @@
         <!-- ================= STORE SCREEN ================= -->
         <div id="store-screen" class="screen">
             <div class="home-top-bar relative">
-                <div id="store-back-btn" class="hidden absolute left-4 top-4 w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-md z-10 cursor-pointer active:scale-95" onclick="window.goBackFromStore()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-                </div>
+                <div id="store-back-btn" class="hidden absolute left-4 top-4 w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-md z-10 cursor-pointer active:scale-95" onclick="window.goBackFromStore()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div>
                 <button id="store-deve-tag" class="bg-green-500 border-2 border-green-600 text-white font-black text-[10px] w-8 h-8 flex items-center justify-center rounded-lg shadow-sm transition-opacity" onclick="window.openModal('debug-modal')">DEV</button>
-                <div class="status-pill bg-blue-50 ml-auto">
-                    <div class="icon-svg-wrapper"><svg class="w-5 h-5 drop-shadow-sm"><use href="#svg-coin"/></svg></div>
-                    <span class="coin-display text-blue-900 pr-2 font-bold">40</span>
-                </div>
+                <div class="status-pill bg-blue-50 ml-auto"><div class="icon-svg-wrapper"><svg class="w-5 h-5 drop-shadow-sm"><use href="#svg-coin"/></svg></div><span class="coin-display text-blue-900 pr-2 font-bold">40</span></div>
             </div>
 
             <div class="store-section mt-4">
                 <div class="store-ads-card cursor-pointer" onclick="window.buyCoins(0, 650)">
-                    <div class="flex items-center gap-3">
-                        <div class="ads-icon">ADS</div>
-                        <div class="pb-1"><h3 class="font-black text-[#0f172a] text-[1.1rem]">Remove Ads</h3><p class="text-[0.65rem] font-bold text-slate-500 leading-snug mt-1">Remove non optional ads<br>Reward based ads will still be<br>available</p></div>
-                    </div>
+                    <div class="flex items-center gap-3"><div class="ads-icon">ADS</div><div class="pb-1"><h3 class="font-black text-[#0f172a] text-[1.1rem]">Remove Ads</h3><p class="text-[0.65rem] font-bold text-slate-500 leading-snug mt-1">Remove non optional ads<br>Reward based ads will still be<br>available</p></div></div>
                     <button class="store-btn-blue pointer-events-none">₹650.00</button>
                 </div>
 
@@ -349,12 +317,8 @@
                 <div class="store-grid" id="booster-packs-grid"></div>
 
                 <h3 class="font-black text-[#0f172a] text-[1.1rem] px-2 mb-3 mt-6 tracking-wide">Coin Shop</h3>
-                <div class="store-pill cursor-pointer active:scale-95 transition-transform" onclick="window.buyCoins(10, 0)">
-                    <div class="flex items-center gap-2"><svg class="w-6 h-6 drop-shadow-sm"><use href="#svg-coin"/></svg><span class="font-black text-white text-xl w-16">10</span></div><button class="store-btn-green w-28 mr-1 text-sm py-2 pointer-events-none">FREE</button>
-                </div>
-                <div class="store-pill mb-6 cursor-pointer active:scale-95 transition-transform" onclick="window.buyCoins(20, 0, true)">
-                    <div class="flex items-center gap-2"><svg class="w-6 h-6 drop-shadow-sm"><use href="#svg-coin"/></svg><span class="font-black text-white text-xl w-16">20</span></div><button class="store-btn-green w-28 mr-1 flex items-center justify-center gap-1.5 text-sm py-2 pointer-events-none !bg-white !text-[#22c55e] shadow-sm"><svg width="14" height="14" class="text-[#22c55e]"><use href="#svg-yt-play"/></svg> Watch</button>
-                </div>
+                <div class="store-pill cursor-pointer active:scale-95 transition-transform" onclick="window.buyCoins(10, 0)"><div class="flex items-center gap-2"><svg class="w-6 h-6 drop-shadow-sm"><use href="#svg-coin"/></svg><span class="font-black text-white text-xl w-16">10</span></div><button class="store-btn-green w-28 mr-1 text-sm py-2 pointer-events-none">FREE</button></div>
+                <div class="store-pill mb-6 cursor-pointer active:scale-95 transition-transform" onclick="window.buyCoins(20, 0, true)"><div class="flex items-center gap-2"><svg class="w-6 h-6 drop-shadow-sm"><use href="#svg-coin"/></svg><span class="font-black text-white text-xl w-16">20</span></div><button class="store-btn-green w-28 mr-1 flex items-center justify-center gap-1.5 text-sm py-2 pointer-events-none !bg-white !text-[#22c55e] shadow-sm"><svg width="14" height="14" class="text-[#22c55e]"><use href="#svg-yt-play"/></svg> Watch</button></div>
                 <div class="store-grid" id="coin-packs-grid"></div>
             </div>
         </div>
@@ -370,22 +334,15 @@
 
         <!-- ================= BOTTOM NAVIGATION ================= -->
         <div id="bottom-nav-bar" class="bottom-nav">
-            <div class="nav-item" id="nav-store" onclick="window.switchScreen('store-screen')">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"></path></svg><span>Store</span>
-            </div>
-            <div class="nav-home-wrapper active" id="nav-home" onclick="window.switchScreen('home-screen')">
-                <div class="nav-home-inner"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg><span>Home</span></div>
-            </div>
-            <div class="nav-item" id="nav-lb" onclick="window.switchScreen('leaderboard-screen')">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 15.9V19H7v2h10v-2h-4v-3.1a5.01 5.01 0 0 0 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"></path></svg><span>Leaderboard</span>
-            </div>
+            <div class="nav-item" id="nav-store" onclick="window.switchScreen('store-screen')"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"></path></svg><span>Store</span></div>
+            <div class="nav-home-wrapper active" id="nav-home" onclick="window.switchScreen('home-screen')"><div class="nav-home-inner"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg><span>Home</span></div></div>
+            <div class="nav-item" id="nav-lb" onclick="window.switchScreen('leaderboard-screen')"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 15.9V19H7v2h10v-2h-4v-3.1a5.01 5.01 0 0 0 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"></path></svg><span>Leaderboard</span></div>
         </div>
 
         <!-- ================= GAME SCREEN ================= -->
         <div id="game-screen" class="screen z-[100]">
             
             <div id="match-ftue-fade" class="absolute inset-0 bg-slate-700/80 z-[150] hidden pointer-events-none transition-opacity duration-300"></div>
-
             <div id="ftue-overlay" class="fixed inset-0 z-[400] hidden flex-col items-center px-6 transition-opacity pointer-events-none">
                 <div class="absolute inset-0 pointer-events-auto bg-slate-700/80" onclick="window.dismissFTUE()"></div>
                 <div id="ftue-text-container" class="absolute w-full flex flex-col items-center top-[18%] pointer-events-none z-[450]">
@@ -395,7 +352,6 @@
                     <p class="text-white font-bold mt-4 animate-pulse text-base" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Tap anywhere to continue</p>
                 </div>
             </div>
-            
             <div id="match-ftue-text" class="absolute top-[100px] w-full flex justify-center z-[250] hidden pointer-events-none px-6">
                 <div class="bg-white rounded-2xl shadow-xl border border-slate-200 px-6 py-5 w-full max-w-[280px] flex items-center justify-center text-center">
                     <p class="text-[#1e3a8a] text-lg font-black leading-snug">Tap 3 matching tiles<br>to clear them!</p>
@@ -710,7 +666,10 @@
     </div>
     
     <script>
-        var SAVE_KEY = "pastel_match_save_v1";
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(e) { if(e.keyCode===123 || (e.ctrlKey&&e.shiftKey&&(e.keyCode===73||e.keyCode===74||e.keyCode===67)) || (e.ctrlKey&&e.keyCode===85)) { e.preventDefault(); return false; } });
+        
+        var SAVE_KEY = "pastel_match_save_v2";
         window.openModal = function(id) { let el = document.getElementById(id); if(el) el.style.display = 'flex'; };
         window.closeModal = function(id) { let el = document.getElementById(id); if(el) el.style.display = 'none'; };
         window.closeAllModals = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); ['level-complete-overlay', 'booster-unlock-screen', 'ftue-overlay'].forEach(id => { let el = document.getElementById(id); if (el) el.style.display = 'none'; }); if (ftueState.activeTargetId) { let target = document.getElementById(ftueState.activeTargetId); if(target) target.classList.remove('ftue-spotlight-active'); ftueState.activeTargetId = null; } };
@@ -724,7 +683,7 @@
         var previousScreenId = 'home-screen', currentScreenId = 'home-screen';
         var isDailyChallenge = false, challengeDay = null;
         var ftueState = { matchStep: 0, trayWarning: false, timerTutorial: false, active: false, targetType: null, currentTarget: null, unlocked_theme: false, unlocked_shuffle: false, unlocked_undo: false, unlocked_magnet: false, pendingBooster: null, activeTargetId: null };
-        var playerProfile = { name: "Player89143444", avatarIdx: 7, frameIdx: 9 };
+        var playerProfile = { name: "Player89143444", avatarIdx: 0, frameIdx: 0 };
         
         window.saveGameData = function() { const data = { inventory, level, appSettings, playerProfile, spinState, rewardState, lbCurrentRank, ftueState }; try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e) {} };
         window.loadGameData = function() {
@@ -753,36 +712,24 @@
         var THEME_NAMES = Object.keys(THEMES), TILE_W = 56, TILE_H = 64;
         window.currentTileW = TILE_W; window.currentTileH = TILE_H; window.currentScale = 1;
         var BOOSTER_UNLOCKS = [ { level: 2, key: 'theme', name: 'THEME SWITCH', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-theme"/></svg>`, desc: "Switches to another theme." }, { level: 3, key: 'shuffle', name: 'SHUFFLE', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-shuffle"/></svg>`, desc: "Rearranges all tiles on the board." }, { level: 4, key: 'undo', name: 'UNDO', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-undo"/></svg>`, desc: "Returns the last tile from the tray." }, { level: 5, key: 'magnet', name: 'MAGNET', icon: `<svg width="100%" height="100%" viewBox="0 0 100 100"><use href="#svg-magnet"/></svg>`, desc: "Automatically pulls matching tiles to the tray." } ];
+        
         var AVATAR_DATA = [
             { bg: '#facc15', face: '<svg viewBox="0 0 100 100"><circle cx="30" cy="40" r="8" fill="#1e293b"/><circle cx="70" cy="40" r="8" fill="#1e293b"/><path d="M 25 60 Q 50 85 75 60" fill="none" stroke="#1e293b" stroke-width="10" stroke-linecap="round"/></svg>' },
             { bg: '#f8fafc', face: '<svg viewBox="0 0 100 100"><path d="M 10 100 C 10 10, 90 10, 90 100" fill="#1e293b"/><path d="M 25 100 C 25 40, 75 40, 75 100" fill="white"/><circle cx="35" cy="55" r="7" fill="#1e293b"/><circle cx="65" cy="55" r="7" fill="#1e293b"/><path d="M 35 65 L 65 65 L 50 85 Z" fill="#ea580c"/></svg>' },
             { bg: '#0ea5e9', face: '<svg viewBox="0 0 100 100"><circle cx="30" cy="40" r="8" fill="#1e293b"/><circle cx="70" cy="40" r="8" fill="#1e293b"/><path d="M 25 60 Q 50 85 75 60" fill="none" stroke="#1e293b" stroke-width="10" stroke-linecap="round"/></svg>' },
-            { bg: '#fde047', face: '<svg viewBox="0 0 100 100"><path d="M 15 100 C 15 10, 85 10, 85 100" fill="#fef08a"/><path d="M 30 100 C 30 50, 70 50, 70 100" fill="white"/><circle cx="35" cy="45" r="6" fill="#1e293b"/><circle cx="65" cy="45" r="6" fill="#1e293b"/><path d="M 40 55 L 60 55 L 50 75 Z" fill="#ea580c"/></svg>' },
             { bg: '#d6d3d1', face: '<svg viewBox="0 0 100 100"><rect x="15" y="25" width="70" height="75" rx="30" fill="#a16207"/><circle cx="30" cy="45" r="18" fill="#334155"/><circle cx="70" cy="45" r="18" fill="#334155"/><circle cx="30" cy="45" r="7" fill="#1e293b"/><circle cx="70" cy="45" r="7" fill="#1e293b"/><ellipse cx="50" cy="70" rx="12" ry="8" fill="#1e293b"/><path d="M 40 85 Q 50 105 60 85 Z" fill="#f43f5e"/></svg>' },
             { bg: '#1e293b', face: '<svg viewBox="0 0 100 100"><path d="M 10 60 Q 30 40 50 60 Z" fill="#84cc16"/><path d="M 50 60 Q 70 40 90 60 Z" fill="#84cc16"/><rect x="5" y="45" width="90" height="8" fill="#1e293b"/><circle cx="30" cy="55" r="5" fill="#1e293b"/><circle cx="70" cy="55" r="5" fill="#1e293b"/></svg>' },
-            { bg: '#84cc16', face: '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="32" fill="white"/><circle cx="50" cy="50" r="14" fill="#3b82f6"/><circle cx="50" cy="50" r="6" fill="#1e293b"/></svg>' },
             { bg: '#6ee7b7', face: '<svg viewBox="0 0 100 100"><path d="M 25 45 L 5 25 M 25 55 L 5 45 M 25 65 L 10 75 M 75 45 L 95 25 M 75 55 L 95 45 M 75 65 L 90 75" stroke="#f43f5e" stroke-width="8" stroke-linecap="round"/><rect x="20" y="30" width="60" height="55" rx="25" fill="#fda4af"/><circle cx="35" cy="55" r="7" fill="#4c0519"/><circle cx="65" cy="55" r="7" fill="#4c0519"/><path d="M 40 75 Q 50 85 60 75" fill="none" stroke="#4c0519" stroke-width="6" stroke-linecap="round"/></svg>' },
-            { bg: '#f8fafc', face: '<svg viewBox="0 0 100 100"><path d="M 10 100 C 10 10, 90 10, 90 100" fill="#1e293b"/><path d="M 25 100 C 25 40, 75 40, 75 100" fill="white"/><circle cx="35" cy="55" r="7" fill="#1e293b"/><circle cx="65" cy="55" r="7" fill="#1e293b"/><path d="M 35 65 L 65 65 L 50 85 Z" fill="#ea580c"/></svg>' },
             { bg: '#ffedd5', face: '<svg viewBox="0 0 100 100"><rect x="20" y="30" width="60" height="60" rx="20" fill="#fde68a"/><path d="M 20 50 Q 50 20 80 50 L 80 30 Q 50 0 20 30 Z" fill="#1e293b"/><circle cx="35" cy="65" r="5" fill="#1e293b"/><circle cx="65" cy="65" r="5" fill="#1e293b"/><circle cx="25" cy="75" r="7" fill="#fca5a5"/><circle cx="75" cy="75" r="7" fill="#fca5a5"/><path d="M 45 80 Q 50 85 55 80" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/><path d="M 25 25 Q 30 15 35 25 Q 30 35 25 25 Z" fill="#f43f5e"/><path d="M 65 25 Q 70 15 75 25 Q 70 35 65 25 Z" fill="#f43f5e"/></svg>' },
-            { bg: '#f97316', face: '<svg viewBox="0 0 100 100"><circle cx="30" cy="40" r="7" fill="#1e293b"/><circle cx="70" cy="40" r="7" fill="#1e293b"/><path d="M 25 60 L 75 60 Q 50 95 25 60" fill="#1e293b"/></svg>' },
-            { bg: '#c084fc', face: '<svg viewBox="0 0 100 100"><path d="M 20 45 Q 30 55 40 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/><path d="M 60 45 Q 70 55 80 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/><path d="M 40 70 Q 50 80 60 70" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/></svg>' },
-            { bg: '#8b5cf6', face: '<svg viewBox="0 0 100 100"><circle cx="30" cy="40" r="7" fill="#1e293b"/><circle cx="70" cy="40" r="7" fill="#1e293b"/><path d="M 30 75 Q 50 60 70 75" fill="none" stroke="#1e293b" stroke-width="9" stroke-linecap="round"/></svg>' },
-            { bg: '#f59e0b', face: '<svg viewBox="0 0 100 100"><path d="M 30 65 Q 40 80 50 65 Q 60 80 70 65" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/><circle cx="50" cy="55" r="6" fill="#1e293b"/></svg>' },
-            { bg: '#facc15', face: '<svg viewBox="0 0 100 100"><circle cx="35" cy="40" r="16" fill="white"/><circle cx="65" cy="40" r="16" fill="white"/><circle cx="35" cy="40" r="6" fill="#3b82f6"/><circle cx="65" cy="40" r="6" fill="#3b82f6"/><path d="M 25 65 Q 50 90 75 65" fill="none" stroke="#1e293b" stroke-width="7" stroke-linecap="round"/><rect x="42" y="76" width="7" height="9" fill="white" stroke="#1e293b" stroke-width="2"/><rect x="51" y="76" width="7" height="9" fill="white" stroke="#1e293b" stroke-width="2"/><circle cx="20" cy="55" r="4" fill="#ca8a04"/><circle cx="80" cy="55" r="4" fill="#ca8a04"/></svg>' },
-            { bg: '#14b8a6', face: '<svg viewBox="0 0 100 100"><rect x="25" y="35" width="15" height="8" rx="4" fill="#1e293b"/><rect x="60" y="35" width="15" height="8" rx="4" fill="#1e293b"/><rect x="20" y="60" width="60" height="18" rx="9" fill="#ea580c"/></svg>' }
+            { bg: '#c084fc', face: '<svg viewBox="0 0 100 100"><path d="M 20 45 Q 30 55 40 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/><path d="M 60 45 Q 70 55 80 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/><path d="M 40 70 Q 50 80 60 70" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/></svg>' }
         ];
 
         var FRAME_DATA = [
-            'background: #ec4899;', 
-            'background: #22c55e;', 
-            'background: #f97316;', 
-            'background: #a855f7;', 
+            'background: #ec4899;', 'background: #22c55e;', 'background: #f97316;', 'background: #a855f7;', 
             'background: #991b1b; box-shadow: inset 0 0 0 2px #22c55e;', 
             'background: repeating-linear-gradient(45deg, #ef4444, #ef4444 8px, #ffffff 8px, #ffffff 16px);', 
             'background: #c084fc; background-image: radial-gradient(#fde047 3px, transparent 3px); background-size: 12px 12px;', 
-            'background: repeating-linear-gradient(90deg, #fde047, #fde047 6px, #f97316 6px, #f97316 12px);', 
-            'background: #38bdf8; background-image: radial-gradient(#fde047 2.5px, transparent 2.5px); background-size: 10px 10px;', 
-            'background: #1d4ed8;' 
+            'background: #38bdf8; background-image: radial-gradient(#fde047 2.5px, transparent 2.5px); background-size: 10px 10px;'
         ];
 
         window.updateSettingsUI = function() {
@@ -854,7 +801,7 @@
             }
             const frGrid = document.getElementById('tab-content-frame');
             if(frGrid) {
-                frGrid.innerHTML = ''; const currentAv = AVATAR_DATA[playerProfile.avatarIdx]; 
+                frGrid.innerHTML = ''; const currentAv = AVATAR_DATA[playerProfile.avatarIdx] || AVATAR_DATA[0]; 
                 FRAME_DATA.forEach((fr, idx) => { 
                     let isSelected = playerProfile.frameIdx === idx;
                     let div = document.createElement('div'); div.className = `w-14 h-14 rounded-[16px] p-[3px] relative cursor-pointer shadow-sm transition-transform active:scale-95 ${isSelected ? 'scale-105 shadow-md' : ''}`; div.style = fr; 
@@ -867,7 +814,7 @@
 
         window.updateProfileUI = function() {
             const hName = document.getElementById('home-profile-name'); const hIcon = document.getElementById('home-profile-icon'); const pInput = document.getElementById('profile-name-input'); const mAvatar = document.getElementById('modal-active-avatar');
-            const currentAv = AVATAR_DATA[playerProfile.avatarIdx]; const currentFr = FRAME_DATA[playerProfile.frameIdx];
+            const currentAv = AVATAR_DATA[playerProfile.avatarIdx] || AVATAR_DATA[0]; const currentFr = FRAME_DATA[playerProfile.frameIdx] || FRAME_DATA[0];
             if(hName) hName.innerText = playerProfile.name;
             if(pInput) pInput.value = playerProfile.name;
             if(hIcon) { hIcon.className = 'w-8 h-8 rounded-lg p-[2px] shadow-sm flex-shrink-0'; hIcon.style = currentFr; hIcon.innerHTML = `<div class="w-full h-full rounded-[6px] overflow-hidden" style="background: ${currentAv.bg}">${currentAv.face}</div>`; }
@@ -1058,14 +1005,16 @@
         window.launchChallenge = function(day) { window.closeAllModals(); isDailyChallenge = true; challengeDay = day; window.switchScreen('game-screen'); window.startLevel(); };
 
         window.getLevelConfig = function(lvl) {
-            if (isDailyChallenge) return { level: 'C', timeLimit: 390, variety: 6, hasMystery: true, hasIce: true, hasBomb: true, layoutType: 'challenge_grid', numTiles: 120 };
-            let config = { level: lvl, timeLimit: 0, variety: Math.min(4 + Math.floor(lvl / 2), THEMES[THEME_NAMES[currentThemeIndex]].length), hasMystery: false, hasIce: false, hasBomb: false, layoutType: 'pyramid', numTiles: 30 };
-            if (lvl === 1) { config.numTiles = 9; config.variety = 3; } 
-            else if (lvl === 2) { config.numTiles = 36; config.variety = 4; } 
+            if (isDailyChallenge) return { level: 'C', timeLimit: 390, variety: THEMES[THEME_NAMES[currentThemeIndex]].length, hasMystery: true, hasIce: true, hasBomb: true, layoutType: 'challenge_grid', numTiles: 75 };
+            let maxVar = THEMES[THEME_NAMES[currentThemeIndex]].length; let currentVar = Math.min(maxVar, 3 + Math.floor(lvl / 1.5)); 
+            let config = { level: lvl, timeLimit: 0, variety: currentVar, hasMystery: false, hasIce: false, hasBomb: false, layoutType: 'pyramid', numTiles: 30 };
+            
+            if (lvl === 1) { config.numTiles = 12; config.variety = 3; } 
+            else if (lvl === 2) { config.numTiles = 24; config.variety = 4; } 
             else { 
-                config.numTiles = 45 + (lvl * 12); 
+                let tCount = 30 + (lvl * 3); if (tCount > 75) tCount = 75; config.numTiles = Math.floor(tCount / 3) * 3;
                 if (lvl >= 3) config.hasMystery = true; 
-                if (lvl >= 4) config.timeLimit = Math.min(390, Math.max(30, 90 - (lvl * 5)) * 4); 
+                if (lvl >= 4) config.timeLimit = Math.min(390, Math.max(60, 120 - (lvl * 5)) * 4); 
                 if (lvl >= 5) config.hasIce = true; 
                 if (lvl >= 6) config.hasBomb = true; 
                 if (lvl % 3 === 0) config.layoutType = 'twin_peaks'; 
@@ -1241,7 +1190,7 @@
 
         window.generateLayout = function(config) {
             let idCounter = 0; 
-            if (config.numTiles > 60) window.currentScale = 0.8; else if (config.numTiles > 40) window.currentScale = 0.9; else window.currentScale = 1;
+            window.currentScale = config.numTiles > 60 ? 0.8 : (config.numTiles > 40 ? 0.9 : 1);
             window.currentTileW = TILE_W * window.currentScale; window.currentTileH = TILE_H * window.currentScale;
 
             if (config.level === 1) { 
@@ -1697,6 +1646,7 @@
             inventory[type] += 5;
             window.updateGlobalStats();
             window.showToast(`+5 ${type.toUpperCase()} added!`);
+            window.saveProgress();
         };
 
         window.debugResetProgress = function() {
